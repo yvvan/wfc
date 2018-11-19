@@ -34,9 +34,10 @@ class Array2D
 		size_t   width()  const { return mDimensions.width;       }
 		size_t   height() const { return mDimensions.height;      }
 		const T* data()   const { return mData.data(); }
+
 	private:
 
-		size_t index(size_t x, size_t y) const
+		inline size_t index(size_t x, size_t y) const
 		{
 			return y * mDimensions.width + x;
 		}
@@ -47,24 +48,31 @@ class Array2D
 
 };
 
+struct Dimension3D
+{
+
+    size_t width;
+
+    size_t height;
+
+    size_t depth;
+
+};
+
 template <class T>
 class Array3D
 {
 
 	public: 
 
-		Array3D() : mWidth(0), mHeight(0), mDepth(0) {}
-		Array3D(size_t w, size_t h, size_t d, T value = {})
-			: mWidth(w), mHeight(h), mDepth(d), mData(w * h * d, value) {}
+		Array3D() : 
+            mDimensions{0, 0, 0}
+        {}
 
-		const size_t index(size_t x, size_t y, size_t z) const
-		{
-			DCHECK_LT_F(x, mWidth);
-			DCHECK_LT_F(y, mHeight);
-			DCHECK_LT_F(z, mDepth);
-			// return z * mWidth * mHeight + y * mWidth + x;
-			return x * mHeight * mDepth + y * mDepth + z; // better cache hit ratio in our use case
-		}
+		Array3D(size_t w, size_t h, size_t d, T value = {}) : 
+			mDimensions{w, h, d},
+			mData(w * h * d, value)
+		{}
 
 		inline       T& mut_ref(size_t x, size_t y, size_t z)       { return mData[index(x, y, z)]; }
 		inline const T&     ref(size_t x, size_t y, size_t z) const { return mData[index(x, y, z)]; }
@@ -75,7 +83,12 @@ class Array3D
 
 	private:
 
-		size_t mWidth, mHeight, mDepth;
+		inline size_t index(size_t x, size_t y, size_t z) const
+		{
+			return x * mDimensions.height * mDimensions.depth + y * mDimensions.depth + z; 
+		}
+
+		Dimension3D mDimensions;
 
 		std::vector<T> mData;
 
