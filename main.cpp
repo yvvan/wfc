@@ -380,7 +380,7 @@ bool OverlappingModel::propagate(Output* output) const
 
 						if (!can_pattern_fit) {
 							output->_changes.mut_ref(sx, sy) = true;
-							output->_wave.set(sx, sy, t2, false);
+							output->_wave.mut_ref(sx, sy, t2) = false;
 							did_change = true;
 						}
 					}
@@ -587,21 +587,21 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, i
 		int D = action[L][1];
 		int U = action[R][1];
 
-		_propagator.set(0, L,            R,            true);
-		_propagator.set(0, action[L][6], action[R][6], true);
-		_propagator.set(0, action[R][4], action[L][4], true);
-		_propagator.set(0, action[R][2], action[L][2], true);
+		_propagator.mut_ref(0, L,            R           ) = true;
+		_propagator.mut_ref(0, action[L][6], action[R][6]) = true;
+		_propagator.mut_ref(0, action[R][4], action[L][4]) = true;
+		_propagator.mut_ref(0, action[R][2], action[L][2]) = true;
 
-		_propagator.set(1, D,            U,            true);
-		_propagator.set(1, action[U][6], action[D][6], true);
-		_propagator.set(1, action[D][4], action[U][4], true);
-		_propagator.set(1, action[U][2], action[D][2], true);
+		_propagator.mut_ref(1, D,            U           ) = true;
+		_propagator.mut_ref(1, action[U][6], action[D][6]) = true;
+		_propagator.mut_ref(1, action[D][4], action[U][4]) = true;
+		_propagator.mut_ref(1, action[U][2], action[D][2]) = true;
 	}
 
 	for (int t1 = 0; t1 < _num_patterns; ++t1) {
 		for (int t2 = 0; t2 < _num_patterns; ++t2) {
-			_propagator.set(2, t1, t2, _propagator.ref(0, t2, t1));
-			_propagator.set(3, t1, t2, _propagator.ref(1, t2, t1));
+			_propagator.mut_ref(2, t1, t2) = _propagator.ref(0, t2, t1);
+			_propagator.mut_ref(3, t1, t2) = _propagator.ref(1, t2, t1);
 		}
 	}
 }
@@ -655,7 +655,7 @@ bool TileModel::propagate(Output* output) const
 							}
 						}
 						if (!b) {
-							output->_wave.set(x2, y2, t2, false);
+							output->_wave.mut_ref(x2, y2, t2) = false;
 							output->_changes.mut_ref(x2, y2) = true;
 							did_change = true;
 						}
@@ -860,7 +860,7 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double)
 	}
 	size_t r = spin_the_bottle(std::move(distribution), random_double());
 	for (int t = 0; t < model._num_patterns; ++t) {
-		output->_wave.set(argminx, argminy, t, t == r);
+		output->_wave.mut_ref(argminx, argminy, t) = (t == r);
 	}
 	output->_changes.mut_ref(argminx, argminy) = true;
 
@@ -877,13 +877,13 @@ Output create_output(const Model& model)
 		for (const auto x : irange(model._width)) {
 			for (const auto t : irange(model._num_patterns)) {
 				if (t != model._foundation) {
-					output._wave.set(x, model._height - 1, t, false);
+					output._wave.mut_ref(x, model._height - 1, t) = false;
 				}
 			}
 			output._changes.mut_ref(x, model._height - 1) = true;
 
 			for (const auto y : irange(model._height - 1)) {
-				output._wave.set(x, y, model._foundation, false);
+				output._wave.mut_ref(x, y, model._foundation) = false;
 				output._changes.mut_ref(x, y) = true;
 			}
 

@@ -79,11 +79,20 @@ class Array3D
 			mData(w * h * d, value)
 		{}
 
-		      T& mut_ref(size_t x, size_t y, size_t z)       { return mData[index(x, y, z)]; }
-		const T&     ref(size_t x, size_t y, size_t z) const { return mData[index(x, y, z)]; }
-		void set(size_t x, size_t y, size_t z, const T& value) { mData[index(x, y, z)] = value; }
+		T& mut_ref(size_t x, size_t y, size_t z)
+		{
+			return mData[index(x, y, z)];
+		}
 
-		size_t size() const { return mData.size(); }
+		const T& ref(size_t x, size_t y, size_t z) const
+		{
+			return mData[index(x, y, z)];
+		}
+
+		size_t size() const 
+		{
+			return mData.size();
+		}
 
 	private:
 
