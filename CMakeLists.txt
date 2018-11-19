@@ -6,4 +6,8 @@ set(CMAKE_CXX_FLAGS "-std=c++14 -Wall ${CMAKE_CXX_FLAGS}")
 
 include_directories(libs libs/emilib)
 
+add_library(libs libs.cpp)
+
 add_executable(wfc-sebastian main.cpp)
+
+target_link_libraries(wfc-sebastian libs)
