@@ -26,10 +26,8 @@ class Array2D
             mData(w * h, value)
         {}
 
-		inline       T& mut_ref(size_t x, size_t y)       { return mData[index(x, y)]; }
-		inline const T&     ref(size_t x, size_t y) const { return mData[index(x, y)]; }
-		inline       T      get(size_t x, size_t y) const { return mData[index(x, y)]; }
-		inline void set(size_t x, size_t y, const T& value) { mData[index(x, y)] = value; }
+		T& mut_ref(size_t x, size_t y)       { return mData[index(x, y)]; }
+		const T&     ref(size_t x, size_t y) const { return mData[index(x, y)]; }
 
 		size_t   width()  const { return mDimensions.width;       }
 		size_t   height() const { return mDimensions.height;      }
@@ -37,7 +35,7 @@ class Array2D
 
 	private:
 
-		inline size_t index(size_t x, size_t y) const
+		size_t index(size_t x, size_t y) const
 		{
 			return y * mDimensions.width + x;
 		}
@@ -74,16 +72,16 @@ class Array3D
 			mData(w * h * d, value)
 		{}
 
-		inline       T& mut_ref(size_t x, size_t y, size_t z)       { return mData[index(x, y, z)]; }
-		inline const T&     ref(size_t x, size_t y, size_t z) const { return mData[index(x, y, z)]; }
-		inline       T      get(size_t x, size_t y, size_t z) const { return mData[index(x, y, z)]; }
-		inline void set(size_t x, size_t y, size_t z, const T& value) { mData[index(x, y, z)] = value; }
+		      T& mut_ref(size_t x, size_t y, size_t z)       { return mData[index(x, y, z)]; }
+		const T&     ref(size_t x, size_t y, size_t z) const { return mData[index(x, y, z)]; }
+		      T      get(size_t x, size_t y, size_t z) const { return mData[index(x, y, z)]; }
+		void set(size_t x, size_t y, size_t z, const T& value) { mData[index(x, y, z)] = value; }
 
-		inline size_t size() const { return mData.size(); }
+		size_t size() const { return mData.size(); }
 
 	private:
 
-		inline size_t index(size_t x, size_t y, size_t z) const
+		size_t index(size_t x, size_t y, size_t z) const
 		{
 			return x * mDimensions.height * mDimensions.depth + y * mDimensions.depth + z; 
 		}

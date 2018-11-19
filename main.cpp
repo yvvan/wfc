@@ -109,7 +109,7 @@ Image upsample(const Image& image)
 	Image result(image.width() * kUpscale, image.height() * kUpscale, {});
 	for (const auto y : irange(result.height())) {
 		for (const auto x : irange(result.width())) {
-			result.set(x, y, image.get(x / kUpscale, y / kUpscale));
+			result.mut_ref(x, y) = image.ref(x / kUpscale, y / kUpscale);
 		}
 	}
 	return result;
@@ -345,8 +345,8 @@ bool OverlappingModel::propagate(Output* output) const
 
 	for (int x1 = 0; x1 < _width; ++x1) {
 		for (int y1 = 0; y1 < _height; ++y1) {
-			if (!output->_changes.get(x1, y1)) { continue; }
-			output->_changes.set(x1, y1, false);
+			if (!output->_changes.ref(x1, y1)) { continue; }
+			output->_changes.mut_ref(x1, y1) = false;
 
 			for (int dx = -_n + 1; dx < _n; ++dx) {
 				for (int dy = -_n + 1; dy < _n; ++dy) {
@@ -379,7 +379,7 @@ bool OverlappingModel::propagate(Output* output) const
 						}
 
 						if (!can_pattern_fit) {
-							output->_changes.set(sx, sy, true);
+							output->_changes.mut_ref(sx, sy) = true;
 							output->_wave.set(sx, sy, t2, false);
 							did_change = true;
 						}
@@ -429,9 +429,9 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 		for (const auto x : irange(graphics.width())) {
 			const auto& tile_constributors = graphics.ref(x, y);
 			if (tile_constributors.empty()) {
-				result.set(x, y, {0, 0, 0, 255});
+				result.mut_ref(x, y) = {0, 0, 0, 255};
 			} else if (tile_constributors.size() == 1) {
-				result.set(x, y, palette[tile_constributors[0]]);
+				result.mut_ref(x, y) = palette[tile_constributors[0]];
 			} else {
 				size_t r = 0;
 				size_t g = 0;
@@ -447,7 +447,7 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 				g /= tile_constributors.size();
 				b /= tile_constributors.size();
 				a /= tile_constributors.size();
-				result.set(x, y, {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a});
+				result.mut_ref(x, y) = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
 			}
 		}
 	}
@@ -644,7 +644,7 @@ bool TileModel::propagate(Output* output) const
 					}
 				}
 
-				if (!output->_changes.get(x1, y1)) { continue; }
+				if (!output->_changes.ref(x1, y1)) { continue; }
 
 				for (int t2 = 0; t2 < _num_patterns; ++t2) {
 					if (output->_wave.get(x2, y2, t2)) {
@@ -656,7 +656,7 @@ bool TileModel::propagate(Output* output) const
 						}
 						if (!b) {
 							output->_wave.set(x2, y2, t2, false);
-							output->_changes.set(x2, y2, true);
+							output->_changes.mut_ref(x2, y2) = true;
 							did_change = true;
 						}
 					}
@@ -684,7 +684,7 @@ Image TileModel::image(const Output& output) const
 			for (int yt = 0; yt < _tile_size; ++yt) {
 				for (int xt = 0; xt < _tile_size; ++xt) {
 					if (sum == 0) {
-						result.set(x * _tile_size + xt, y * _tile_size + yt, RGBA{0, 0, 0, 255});
+						result.mut_ref(x * _tile_size + xt, y * _tile_size + yt) = RGBA{0, 0, 0, 255};
 					} else {
 						double r = 0, g = 0, b = 0, a = 0;
 						for (int t = 0; t < _num_patterns; ++t) {
@@ -697,8 +697,8 @@ Image TileModel::image(const Output& output) const
 							}
 						}
 
-						result.set(x * _tile_size + xt, y * _tile_size + yt,
-						           RGBA{(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a});
+						result.mut_ref(x * _tile_size + xt, y * _tile_size + yt) =
+						           RGBA{(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
 					}
 				}
 			}
@@ -862,7 +862,7 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double)
 	for (int t = 0; t < model._num_patterns; ++t) {
 		output->_wave.set(argminx, argminy, t, t == r);
 	}
-	output->_changes.set(argminx, argminy, true);
+	output->_changes.mut_ref(argminx, argminy) = true;
 
 	return Result::kUnfinished;
 }
@@ -880,11 +880,11 @@ Output create_output(const Model& model)
 					output._wave.set(x, model._height - 1, t, false);
 				}
 			}
-			output._changes.set(x, model._height - 1, true);
+			output._changes.mut_ref(x, model._height - 1) = true;
 
 			for (const auto y : irange(model._height - 1)) {
 				output._wave.set(x, y, model._foundation, false);
-				output._changes.set(x, y, true);
+				output._changes.mut_ref(x, y) = true;
 			}
 
 			while (model.propagate(&output));
@@ -901,7 +901,7 @@ Image scroll_diagonally(const Image& image)
 	Image result(width, height);
 	for (const auto y : irange(height)) {
 		for (const auto x : irange(width)) {
-			result.set(x, y, image.get((x + 1) % width, (y + 1) % height));
+			result.mut_ref(x, y) = image.ref((x + 1) % width, (y + 1) % height);
 		}
 	}
 	return result;
