@@ -26,8 +26,15 @@ class Array2D
             mData(w * h, value)
         {}
 
-		T& mut_ref(size_t x, size_t y)       { return mData[index(x, y)]; }
-		const T&     ref(size_t x, size_t y) const { return mData[index(x, y)]; }
+		T& mut_ref(size_t x, size_t y)
+		{
+			return mData[index(x, y)];
+		}
+
+		const T& ref(size_t x, size_t y) const
+		{
+			return mData[index(x, y)];
+		}
 
 		size_t   width()  const { return mDimensions.width;       }
 		size_t   height() const { return mDimensions.height;      }
@@ -74,7 +81,6 @@ class Array3D
 
 		      T& mut_ref(size_t x, size_t y, size_t z)       { return mData[index(x, y, z)]; }
 		const T&     ref(size_t x, size_t y, size_t z) const { return mData[index(x, y, z)]; }
-		      T      get(size_t x, size_t y, size_t z) const { return mData[index(x, y, z)]; }
 		void set(size_t x, size_t y, size_t z, const T& value) { mData[index(x, y, z)] = value; }
 
 		size_t size() const { return mData.size(); }

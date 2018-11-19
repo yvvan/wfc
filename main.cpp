@@ -366,13 +366,13 @@ bool OverlappingModel::propagate(Output* output) const
 					}
 
 					for (int t2 = 0; t2 < _num_patterns; ++t2) {
-						if (!output->_wave.get(sx, sy, t2)) { continue; }
+						if (!output->_wave.ref(sx, sy, t2)) { continue; }
 
 						bool can_pattern_fit = false;
 
 						const auto& prop = _propagator.ref(t2, _n - 1 - dx, _n - 1 - dy);
 						for (const auto& t3 : prop) {
-							if (output->_wave.get(x1, y1, t3)) {
+							if (output->_wave.ref(x1, y1, t3)) {
 								can_pattern_fit = true;
 								break;
 							}
@@ -410,7 +410,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 					if (on_boundary(sx, sy)) { continue; }
 
 					for (int t = 0; t < _num_patterns; ++t) {
-						if (output._wave.get(sx, sy, t)) {
+						if (output._wave.ref(sx, sy, t)) {
 							tile_constributors.push_back(_patterns[t][dx + dy * _n]);
 						}
 					}
@@ -600,8 +600,8 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, i
 
 	for (int t1 = 0; t1 < _num_patterns; ++t1) {
 		for (int t2 = 0; t2 < _num_patterns; ++t2) {
-			_propagator.set(2, t1, t2, _propagator.get(0, t2, t1));
-			_propagator.set(3, t1, t2, _propagator.get(1, t2, t1));
+			_propagator.set(2, t1, t2, _propagator.ref(0, t2, t1));
+			_propagator.set(3, t1, t2, _propagator.ref(1, t2, t1));
 		}
 	}
 }
@@ -647,11 +647,11 @@ bool TileModel::propagate(Output* output) const
 				if (!output->_changes.ref(x1, y1)) { continue; }
 
 				for (int t2 = 0; t2 < _num_patterns; ++t2) {
-					if (output->_wave.get(x2, y2, t2)) {
+					if (output->_wave.ref(x2, y2, t2)) {
 						bool b = false;
 						for (int t1 = 0; t1 < _num_patterns && !b; ++t1) {
-							if (output->_wave.get(x1, y1, t1)) {
-								b = _propagator.get(d, t1, t2);
+							if (output->_wave.ref(x1, y1, t1)) {
+								b = _propagator.ref(d, t1, t2);
 							}
 						}
 						if (!b) {
@@ -676,7 +676,7 @@ Image TileModel::image(const Output& output) const
 		for (int y = 0; y < _height; ++y) {
 			double sum = 0;
 			for (const auto t : irange(_num_patterns)) {
-				if (output._wave.get(x, y, t)) {
+				if (output._wave.ref(x, y, t)) {
 					sum += _pattern_weight[t];
 				}
 			}
@@ -688,7 +688,7 @@ Image TileModel::image(const Output& output) const
 					} else {
 						double r = 0, g = 0, b = 0, a = 0;
 						for (int t = 0; t < _num_patterns; ++t) {
-							if (output._wave.get(x, y, t)) {
+							if (output._wave.ref(x, y, t)) {
 								RGBA c = _tiles[t][xt + yt * _tile_size];
 								r += (double)c.r * _pattern_weight[t] / sum;
 								g += (double)c.g * _pattern_weight[t] / sum;
@@ -815,7 +815,7 @@ Result find_lowest_entropy(const Model& model, const Output& output, RandomDoubl
 			double entropy = 0;
 
 			for (int t = 0; t < model._num_patterns; ++t) {
-				if (output._wave.get(x, y, t)) {
+				if (output._wave.ref(x, y, t)) {
 					num_superimposed += 1;
 					entropy += model._pattern_weight[t];
 				}
@@ -856,7 +856,7 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double)
 
 	std::vector<double> distribution(model._num_patterns);
 	for (int t = 0; t < model._num_patterns; ++t) {
-		distribution[t] = output->_wave.get(argminx, argminy, t) ? model._pattern_weight[t] : 0;
+		distribution[t] = output->_wave.ref(argminx, argminy, t) ? model._pattern_weight[t] : 0;
 	}
 	size_t r = spin_the_bottle(std::move(distribution), random_double());
 	for (int t = 0; t < model._num_patterns; ++t) {
