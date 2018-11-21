@@ -35,7 +35,13 @@ struct RGBA
 	uint8_t r, g, b, a;
 };
 
-bool operator==(RGBA x, RGBA y) { return x.r == y.r && x.g == y.g && x.b == y.b && x.a == y.a; }
+bool operator==(RGBA x, RGBA y)
+{
+	return x.r == y.r 
+		&& x.g == y.g 
+		&& x.b == y.b 
+		&& x.a == y.a;
+}
 
 using Bool              = uint8_t; // To avoid problems with vector<bool>
 using ColorIndex        = uint8_t; // tile index or color index. If you have more than 255, don't.
@@ -767,8 +773,9 @@ PatternPrevalence extract_patterns(
 	CHECK_LE_F(n, sample.width);
 	CHECK_LE_F(n, sample.height);
 
-	const auto pattern_from_sample = [&](size_t x, size_t y) {
-		return make_pattern(n, [&](size_t dx, size_t dy){ return sample.at_wrapped(x + dx, y + dy); });
+	const auto pattern_from_sample = [&] (size_t x, size_t y)
+	{
+		return make_pattern(n, [&] (size_t dx, size_t dy) { return sample.at_wrapped(x + dx, y + dy); });
 	};
 	const auto rotate  = [&](const Pattern& p){ return make_pattern(n, [&](size_t x, size_t y){ return p[n - 1 - y + x * n]; }); };
 	const auto reflect = [&](const Pattern& p){ return make_pattern(n, [&](size_t x, size_t y){ return p[n - 1 - x + y * n]; }); };
@@ -1030,9 +1037,7 @@ std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru:
 
 	const auto root_dir = image_dir + subdir + "/";
 	const auto tile_config = configuru::parse_file(root_dir + "data.cfg", configuru::CFG);
-	return std::unique_ptr<Model>{
-		new TileModel(tile_config, subset, out_width, out_height, periodic, tile_loader)
-	};
+	return std::make_unique<TileModel>(tile_config, subset, out_width, out_height, periodic, tile_loader);
 }
 
 void run_config_file(const Options& options, const std::string& path)
