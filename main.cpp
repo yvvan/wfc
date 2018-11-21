@@ -51,10 +51,6 @@ using PatternIndex      = uint16_t;
 const size_t kInvalidIndex = -1;
 const PatternHash kInvalidHash = -1;
 
-const bool   kGifSeparatePalette  = true;
-const size_t kGifInterval         =  16; // Save an image every X iterations
-const int    kGifDelayCentiSec    =   1;
-const int    kGifEndPauseCentiSec = 200;
 const size_t kUpscale             =   4; // Upscale images before saving
 
 enum class Result
