@@ -1010,9 +1010,7 @@ std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const conf
 	const auto hashed_patterns = extract_patterns(sample_image, n, periodic_in, symmetry, has_foundation ? &foundation : nullptr);
 	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
 
-	return std::unique_ptr<Model>{
-		new OverlappingModel{hashed_patterns, sample_image.palette, n, periodic_out, out_width, out_height, foundation}
-	};
+	return std::make_unique<OverlappingModel>(hashed_patterns, sample_image.palette, n, periodic_out, out_width, out_height, foundation);;;;
 }
 
 std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru::Config& config)
