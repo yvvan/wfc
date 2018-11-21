@@ -852,7 +852,7 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double)
 	for (int t = 0; t < model._num_patterns; ++t) {
 		distribution[t] = output->_wave.ref(argminx, argminy, t) ? model._pattern_weight[t] : 0;
 	}
-	size_t r = spin_the_bottle(std::move(distribution), random_double());
+	size_t r = spin_the_bottle(distribution, random_double());
 	for (int t = 0; t < model._num_patterns; ++t) {
 		output->_wave.mut_ref(argminx, argminy, t) = (t == r);
 	}
