@@ -104,7 +104,7 @@ Image upsample(const Image& image)
 	{
 		for (const auto x : irange(result.width())) 
 		{
-			result.mut_ref(x, y) = image.ref(x / kUpscale, y / kUpscale);
+			result.ref(x, y) = image.ref(x / kUpscale, y / kUpscale);
 		}
 	}
 	return result;
@@ -227,6 +227,7 @@ PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
 	           std::pow(2.0, sizeof(PatternHash) * 8),
 	           "Too large palette (it is %lu) or too large pattern size (it's %.0f)",
 	           palette_size, std::sqrt(pattern.size()));
+
 	PatternHash result = 0;
 	size_t power = 1;
 	for (const auto i : irange(pattern.size()))
@@ -331,7 +332,7 @@ OverlappingModel::OverlappingModel(
 		{
 			for (auto y : irange<int>(2 * n - 1)) 
 			{
-				auto& list = _propagator.mut_ref(t, x, y);
+				auto& list = _propagator.ref(t, x, y);
 				for (auto t2 : irange(_num_patterns)) 
 				{
 					if (agrees(_patterns[t], _patterns[t2], x - n + 1, y - n + 1)) 
@@ -359,7 +360,7 @@ bool OverlappingModel::propagate(Output* output) const
 		for (int y1 = 0; y1 < _height; ++y1) 
 		{
 			if (!output->_changes.ref(x1, y1)) { continue; }
-			output->_changes.mut_ref(x1, y1) = false;
+			output->_changes.ref(x1, y1) = false;
 
 			for (int dx = -_n + 1; dx < _n; ++dx) 
 			{
@@ -399,8 +400,8 @@ bool OverlappingModel::propagate(Output* output) const
 
 						if (!can_pattern_fit) 
 						{
-							output->_changes.mut_ref(sx, sy) = true;
-							output->_wave.mut_ref(sx, sy, t2) = false;
+							output->_changes.ref(sx, sy) = true;
+							output->_wave.ref(sx, sy, t2) = false;
 							did_change = true;
 						}
 					}
@@ -419,7 +420,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 	{
 		for (const auto x : irange(_width)) 
 		{
-			auto& tile_constributors = result.mut_ref(x, y);
+			auto& tile_constributors = result.ref(x, y);
 
 			for (int dy = 0; dy < _n; ++dy) 
 			{
@@ -458,11 +459,11 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 			const auto& tile_constributors = graphics.ref(x, y);
 			if (tile_constributors.empty()) 
 			{
-				result.mut_ref(x, y) = {0, 0, 0, 255};
+				result.ref(x, y) = {0, 0, 0, 255};
 			} 
 			else if (tile_constributors.size() == 1) 
 			{
-				result.mut_ref(x, y) = palette[tile_constributors[0]];
+				result.ref(x, y) = palette[tile_constributors[0]];
 			} 
 			else 
 			{
@@ -481,7 +482,7 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 				g /= tile_constributors.size();
 				b /= tile_constributors.size();
 				a /= tile_constributors.size();
-				result.mut_ref(x, y) = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
+				result.ref(x, y) = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
 			}
 		}
 	}
@@ -646,23 +647,23 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, i
 		int D = action[L][1];
 		int U = action[R][1];
 
-		_propagator.mut_ref(0, L,            R           ) = true;
-		_propagator.mut_ref(0, action[L][6], action[R][6]) = true;
-		_propagator.mut_ref(0, action[R][4], action[L][4]) = true;
-		_propagator.mut_ref(0, action[R][2], action[L][2]) = true;
+		_propagator.ref(0, L,            R           ) = true;
+		_propagator.ref(0, action[L][6], action[R][6]) = true;
+		_propagator.ref(0, action[R][4], action[L][4]) = true;
+		_propagator.ref(0, action[R][2], action[L][2]) = true;
 
-		_propagator.mut_ref(1, D,            U           ) = true;
-		_propagator.mut_ref(1, action[U][6], action[D][6]) = true;
-		_propagator.mut_ref(1, action[D][4], action[U][4]) = true;
-		_propagator.mut_ref(1, action[U][2], action[D][2]) = true;
+		_propagator.ref(1, D,            U           ) = true;
+		_propagator.ref(1, action[U][6], action[D][6]) = true;
+		_propagator.ref(1, action[D][4], action[U][4]) = true;
+		_propagator.ref(1, action[U][2], action[D][2]) = true;
 	}
 
 	for (int t1 = 0; t1 < _num_patterns; ++t1) 
 	{
 		for (int t2 = 0; t2 < _num_patterns; ++t2) 
 		{
-			_propagator.mut_ref(2, t1, t2) = _propagator.ref(0, t2, t1);
-			_propagator.mut_ref(3, t1, t2) = _propagator.ref(1, t2, t1);
+			_propagator.ref(2, t1, t2) = _propagator.ref(0, t2, t1);
+			_propagator.ref(3, t1, t2) = _propagator.ref(1, t2, t1);
 		}
 	}
 }
@@ -743,8 +744,8 @@ bool TileModel::propagate(Output* output) const
 						}
 						if (!b) 
 						{
-							output->_wave.mut_ref(x2, y2, t2) = false;
-							output->_changes.mut_ref(x2, y2) = true;
+							output->_wave.ref(x2, y2, t2) = false;
+							output->_changes.ref(x2, y2) = true;
 							did_change = true;
 						}
 					}
@@ -779,7 +780,7 @@ Image TileModel::image(const Output& output) const
 				{
 					if (sum == 0) 
 					{
-						result.mut_ref(x * _tile_size + xt, y * _tile_size + yt) = RGBA{0, 0, 0, 255};
+						result.ref(x * _tile_size + xt, y * _tile_size + yt) = RGBA{0, 0, 0, 255};
 					} 
 					else 
 					{
@@ -796,7 +797,7 @@ Image TileModel::image(const Output& output) const
 							}
 						}
 
-						result.mut_ref(x * _tile_size + xt, y * _tile_size + yt) =
+						result.ref(x * _tile_size + xt, y * _tile_size + yt) =
 						           RGBA{(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
 					}
 				}
@@ -1006,9 +1007,9 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double)
 	size_t r = spin_the_bottle(distribution, random_double());
 	for (int t = 0; t < model._num_patterns; ++t) 
 	{
-		output->_wave.mut_ref(argminx, argminy, t) = (t == r);
+		output->_wave.ref(argminx, argminy, t) = (t == r);
 	}
-	output->_changes.mut_ref(argminx, argminy) = true;
+	output->_changes.ref(argminx, argminy) = true;
 
 	return Result::kUnfinished;
 }
@@ -1027,15 +1028,15 @@ Output create_output(const Model& model)
 			{
 				if (t != model._foundation) 
 				{
-					output._wave.mut_ref(x, model._height - 1, t) = false;
+					output._wave.ref(x, model._height - 1, t) = false;
 				}
 			}
-			output._changes.mut_ref(x, model._height - 1) = true;
+			output._changes.ref(x, model._height - 1) = true;
 
 			for (const auto y : irange(model._height - 1)) 
 			{
-				output._wave.mut_ref(x, y, model._foundation) = false;
-				output._changes.mut_ref(x, y) = true;
+				output._wave.ref(x, y, model._foundation) = false;
+				output._changes.ref(x, y) = true;
 			}
 
 			while (model.propagate(&output));

@@ -26,7 +26,7 @@ class Array2D
             mData(w * h, value)
         {}
 
-		T& mut_ref(size_t x, size_t y)
+		T& ref(size_t x, size_t y)
 		{
 			return mData[index(x, y)];
 		}
@@ -79,7 +79,7 @@ class Array3D
 			mData(w * h * d, value)
 		{}
 
-		T& mut_ref(size_t x, size_t y, size_t z)
+		T& ref(size_t x, size_t y, size_t z)
 		{
 			return mData[index(x, y, z)];
 		}
