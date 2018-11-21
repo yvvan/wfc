@@ -100,8 +100,10 @@ using Image = Array2D<RGBA>;
 Image upsample(const Image& image)
 {
 	Image result(image.width() * kUpscale, image.height() * kUpscale, {});
-	for (const auto y : irange(result.height())) {
-		for (const auto x : irange(result.width())) {
+	for (const auto y : irange(result.height())) 
+	{
+		for (const auto x : irange(result.width())) 
+		{
 			result.mut_ref(x, y) = image.ref(x / kUpscale, y / kUpscale);
 		}
 	}
@@ -198,7 +200,8 @@ size_t spin_the_bottle(const std::vector<double>& a, double between_zero_and_one
 {
 	double sum = calc_sum(a);
 
-	if (sum == 0.0) {
+	if (sum == 0.0) 
+	{
 		return std::floor(between_zero_and_one * a.size());
 	}
 
@@ -206,9 +209,11 @@ size_t spin_the_bottle(const std::vector<double>& a, double between_zero_and_one
 
 	double accumulated = 0;
 
-	for (auto i : irange(a.size())) {
+	for (auto i : irange(a.size())) 
+	{
 		accumulated += a[i];
-		if (between_zero_and_sum <= accumulated) {
+		if (between_zero_and_sum <= accumulated) 
+		{
 			return i;
 		}
 	}
@@ -259,8 +264,10 @@ template<typename Fun>
 Pattern make_pattern(int n, const Fun& fun)
 {
 	Pattern result(n * n);
-	for (auto dy : irange(n)) {
-		for (auto dx : irange(n)) {
+	for (auto dy : irange(n)) 
+	{
+		for (auto dx : irange(n)) 
+		{
 			result[dy * n + dx] = fun(dx, dy);
 		}
 	}
@@ -285,8 +292,10 @@ OverlappingModel::OverlappingModel(
 	_n            = n;
 	_palette      = palette;
 
-	for (const auto& it : hashed_patterns) {
-		if (it.first == foundation_pattern) {
+	for (const auto& it : hashed_patterns) 
+	{
+		if (it.first == foundation_pattern) 
+		{
 			_foundation = _patterns.size();
 		}
 
@@ -294,12 +303,16 @@ OverlappingModel::OverlappingModel(
 		_pattern_weight.push_back(it.second);
 	}
 
-	const auto agrees = [&](const Pattern& p1, const Pattern& p2, int dx, int dy) {
+	const auto agrees = [&](const Pattern& p1, const Pattern& p2, int dx, int dy) 
+	{
 		int xmin = dx < 0 ? 0 : dx, xmax = dx < 0 ? dx + n : n;
 		int ymin = dy < 0 ? 0 : dy, ymax = dy < 0 ? dy + n : n;
-		for (int y = ymin; y < ymax; ++y) {
-			for (int x = xmin; x < xmax; ++x) {
-				if (p1[x + n * y] != p2[x - dx + n * (y - dy)]) {
+		for (int y = ymin; y < ymax; ++y) 
+		{
+			for (int x = xmin; x < xmax; ++x) 
+			{
+				if (p1[x + n * y] != p2[x - dx + n * (y - dy)]) 
+				{
 					return false;
 				}
 			}
@@ -312,12 +325,17 @@ OverlappingModel::OverlappingModel(
 	size_t longest_propagator = 0;
 	size_t sum_propagator = 0;
 
-	for (auto t : irange(_num_patterns)) {
-		for (auto x : irange<int>(2 * n - 1)) {
-			for (auto y : irange<int>(2 * n - 1)) {
+	for (auto t : irange(_num_patterns)) 
+	{
+		for (auto x : irange<int>(2 * n - 1)) 
+		{
+			for (auto y : irange<int>(2 * n - 1)) 
+			{
 				auto& list = _propagator.mut_ref(t, x, y);
-				for (auto t2 : irange(_num_patterns)) {
-					if (agrees(_patterns[t], _patterns[t2], x - n + 1, y - n + 1)) {
+				for (auto t2 : irange(_num_patterns)) 
+				{
+					if (agrees(_patterns[t], _patterns[t2], x - n + 1, y - n + 1)) 
+					{
 						list.push_back(t2);
 					}
 				}
@@ -336,13 +354,17 @@ bool OverlappingModel::propagate(Output* output) const
 {
 	bool did_change = false;
 
-	for (int x1 = 0; x1 < _width; ++x1) {
-		for (int y1 = 0; y1 < _height; ++y1) {
+	for (int x1 = 0; x1 < _width; ++x1) 
+	{
+		for (int y1 = 0; y1 < _height; ++y1) 
+		{
 			if (!output->_changes.ref(x1, y1)) { continue; }
 			output->_changes.mut_ref(x1, y1) = false;
 
-			for (int dx = -_n + 1; dx < _n; ++dx) {
-				for (int dy = -_n + 1; dy < _n; ++dy) {
+			for (int dx = -_n + 1; dx < _n; ++dx) 
+			{
+				for (int dy = -_n + 1; dy < _n; ++dy) 
+				{
 					auto x2 = x1 + dx;
 					auto y2 = y1 + dy;
 
@@ -354,24 +376,29 @@ bool OverlappingModel::propagate(Output* output) const
 					if      (sy <  0)       { sy += _height; }
 					else if (sy >= _height) { sy -= _height; }
 
-					if (!_periodic_out && (sx + _n > _width || sy + _n > _height)) {
+					if (!_periodic_out && (sx + _n > _width || sy + _n > _height)) 
+					{
 						continue;
 					}
 
-					for (int t2 = 0; t2 < _num_patterns; ++t2) {
+					for (int t2 = 0; t2 < _num_patterns; ++t2) 
+					{
 						if (!output->_wave.ref(sx, sy, t2)) { continue; }
 
 						bool can_pattern_fit = false;
 
 						const auto& prop = _propagator.ref(t2, _n - 1 - dx, _n - 1 - dy);
-						for (const auto& t3 : prop) {
-							if (output->_wave.ref(x1, y1, t3)) {
+						for (const auto& t3 : prop) 
+						{
+							if (output->_wave.ref(x1, y1, t3)) 
+							{
 								can_pattern_fit = true;
 								break;
 							}
 						}
 
-						if (!can_pattern_fit) {
+						if (!can_pattern_fit) 
+						{
 							output->_changes.mut_ref(sx, sy) = true;
 							output->_wave.mut_ref(sx, sy, t2) = false;
 							did_change = true;
@@ -388,12 +415,16 @@ bool OverlappingModel::propagate(Output* output) const
 Graphics OverlappingModel::graphics(const Output& output) const
 {
 	Graphics result(_width, _height, {});
-	for (const auto y : irange(_height)) {
-		for (const auto x : irange(_width)) {
+	for (const auto y : irange(_height)) 
+	{
+		for (const auto x : irange(_width)) 
+		{
 			auto& tile_constributors = result.mut_ref(x, y);
 
-			for (int dy = 0; dy < _n; ++dy) {
-				for (int dx = 0; dx < _n; ++dx) {
+			for (int dy = 0; dy < _n; ++dy) 
+			{
+				for (int dx = 0; dx < _n; ++dx) 
+				{
 					int sx = x - dx;
 					if (sx < 0) sx += _width;
 
@@ -402,8 +433,10 @@ Graphics OverlappingModel::graphics(const Output& output) const
 
 					if (on_boundary(sx, sy)) { continue; }
 
-					for (int t = 0; t < _num_patterns; ++t) {
-						if (output._wave.ref(sx, sy, t)) {
+					for (int t = 0; t < _num_patterns; ++t) 
+					{
+						if (output._wave.ref(sx, sy, t)) 
+						{
 							tile_constributors.push_back(_patterns[t][dx + dy * _n]);
 						}
 					}
@@ -418,19 +451,27 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 {
 	Image result(graphics.width(), graphics.height(), {0, 0, 0, 0});
 
-	for (const auto y : irange(graphics.height())) {
-		for (const auto x : irange(graphics.width())) {
+	for (const auto y : irange(graphics.height())) 
+	{
+		for (const auto x : irange(graphics.width())) 
+		{
 			const auto& tile_constributors = graphics.ref(x, y);
-			if (tile_constributors.empty()) {
+			if (tile_constributors.empty()) 
+			{
 				result.mut_ref(x, y) = {0, 0, 0, 255};
-			} else if (tile_constributors.size() == 1) {
+			} 
+			else if (tile_constributors.size() == 1) 
+			{
 				result.mut_ref(x, y) = palette[tile_constributors[0]];
-			} else {
+			} 
+			else 
+			{
 				size_t r = 0;
 				size_t g = 0;
 				size_t b = 0;
 				size_t a = 0;
-				for (const auto tile : tile_constributors) {
+				for (const auto tile : tile_constributors) 
+				{
 					r += palette[tile].r;
 					g += palette[tile].g;
 					b += palette[tile].b;
@@ -459,8 +500,10 @@ Tile rotate(const Tile& in_tile, const size_t tile_size)
 {
 	CHECK_EQ_F(in_tile.size(), tile_size * tile_size);
 	Tile out_tile;
-	for (size_t y : irange(tile_size)) {
-		for (size_t x : irange(tile_size)) {
+	for (size_t y : irange(tile_size)) 
+	{
+		for (size_t x : irange(tile_size)) 
+		{
 			out_tile.push_back(in_tile[tile_size - 1 - y + x * tile_size]);
 		}
 	}
@@ -477,8 +520,10 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, i
 	const bool unique = config.get_or("unique",    false);
 
 	std::unordered_set<std::string> subset;
-	if (subset_name != "") {
-		for (const auto& tile_name : config["subsets"][subset_name].as_array()) {
+	if (subset_name != "") 
+	{
+		for (const auto& tile_name : config["subsets"][subset_name].as_array()) 
+		{
 			subset.insert(tile_name.as_string());
 		}
 	}
@@ -486,7 +531,8 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, i
 	std::vector<std::array<int,     8>>  action;
 	std::unordered_map<std::string, size_t> first_occurrence;
 
-	for (const auto& tile : config["tiles"].as_array()) {
+	for (const auto& tile : config["tiles"].as_array()) 
+	{
 		const std::string tile_name = tile["name"].as_string();
 		if (!subset.empty() && subset.count(tile_name) == 0) { continue; }
 
@@ -494,34 +540,46 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, i
 		int cardinality;
 
 		std::string sym = tile.get_or("symmetry", "X");
-		if (sym == "L") {
+		if (sym == "L") 
+		{
 			cardinality = 4;
 			a = [](int i){ return (i + 1) % 4; };
 			b = [](int i){ return i % 2 == 0 ? i + 1 : i - 1; };
-		} else if (sym == "T") {
+		} 
+		else if (sym == "T") 
+		{
 			cardinality = 4;
 			a = [](int i){ return (i + 1) % 4; };
 			b = [](int i){ return i % 2 == 0 ? i : 4 - i; };
-		} else if (sym == "I") {
+		}
+		else if (sym == "I") 
+		{
 			cardinality = 2;
 			a = [](int i){ return 1 - i; };
 			b = [](int i){ return i; };
-		} else if (sym == "\\") {
+		} 
+		else if (sym == "\\") 
+		{
 			cardinality = 2;
 			a = [](int i){ return 1 - i; };
 			b = [](int i){ return 1 - i; };
-		} else if (sym == "X") {
+		}
+		else if (sym == "X") 
+		{
 			cardinality = 1;
 			a = [](int i){ return i; };
 			b = [](int i){ return i; };
-		} else {
+		}
+		else 
+		{
 			ABORT_F("Unknown symmetry '%s'", sym.c_str());
 		}
 
 		const size_t num_patterns_so_far = action.size();
 		first_occurrence[tile_name] = num_patterns_so_far;
 
-		for (int t = 0; t < cardinality; ++t) {
+		for (int t = 0; t < cardinality; ++t) 
+		{
 			std::array<int, 8> map;
 
 			map[0] = t;
@@ -533,29 +591,36 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, i
 			map[6] = b(a(a(t)));
 			map[7] = b(a(a(a(t))));
 
-			for (int s = 0; s < 8; ++s) {
+			for (int s = 0; s < 8; ++s) 
+			{
 				map[s] += num_patterns_so_far;
 			}
 
 			action.push_back(map);
 		}
 
-		if (unique) {
-			for (int t = 0; t < cardinality; ++t) {
+		if (unique) 
+		{
+			for (int t = 0; t < cardinality; ++t) 
+			{
 				const Tile bitmap = tile_loader(emilib::strprintf("%s %d", tile_name.c_str(), t));
 				CHECK_EQ_F(bitmap.size(), _tile_size * _tile_size);
 				_tiles.push_back(bitmap);
 			}
-		} else {
+		}
+		else 
+		{
 			const Tile bitmap = tile_loader(emilib::strprintf("%s", tile_name.c_str()));
 			CHECK_EQ_F(bitmap.size(), _tile_size * _tile_size);
 			_tiles.push_back(bitmap);
-			for (int t = 1; t < cardinality; ++t) {
+			for (int t = 1; t < cardinality; ++t) 
+			{
 				_tiles.push_back(rotate(_tiles[num_patterns_so_far + t - 1], _tile_size));
 			}
 		}
 
-		for (int t = 0; t < cardinality; ++t) {
+		for (int t = 0; t < cardinality; ++t) 
+		{
 			_pattern_weight.push_back(tile.get_or("weight", 1.0));
 		}
 	}
@@ -564,7 +629,8 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, i
 
 	_propagator = Array3D<Bool>(4, _num_patterns, _num_patterns, false);
 
-	for (const auto& neighbor : config["neighbors"].as_array()) {
+	for (const auto& neighbor : config["neighbors"].as_array()) 
+	{
 		const auto left  = neighbor["left"];
 		const auto right = neighbor["right"];
 		CHECK_EQ_F(left.array_size(),  2u);
@@ -591,8 +657,10 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, i
 		_propagator.mut_ref(1, action[U][2], action[D][2]) = true;
 	}
 
-	for (int t1 = 0; t1 < _num_patterns; ++t1) {
-		for (int t2 = 0; t2 < _num_patterns; ++t2) {
+	for (int t1 = 0; t1 < _num_patterns; ++t1) 
+	{
+		for (int t2 = 0; t2 < _num_patterns; ++t2) 
+		{
 			_propagator.mut_ref(2, t1, t2) = _propagator.ref(0, t2, t1);
 			_propagator.mut_ref(3, t1, t2) = _propagator.ref(1, t2, t1);
 		}
@@ -603,51 +671,78 @@ bool TileModel::propagate(Output* output) const
 {
 	bool did_change = false;
 
-	for (int x2 = 0; x2 < _width; ++x2) {
-		for (int y2 = 0; y2 < _height; ++y2) {
-			for (int d = 0; d < 4; ++d) {
+	for (int x2 = 0; x2 < _width; ++x2) 
+	{
+		for (int y2 = 0; y2 < _height; ++y2) 
+		{
+			for (int d = 0; d < 4; ++d) 
+			{
 				int x1 = x2, y1 = y2;
-				if (d == 0) {
-					if (x2 == 0) {
+				if (d == 0) 
+				{
+					if (x2 == 0) 
+					{
 						if (!_periodic_out) { continue; }
 						x1 = _width - 1;
-					} else {
+					} 
+					else 
+					{
 						x1 = x2 - 1;
 					}
-				} else if (d == 1) {
-					if (y2 == _height - 1) {
+				} 
+				else if (d == 1) 
+				{
+					if (y2 == _height - 1) 
+					{
 						if (!_periodic_out) { continue; }
 						y1 = 0;
-					} else {
+					}
+					else 
+					{
 						y1 = y2 + 1;
 					}
-				} else if (d == 2) {
-					if (x2 == _width - 1) {
+				} 
+				else if (d == 2) 
+				{
+					if (x2 == _width - 1) 
+					{
 						if (!_periodic_out) { continue; }
 						x1 = 0;
-					} else {
+					} 
+					else 
+					{
 						x1 = x2 + 1;
 					}
-				} else {
-					if (y2 == 0) {
+				}
+				else 
+				{
+					if (y2 == 0) 
+					{
 						if (!_periodic_out) { continue; }
 						y1 = _height - 1;
-					} else {
+					} 
+					else 
+					{
 						y1 = y2 - 1;
 					}
 				}
 
 				if (!output->_changes.ref(x1, y1)) { continue; }
 
-				for (int t2 = 0; t2 < _num_patterns; ++t2) {
-					if (output->_wave.ref(x2, y2, t2)) {
+				for (int t2 = 0; t2 < _num_patterns; ++t2) 
+				{
+					if (output->_wave.ref(x2, y2, t2)) 
+					{
 						bool b = false;
-						for (int t1 = 0; t1 < _num_patterns && !b; ++t1) {
-							if (output->_wave.ref(x1, y1, t1)) {
+						for (int t1 = 0; t1 < _num_patterns && !b; ++t1) 
+						{
+							if (output->_wave.ref(x1, y1, t1)) 
+							{
 								b = _propagator.ref(d, t1, t2);
 							}
 						}
-						if (!b) {
+						if (!b) 
+						{
 							output->_wave.mut_ref(x2, y2, t2) = false;
 							output->_changes.mut_ref(x2, y2) = true;
 							did_change = true;
@@ -665,23 +760,34 @@ Image TileModel::image(const Output& output) const
 {
 	Image result(_width * _tile_size, _height * _tile_size, {});
 
-	for (int x = 0; x < _width; ++x) {
-		for (int y = 0; y < _height; ++y) {
+	for (int x = 0; x < _width; ++x) 
+	{
+		for (int y = 0; y < _height; ++y) 
+		{
 			double sum = 0;
-			for (const auto t : irange(_num_patterns)) {
-				if (output._wave.ref(x, y, t)) {
+			for (const auto t : irange(_num_patterns)) 
+			{
+				if (output._wave.ref(x, y, t)) 
+				{
 					sum += _pattern_weight[t];
 				}
 			}
 
-			for (int yt = 0; yt < _tile_size; ++yt) {
-				for (int xt = 0; xt < _tile_size; ++xt) {
-					if (sum == 0) {
+			for (int yt = 0; yt < _tile_size; ++yt) 
+			{
+				for (int xt = 0; xt < _tile_size; ++xt) 
+				{
+					if (sum == 0) 
+					{
 						result.mut_ref(x * _tile_size + xt, y * _tile_size + yt) = RGBA{0, 0, 0, 255};
-					} else {
+					} 
+					else 
+					{
 						double r = 0, g = 0, b = 0, a = 0;
-						for (int t = 0; t < _num_patterns; ++t) {
-							if (output._wave.ref(x, y, t)) {
+						for (int t = 0; t < _num_patterns; ++t) 
+						{
+							if (output._wave.ref(x, y, t)) 
+							{
 								RGBA c = _tiles[t][xt + yt * _tile_size];
 								r += (double)c.r * _pattern_weight[t] / sum;
 								g += (double)c.g * _pattern_weight[t] / sum;
@@ -712,19 +818,27 @@ PalettedImage load_paletted_image(const std::string& path)
 	const auto num_pixels = width * height;
 
 	// Fix issues with stbi_load:
-	if (comp == 1) {
+	if (comp == 1) 
+	{
 		// input was greyscale - set alpha:
-		for (auto& pixel : emilib::it_range(rgba, rgba + num_pixels)) {
+		for (auto& pixel : emilib::it_range(rgba, rgba + num_pixels)) 
+		{
 			pixel.a = pixel.r;
 		}
-	} else {
-		if (comp == 3) {
-			for (auto& pixel : emilib::it_range(rgba, rgba + num_pixels)) {
+	}
+	else 
+	{
+		if (comp == 3)
+		{
+			for (auto& pixel : emilib::it_range(rgba, rgba + num_pixels)) 
+			{
 				pixel.a = 255;
 			}
 		}
-		for (auto& pixel : emilib::it_range(rgba, rgba + num_pixels)) {
-			if (pixel.a == 0) {
+		for (auto& pixel : emilib::it_range(rgba, rgba + num_pixels)) 
+		{
+			if (pixel.a == 0) 
+			{
 				pixel = RGBA{0,0,0,0};
 			}
 		}
@@ -733,10 +847,12 @@ PalettedImage load_paletted_image(const std::string& path)
 	std::vector<RGBA> palette;
 	std::vector<ColorIndex> data;
 
-	for (const auto pixel_idx : irange(num_pixels)) {
+	for (const auto pixel_idx : irange(num_pixels)) 
+	{
 		const RGBA color = rgba[pixel_idx];
 		const auto color_idx = std::find(palette.begin(), palette.end(), color) - palette.begin();
-		if (color_idx == palette.size()) {
+		if (color_idx == palette.size()) 
+		{
 			CHECK_LT_F(palette.size(), MAX_COLORS, "Too many colors in image");
 			palette.push_back(color);
 		}
@@ -769,8 +885,10 @@ PatternPrevalence extract_patterns(
 
 	PatternPrevalence patterns;
 
-	for (size_t y : irange(periodic_in ? sample.height : sample.height - n + 1)) {
-		for (size_t x : irange(periodic_in ? sample.width : sample.width - n + 1)) {
+	for (size_t y : irange(periodic_in ? sample.height : sample.height - n + 1)) 
+	{
+		for (size_t x : irange(periodic_in ? sample.width : sample.width - n + 1)) 
+		{
 			std::array<Pattern, 8> ps;
 			ps[0] = pattern_from_sample(x, y);
 			ps[1] = reflect(ps[0]);
@@ -781,10 +899,12 @@ PatternPrevalence extract_patterns(
 			ps[6] = rotate(ps[4]);
 			ps[7] = reflect(ps[6]);
 
-			for (int k = 0; k < symmetry; ++k) {
+			for (int k = 0; k < symmetry; ++k) 
+			{
 				auto hash = hash_from_pattern(ps[k], sample.palette.size());
 				patterns[hash] += 1;
-				if (out_lowest_pattern && y == sample.height - 1) {
+				if (out_lowest_pattern && y == sample.height - 1) 
+				{
 					*out_lowest_pattern = hash;
 				}
 			}
@@ -801,25 +921,31 @@ Result find_lowest_entropy(const Model& model, const Output& output, RandomDoubl
 
 	double min = std::numeric_limits<double>::infinity();
 
-	for (int x = 0; x < model._width; ++x) {
-		for (int y = 0; y < model._height; ++y) {
+	for (int x = 0; x < model._width; ++x) 
+	{
+		for (int y = 0; y < model._height; ++y) 
+		{
 			if (model.on_boundary(x, y)) { continue; }
 
 			size_t num_superimposed = 0;
 			double entropy = 0;
 
-			for (int t = 0; t < model._num_patterns; ++t) {
-				if (output._wave.ref(x, y, t)) {
+			for (int t = 0; t < model._num_patterns; ++t) 
+			{
+				if (output._wave.ref(x, y, t)) 
+				{
 					num_superimposed += 1;
 					entropy += model._pattern_weight[t];
 				}
 			}
 
-			if (entropy == 0 || num_superimposed == 0) {
+			if (entropy == 0 || num_superimposed == 0) 
+			{
 				return Result::kFail;
 			}
 
-			if (num_superimposed == 1) {
+			if (num_superimposed == 1) 
+			{
 				continue; // Already frozen
 			}
 
@@ -827,7 +953,8 @@ Result find_lowest_entropy(const Model& model, const Output& output, RandomDoubl
 			const double noise = 0.5 * random_double();
 			entropy += noise;
 
-			if (entropy < min) {
+			if (entropy < min) 
+			{
 				min = entropy;
 				*argminx = x;
 				*argminy = y;
@@ -835,9 +962,12 @@ Result find_lowest_entropy(const Model& model, const Output& output, RandomDoubl
 		}
 	}
 
-	if (min == std::numeric_limits<double>::infinity()) {
+	if (min == std::numeric_limits<double>::infinity()) 
+	{
 		return Result::kSuccess;
-	} else {
+	}
+	else 
+	{
 		return Result::kUnfinished;
 	}
 }
@@ -849,11 +979,13 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double)
 	if (result != Result::kUnfinished) { return result; }
 
 	std::vector<double> distribution(model._num_patterns);
-	for (int t = 0; t < model._num_patterns; ++t) {
+	for (int t = 0; t < model._num_patterns; ++t) 
+	{
 		distribution[t] = output->_wave.ref(argminx, argminy, t) ? model._pattern_weight[t] : 0;
 	}
 	size_t r = spin_the_bottle(distribution, random_double());
-	for (int t = 0; t < model._num_patterns; ++t) {
+	for (int t = 0; t < model._num_patterns; ++t) 
+	{
 		output->_wave.mut_ref(argminx, argminy, t) = (t == r);
 	}
 	output->_changes.mut_ref(argminx, argminy) = true;
@@ -867,16 +999,21 @@ Output create_output(const Model& model)
 	output._wave = Array3D<Bool>(model._width, model._height, model._num_patterns, true);
 	output._changes = Array2D<Bool>(model._width, model._height, false);
 
-	if (model._foundation != kInvalidIndex) {
-		for (const auto x : irange(model._width)) {
-			for (const auto t : irange(model._num_patterns)) {
-				if (t != model._foundation) {
+	if (model._foundation != kInvalidIndex) 
+	{
+		for (const auto x : irange(model._width)) 
+		{
+			for (const auto t : irange(model._num_patterns)) 
+			{
+				if (t != model._foundation) 
+				{
 					output._wave.mut_ref(x, model._height - 1, t) = false;
 				}
 			}
 			output._changes.mut_ref(x, model._height - 1) = true;
 
-			for (const auto y : irange(model._height - 1)) {
+			for (const auto y : irange(model._height - 1)) 
+			{
 				output._wave.mut_ref(x, y, model._foundation) = false;
 				output._changes.mut_ref(x, y) = true;
 			}
@@ -894,10 +1031,12 @@ Result run(Output* output, const Model& model, size_t seed, size_t limit)
 	std::uniform_real_distribution<double> dis(0.0, 1.0);
 	RandomDouble random_double = [&]() { return dis(gen); };
 
-	for (size_t l = 0; l < limit || limit == 0; ++l) {
+	for (size_t l = 0; l < limit || limit == 0; ++l) 
+	{
 		Result result = observe(model, output, random_double);
 
-		if (result != Result::kUnfinished) {
+		if (result != Result::kUnfinished) 
+		{
 
 			LOG_F(INFO, "%s after %lu iterations", result2str(result), l);
 			return result;
@@ -914,8 +1053,10 @@ void run_and_write(const std::string& name, const configuru::Config& config, con
 	const size_t limit       = config.get_or("limit",       0);
 	const size_t screenshots = config.get_or("screenshots", 2);
 
-	for (const auto i : irange(screenshots)) {
-		for (const auto attempt : irange(10)) {
+	for (const auto i : irange(screenshots)) 
+	{
+		for (const auto attempt : irange(10)) 
+		{
 			(void)attempt;
 			int seed = rand();
 
@@ -923,7 +1064,8 @@ void run_and_write(const std::string& name, const configuru::Config& config, con
 
 			const auto result = run(&output, model, seed, limit);
 
-			if (result == Result::kSuccess) {
+			if (result == Result::kSuccess) 
+			{
 				const auto image = model.image(output);
 				const auto out_path = emilib::strprintf("output/%s_%lu.png", name.c_str(), i);
 				CHECK_F(stbi_write_png(out_path.c_str(), image.width(), image.height(), 4, image.data(), 0) != 0,
@@ -987,8 +1129,10 @@ void run_config_file(const std::string& path)
 	const auto samples = configuru::parse_file(path, configuru::CFG);
 	const auto image_dir = samples["image_dir"].as_string();
 
-	if (samples.count("overlapping")) {
-		for (const auto& p : samples["overlapping"].as_object()) {
+	if (samples.count("overlapping")) 
+	{
+		for (const auto& p : samples["overlapping"].as_object()) 
+		{
 			LOG_SCOPE_F(INFO, "%s", p.key().c_str());
 			const auto model = make_overlapping(image_dir, p.value());
 			run_and_write(p.key(), p.value(), *model);
@@ -996,8 +1140,10 @@ void run_config_file(const std::string& path)
 		}
 	}
 
-	if (samples.count("tiled")) {
-		for (const auto& p : samples["tiled"].as_object()) {
+	if (samples.count("tiled")) 
+	{
+		for (const auto& p : samples["tiled"].as_object()) 
+		{
 			LOG_SCOPE_F(INFO, "Tiled %s", p.key().c_str());
 			const auto model = make_tiled(image_dir, p.value());
 			run_and_write(p.key(), p.value(), *model);
@@ -1011,20 +1157,26 @@ int main(int argc, char* argv[])
 
 	std::vector<std::string> files;
 
-	for (int i = 1; i < argc; ++i) {
-		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+	for (int i = 1; i < argc; ++i) 
+	{
+		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) 
+		{
 			printf(kUsage);
 			exit(0);
-		} else {
+		} 
+		else 
+		{
 			files.push_back(argv[i]);
 		}
 	}
 
-	if (files.empty()) {
+	if (files.empty()) 
+	{
 		files.push_back("samples.cfg");
 	}
 
-	for (const auto& file : files) {
+	for (const auto& file : files) 
+	{
 		run_config_file(file);
 	}
 }
