@@ -16,9 +16,6 @@
 #include <stb_image.h>
 #include <stb_image_write.h>
 
-#define JO_GIF_HEADER_FILE_ONLY
-#include <jo_gif.cpp>
-
 #include "arrays.hpp"
 
 const auto kUsage = R"(
@@ -908,7 +905,7 @@ Image scroll_diagonally(const Image& image)
 	return result;
 }
 
-Result run(Output* output, const Model& model, size_t seed, size_t limit, jo_gif_t* gif_out)
+Result run(Output* output, const Model& model, size_t seed, size_t limit)
 {
 	std::mt19937 gen(seed);
 	std::uniform_real_distribution<double> dis(0.0, 1.0);
@@ -917,25 +914,7 @@ Result run(Output* output, const Model& model, size_t seed, size_t limit, jo_gif
 	for (size_t l = 0; l < limit || limit == 0; ++l) {
 		Result result = observe(model, output, random_double);
 
-		if (gif_out && l % kGifInterval == 0) {
-			const auto image = model.image(*output);
-			jo_gif_frame(gif_out, (uint8_t*)image.data(), kGifDelayCentiSec, kGifSeparatePalette);
-		}
-
 		if (result != Result::kUnfinished) {
-			if (gif_out) {
-				// Pause on the last image:
-				auto image = model.image(*output);
-				jo_gif_frame(gif_out, (uint8_t*)image.data(), kGifEndPauseCentiSec, kGifSeparatePalette);
-
-				if (model._periodic_out) {
-					// Scroll the image diagonally:
-					for (size_t i = 0; i < model._width; ++i) {
-						image = scroll_diagonally(image);
-						jo_gif_frame(gif_out, (uint8_t*)image.data(), kGifDelayCentiSec, kGifSeparatePalette);
-					}
-				}
-			}
 
 			LOG_F(INFO, "%s after %lu iterations", result2str(result), l);
 			return result;
@@ -959,7 +938,7 @@ void run_and_write(const std::string& name, const configuru::Config& config, con
 
 			Output output = create_output(model);
 
-			const auto result = run(&output, model, seed, limit, nullptr);
+			const auto result = run(&output, model, seed, limit);
 
 			if (result == Result::kSuccess) {
 				const auto image = model.image(output);
