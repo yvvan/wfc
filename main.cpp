@@ -46,8 +46,8 @@ using PatternPrevalence = std::unordered_map<PatternHash, size_t>;
 using RandomDouble      = std::function<double()>;
 using PatternIndex      = uint16_t;
 
-const auto kInvalidIndex = static_cast<size_t>(-1);
-const auto kInvalidHash = static_cast<PatternHash>(-1);
+const size_t kInvalidIndex = -1;
+const PatternHash kInvalidHash = -1;
 
 const bool   kGifSeparatePalette  = true;
 const size_t kGifInterval         =  16; // Save an image every X iterations
