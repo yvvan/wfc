@@ -34,7 +34,7 @@ struct RGBA
 {
 	uint8_t r, g, b, a;
 };
-static_assert(sizeof(RGBA) == 4, "");
+
 bool operator==(RGBA x, RGBA y) { return x.r == y.r && x.g == y.g && x.b == y.b && x.a == y.a; }
 
 using Bool              = uint8_t; // To avoid problems with vector<bool>
