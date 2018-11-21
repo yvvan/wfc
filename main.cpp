@@ -888,19 +888,6 @@ Output create_output(const Model& model)
 	return output;
 }
 
-Image scroll_diagonally(const Image& image)
-{
-	const auto width = image.width();
-	const auto height = image.height();
-	Image result(width, height);
-	for (const auto y : irange(height)) {
-		for (const auto x : irange(width)) {
-			result.mut_ref(x, y) = image.ref((x + 1) % width, (y + 1) % height);
-		}
-	}
-	return result;
-}
-
 Result run(Output* output, const Model& model, size_t seed, size_t limit)
 {
 	std::mt19937 gen(seed);
