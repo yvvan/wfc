@@ -22,9 +22,8 @@
 #include "arrays.hpp"
 
 const auto kUsage = R"(
-wfc.bin [-h/--help] [--gif] [job=samples.cfg, ...]
+wfc.bin [-h/--help] [job=samples.cfg, ...]
 	-h/--help   Print this help
-	--gif       Export GIF images of the process
 	file        Jobs to run
 )";
 
@@ -60,11 +59,6 @@ const size_t kGifInterval         =  16; // Save an image every X iterations
 const int    kGifDelayCentiSec    =   1;
 const int    kGifEndPauseCentiSec = 200;
 const size_t kUpscale             =   4; // Upscale images before saving
-
-struct Options
-{
-	bool export_gif = false;
-};
 
 enum class Result
 {
@@ -967,18 +961,7 @@ void run_and_write(const Options& options, const std::string& name, const config
 
 			jo_gif_t gif;
 
-			if (options.export_gif) {
-				const auto initial_image = model.image(output);
-				const auto gif_path = emilib::strprintf("output/%s_%lu.gif", name.c_str(), i);
-				const int gif_palette_size = 255; // TODO
-				gif = jo_gif_start(gif_path.c_str(), initial_image.width(), initial_image.height(), 0, gif_palette_size);
-			}
-
-			const auto result = run(&output, model, seed, limit, options.export_gif ? &gif : nullptr);
-
-			if (options.export_gif) {
-				jo_gif_end(&gif);
-			}
+			const auto result = run(&output, model, seed, limit, nullptr);
 
 			if (result == Result::kSuccess) {
 				const auto image = model.image(output);
@@ -1074,9 +1057,6 @@ int main(int argc, char* argv[])
 		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
 			printf(kUsage);
 			exit(0);
-		} else if (strcmp(argv[i], "--gif") == 0) {
-			options.export_gif = true;
-			LOG_F(INFO, "Enabled GIF exporting");
 		} else {
 			files.push_back(argv[i]);
 		}
