@@ -260,8 +260,8 @@ Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size)
 	return result;
 }
 
-template<typename Fun>
-Pattern make_pattern(int n, const Fun& fun)
+template <class Functor>
+Pattern make_pattern(int n, Functor fun)
 {
 	Pattern result(n * n);
 	for (auto dy : irange(n)) 
@@ -868,6 +868,33 @@ PalettedImage load_paletted_image(const std::string& path)
 	};
 }
 
+Pattern patternFromSample(const PalettedImage& sample, int n, size_t x, size_t y)
+{
+	auto functor = [&] (size_t dx, size_t dy)
+	{
+		return sample.at_wrapped(x + dx, y + dy);
+	};
+	return make_pattern(n, functor);
+}
+
+Pattern rotate(const Pattern& p, int n)
+{
+	auto functor = [&](size_t x, size_t y)
+	{ 
+		return p[n - 1 - y + x * n]; 
+	};
+	return make_pattern(n, functor);
+}
+
+Pattern reflect(const Pattern& p, int n)
+{
+	auto functor = [&](size_t x, size_t y)
+	{ 
+		return p[n - 1 - x + y * n];
+	};
+	return make_pattern(n, functor);
+}
+
 // n = side of the pattern, e.g. 3.
 PatternPrevalence extract_patterns(
 	const PalettedImage& sample, int n, bool periodic_in, size_t symmetry,
@@ -876,13 +903,6 @@ PatternPrevalence extract_patterns(
 	CHECK_LE_F(n, sample.width);
 	CHECK_LE_F(n, sample.height);
 
-	const auto pattern_from_sample = [&] (size_t x, size_t y)
-	{
-		return make_pattern(n, [&] (size_t dx, size_t dy) { return sample.at_wrapped(x + dx, y + dy); });
-	};
-	const auto rotate  = [&](const Pattern& p){ return make_pattern(n, [&](size_t x, size_t y){ return p[n - 1 - y + x * n]; }); };
-	const auto reflect = [&](const Pattern& p){ return make_pattern(n, [&](size_t x, size_t y){ return p[n - 1 - x + y * n]; }); };
-
 	PatternPrevalence patterns;
 
 	for (size_t y : irange(periodic_in ? sample.height : sample.height - n + 1)) 
@@ -890,14 +910,14 @@ PatternPrevalence extract_patterns(
 		for (size_t x : irange(periodic_in ? sample.width : sample.width - n + 1)) 
 		{
 			std::array<Pattern, 8> ps;
-			ps[0] = pattern_from_sample(x, y);
-			ps[1] = reflect(ps[0]);
-			ps[2] = rotate(ps[0]);
-			ps[3] = reflect(ps[2]);
-			ps[4] = rotate(ps[2]);
-			ps[5] = reflect(ps[4]);
-			ps[6] = rotate(ps[4]);
-			ps[7] = reflect(ps[6]);
+			ps[0] = patternFromSample(sample, n, x, y);
+			ps[1] = reflect(ps[0], n);
+			ps[2] = rotate(ps[0], n);
+			ps[3] = reflect(ps[2], n);
+			ps[4] = rotate(ps[2], n);
+			ps[5] = reflect(ps[4], n);
+			ps[6] = rotate(ps[4], n);
+			ps[7] = reflect(ps[6], n);
 
 			for (int k = 0; k < symmetry; ++k) 
 			{
