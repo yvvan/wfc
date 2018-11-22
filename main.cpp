@@ -1163,27 +1163,23 @@ Tile loadTile(const std::string& subdir, const std::string& image_dir, const std
 std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru::Config& topConfig)
 {
 	const std::string subdir     = topConfig["subdir"].as_string();
-	const std::string subset     = topConfig.get_or("subset",   std::string());
-
-	const TileLoader tile_loader = [=] (const std::string& tile_name)
-	{
-		return loadTile(image_dir, subdir, tile_name);
-	};
 
 	const auto root_dir = image_dir + subdir + "/";
-	const auto tile_config = configuru::parse_file(root_dir + "data.cfg", configuru::CFG);
 
 	TileModelConfig tileModelConfig
 	{
-		.config = tile_config,
-		.subset_name = subset,
+		.config = configuru::parse_file(root_dir + "data.cfg", configuru::CFG),
+		.subset_name = topConfig.get_or("subset",   std::string()),
 		.commonParam =
 		{
 			._width = topConfig.get_or("width",    48),
 			._height = topConfig.get_or("height",   48),
 			._periodic_out = topConfig.get_or("periodic", false)
 		},
-		.tile_loader = tile_loader
+		.tile_loader = [image_dir, subdir] (const std::string& tile_name)
+		{
+			return loadTile(image_dir, subdir, tile_name);
+		}
 	};
 
 	return std::make_unique<TileModel>(tileModelConfig);
