@@ -3,11 +3,10 @@
 
 #include <functional>
 #include <vector>
+
 #include <wfc/imodel.h>
 
 using RandomDouble      = std::function<double()>;
-
-
 
 enum class Result
 {
@@ -15,6 +14,8 @@ enum class Result
 	kFail,
 	kUnfinished,
 };
+
+void run_and_write(const std::string& name, size_t limit, size_t screenshots, const Model& model);
 
 const char* result2str(const Result result);
 
@@ -32,6 +33,5 @@ Output create_output(const Model& model);
 
 Result run(Output* output, const Model& model, size_t seed, size_t limit);
 
-void run_and_write(const std::string& name, size_t limit, size_t screenshots, const Model& model);
 
 #endif
