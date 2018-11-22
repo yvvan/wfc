@@ -120,15 +120,21 @@ struct OutsideCommonParams
 	bool   _periodic_out;
 };
 
-class Model
+struct CommonParams
 {
-public:
 	OutsideCommonParams mOutsideCommonParams;
 	size_t _num_patterns;
-	size_t              _foundation; // Index of pattern which is at the base, or kInvalidIndex
+	size_t _foundation; // Index of pattern which is at the base, or kInvalidIndex
 
 	// The weight of each pattern (e.g. how often that pattern occurs in the sample image).
 	std::vector<double> _pattern_weight; // num_patterns
+};
+
+class Model
+{
+public:
+
+	CommonParams mCommonParams;
 
 	virtual bool propagate(Output* output) const = 0;
 	virtual bool on_boundary(int x, int y) const = 0;
@@ -151,7 +157,7 @@ public:
 
 	bool on_boundary(int x, int y) const override
 	{
-		return !mOutsideCommonParams._periodic_out && (x + _n > mOutsideCommonParams._width || y + _n > mOutsideCommonParams._height);
+		return !mCommonParams.mOutsideCommonParams._periodic_out && (x + _n > mCommonParams.mOutsideCommonParams._width || y + _n > mCommonParams.mOutsideCommonParams._height);
 	}
 
 	Image image(const Output& output) const override;
@@ -288,21 +294,21 @@ OverlappingModel::OverlappingModel(
 	OutsideCommonParams commonParam,
 	PatternHash              foundation_pattern)
 {
-	mOutsideCommonParams = commonParam;
-	_num_patterns = hashed_patterns.size();
+	mCommonParams.mOutsideCommonParams = commonParam;
+	mCommonParams._num_patterns = hashed_patterns.size();
 	_n            = n;
 	_palette      = palette;
 
-	_foundation = kInvalidIndex;
+	mCommonParams._foundation = kInvalidIndex;
 	for (const auto& it : hashed_patterns) 
 	{
 		if (it.first == foundation_pattern) 
 		{
-			_foundation = _patterns.size();
+			mCommonParams._foundation = _patterns.size();
 		}
 
 		_patterns.push_back(pattern_from_hash(it.first, n, _palette.size()));
-		_pattern_weight.push_back(it.second);
+		mCommonParams._pattern_weight.push_back(it.second);
 	}
 
 	const auto agrees = [&](const Pattern& p1, const Pattern& p2, int dx, int dy) 
@@ -322,19 +328,19 @@ OverlappingModel::OverlappingModel(
 		return true;
 	};
 
-	_propagator = Array3D<std::vector<PatternIndex>>(_num_patterns, 2 * n - 1, 2 * n - 1, {});
+	_propagator = Array3D<std::vector<PatternIndex>>(mCommonParams._num_patterns, 2 * n - 1, 2 * n - 1, {});
 
 	size_t longest_propagator = 0;
 	size_t sum_propagator = 0;
 
-	for (auto t : irange(_num_patterns)) 
+	for (auto t : irange(mCommonParams._num_patterns)) 
 	{
 		for (auto x : irange<int>(2 * n - 1)) 
 		{
 			for (auto y : irange<int>(2 * n - 1)) 
 			{
 				auto& list = _propagator.ref(t, x, y);
-				for (auto t2 : irange(_num_patterns)) 
+				for (auto t2 : irange(mCommonParams._num_patterns)) 
 				{
 					if (agrees(_patterns[t], _patterns[t2], x - n + 1, y - n + 1)) 
 					{
@@ -356,9 +362,9 @@ bool OverlappingModel::propagate(Output* output) const
 {
 	bool did_change = false;
 
-	for (int x1 = 0; x1 < mOutsideCommonParams._width; ++x1) 
+	for (int x1 = 0; x1 < mCommonParams.mOutsideCommonParams._width; ++x1) 
 	{
-		for (int y1 = 0; y1 < mOutsideCommonParams._height; ++y1) 
+		for (int y1 = 0; y1 < mCommonParams.mOutsideCommonParams._height; ++y1) 
 		{
 			if (!output->_changes.ref(x1, y1)) { continue; }
 			output->_changes.ref(x1, y1) = false;
@@ -371,19 +377,19 @@ bool OverlappingModel::propagate(Output* output) const
 					auto y2 = y1 + dy;
 
 					auto sx = x2;
-					if      (sx <  0)      { sx += mOutsideCommonParams._width; }
-					else if (sx >= mOutsideCommonParams._width) { sx -= mOutsideCommonParams._width; }
+					if      (sx <  0)      { sx += mCommonParams.mOutsideCommonParams._width; }
+					else if (sx >= mCommonParams.mOutsideCommonParams._width) { sx -= mCommonParams.mOutsideCommonParams._width; }
 
 					auto sy = y2;
-					if      (sy <  0)       { sy += mOutsideCommonParams._height; }
-					else if (sy >= mOutsideCommonParams._height) { sy -= mOutsideCommonParams._height; }
+					if      (sy <  0)       { sy += mCommonParams.mOutsideCommonParams._height; }
+					else if (sy >= mCommonParams.mOutsideCommonParams._height) { sy -= mCommonParams.mOutsideCommonParams._height; }
 
-					if (!mOutsideCommonParams._periodic_out && (sx + _n > mOutsideCommonParams._width || sy + _n > mOutsideCommonParams._height)) 
+					if (!mCommonParams.mOutsideCommonParams._periodic_out && (sx + _n > mCommonParams.mOutsideCommonParams._width || sy + _n > mCommonParams.mOutsideCommonParams._height)) 
 					{
 						continue;
 					}
 
-					for (int t2 = 0; t2 < _num_patterns; ++t2) 
+					for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
 					{
 						if (!output->_wave.ref(sx, sy, t2)) { continue; }
 
@@ -416,10 +422,10 @@ bool OverlappingModel::propagate(Output* output) const
 
 Graphics OverlappingModel::graphics(const Output& output) const
 {
-	Graphics result(mOutsideCommonParams._width, mOutsideCommonParams._height, {});
-	for (const auto y : irange(mOutsideCommonParams._height)) 
+	Graphics result(mCommonParams.mOutsideCommonParams._width, mCommonParams.mOutsideCommonParams._height, {});
+	for (const auto y : irange(mCommonParams.mOutsideCommonParams._height)) 
 	{
-		for (const auto x : irange(mOutsideCommonParams._width)) 
+		for (const auto x : irange(mCommonParams.mOutsideCommonParams._width)) 
 		{
 			auto& tile_constributors = result.ref(x, y);
 
@@ -428,14 +434,14 @@ Graphics OverlappingModel::graphics(const Output& output) const
 				for (int dx = 0; dx < _n; ++dx) 
 				{
 					int sx = x - dx;
-					if (sx < 0) sx += mOutsideCommonParams._width;
+					if (sx < 0) sx += mCommonParams.mOutsideCommonParams._width;
 
 					int sy = y - dy;
-					if (sy < 0) sy += mOutsideCommonParams._height;
+					if (sy < 0) sy += mCommonParams.mOutsideCommonParams._height;
 
 					if (on_boundary(sx, sy)) { continue; }
 
-					for (int t = 0; t < _num_patterns; ++t) 
+					for (int t = 0; t < mCommonParams._num_patterns; ++t) 
 					{
 						if (output._wave.ref(sx, sy, t)) 
 						{
@@ -514,8 +520,8 @@ Tile rotate(const Tile& in_tile, const size_t tile_size)
 
 TileModel::TileModel(const configuru::Config& config, std::string subset_name, OutsideCommonParams commonParam, const TileLoader& tile_loader)
 {
-	mOutsideCommonParams = commonParam;
-	_foundation = kInvalidIndex;
+	mCommonParams.mOutsideCommonParams = commonParam;
+	mCommonParams._foundation = kInvalidIndex;
 
 	_tile_size        = config.get_or("tile_size", 16);
 	const bool unique = config.get_or("unique",    false);
@@ -622,13 +628,13 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, O
 
 		for (int t = 0; t < cardinality; ++t) 
 		{
-			_pattern_weight.push_back(tile.get_or("weight", 1.0));
+			mCommonParams._pattern_weight.push_back(tile.get_or("weight", 1.0));
 		}
 	}
 
-	_num_patterns = action.size();
+	mCommonParams._num_patterns = action.size();
 
-	_propagator = Array3D<Bool>(4, _num_patterns, _num_patterns, false);
+	_propagator = Array3D<Bool>(4, mCommonParams._num_patterns, mCommonParams._num_patterns, false);
 
 	for (const auto& neighbor : config["neighbors"].as_array()) 
 	{
@@ -658,9 +664,9 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, O
 		_propagator.ref(1, action[U][2], action[D][2]) = true;
 	}
 
-	for (int t1 = 0; t1 < _num_patterns; ++t1) 
+	for (int t1 = 0; t1 < mCommonParams._num_patterns; ++t1) 
 	{
-		for (int t2 = 0; t2 < _num_patterns; ++t2) 
+		for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
 		{
 			_propagator.ref(2, t1, t2) = _propagator.ref(0, t2, t1);
 			_propagator.ref(3, t1, t2) = _propagator.ref(1, t2, t1);
@@ -672,9 +678,9 @@ bool TileModel::propagate(Output* output) const
 {
 	bool did_change = false;
 
-	for (int x2 = 0; x2 < mOutsideCommonParams._width; ++x2) 
+	for (int x2 = 0; x2 < mCommonParams.mOutsideCommonParams._width; ++x2) 
 	{
-		for (int y2 = 0; y2 < mOutsideCommonParams._height; ++y2) 
+		for (int y2 = 0; y2 < mCommonParams.mOutsideCommonParams._height; ++y2) 
 		{
 			for (int d = 0; d < 4; ++d) 
 			{
@@ -683,8 +689,8 @@ bool TileModel::propagate(Output* output) const
 				{
 					if (x2 == 0) 
 					{
-						if (!mOutsideCommonParams._periodic_out) { continue; }
-						x1 = mOutsideCommonParams._width - 1;
+						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
+						x1 = mCommonParams.mOutsideCommonParams._width - 1;
 					} 
 					else 
 					{
@@ -693,9 +699,9 @@ bool TileModel::propagate(Output* output) const
 				} 
 				else if (d == 1) 
 				{
-					if (y2 == mOutsideCommonParams._height - 1) 
+					if (y2 == mCommonParams.mOutsideCommonParams._height - 1) 
 					{
-						if (!mOutsideCommonParams._periodic_out) { continue; }
+						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
 						y1 = 0;
 					}
 					else 
@@ -705,9 +711,9 @@ bool TileModel::propagate(Output* output) const
 				} 
 				else if (d == 2) 
 				{
-					if (x2 == mOutsideCommonParams._width - 1) 
+					if (x2 == mCommonParams.mOutsideCommonParams._width - 1) 
 					{
-						if (!mOutsideCommonParams._periodic_out) { continue; }
+						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
 						x1 = 0;
 					} 
 					else 
@@ -719,8 +725,8 @@ bool TileModel::propagate(Output* output) const
 				{
 					if (y2 == 0) 
 					{
-						if (!mOutsideCommonParams._periodic_out) { continue; }
-						y1 = mOutsideCommonParams._height - 1;
+						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
+						y1 = mCommonParams.mOutsideCommonParams._height - 1;
 					} 
 					else 
 					{
@@ -730,12 +736,12 @@ bool TileModel::propagate(Output* output) const
 
 				if (!output->_changes.ref(x1, y1)) { continue; }
 
-				for (int t2 = 0; t2 < _num_patterns; ++t2) 
+				for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
 				{
 					if (output->_wave.ref(x2, y2, t2)) 
 					{
 						bool b = false;
-						for (int t1 = 0; t1 < _num_patterns && !b; ++t1) 
+						for (int t1 = 0; t1 < mCommonParams._num_patterns && !b; ++t1) 
 						{
 							if (output->_wave.ref(x1, y1, t1)) 
 							{
@@ -759,18 +765,18 @@ bool TileModel::propagate(Output* output) const
 
 Image TileModel::image(const Output& output) const
 {
-	Image result(mOutsideCommonParams._width * _tile_size, mOutsideCommonParams._height * _tile_size, {});
+	Image result(mCommonParams.mOutsideCommonParams._width * _tile_size, mCommonParams.mOutsideCommonParams._height * _tile_size, {});
 
-	for (int x = 0; x < mOutsideCommonParams._width; ++x) 
+	for (int x = 0; x < mCommonParams.mOutsideCommonParams._width; ++x) 
 	{
-		for (int y = 0; y < mOutsideCommonParams._height; ++y) 
+		for (int y = 0; y < mCommonParams.mOutsideCommonParams._height; ++y) 
 		{
 			double sum = 0;
-			for (const auto t : irange(_num_patterns)) 
+			for (const auto t : irange(mCommonParams._num_patterns)) 
 			{
 				if (output._wave.ref(x, y, t)) 
 				{
-					sum += _pattern_weight[t];
+					sum += mCommonParams._pattern_weight[t];
 				}
 			}
 
@@ -785,15 +791,15 @@ Image TileModel::image(const Output& output) const
 					else 
 					{
 						double r = 0, g = 0, b = 0, a = 0;
-						for (int t = 0; t < _num_patterns; ++t) 
+						for (int t = 0; t < mCommonParams._num_patterns; ++t) 
 						{
 							if (output._wave.ref(x, y, t)) 
 							{
 								RGBA c = _tiles[t][xt + yt * _tile_size];
-								r += (double)c.r * _pattern_weight[t] / sum;
-								g += (double)c.g * _pattern_weight[t] / sum;
-								b += (double)c.b * _pattern_weight[t] / sum;
-								a += (double)c.a * _pattern_weight[t] / sum;
+								r += (double)c.r * mCommonParams._pattern_weight[t] / sum;
+								g += (double)c.g * mCommonParams._pattern_weight[t] / sum;
+								b += (double)c.b * mCommonParams._pattern_weight[t] / sum;
+								a += (double)c.a * mCommonParams._pattern_weight[t] / sum;
 							}
 						}
 
@@ -942,21 +948,21 @@ Result find_lowest_entropy(const Model& model, const Output& output, RandomDoubl
 
 	double min = std::numeric_limits<double>::infinity();
 
-	for (int x = 0; x < model.mOutsideCommonParams._width; ++x) 
+	for (int x = 0; x < model.mCommonParams.mOutsideCommonParams._width; ++x) 
 	{
-		for (int y = 0; y < model.mOutsideCommonParams._height; ++y) 
+		for (int y = 0; y < model.mCommonParams.mOutsideCommonParams._height; ++y) 
 		{
 			if (model.on_boundary(x, y)) { continue; }
 
 			size_t num_superimposed = 0;
 			double entropy = 0;
 
-			for (int t = 0; t < model._num_patterns; ++t) 
+			for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 			{
 				if (output._wave.ref(x, y, t)) 
 				{
 					num_superimposed += 1;
-					entropy += model._pattern_weight[t];
+					entropy += model.mCommonParams._pattern_weight[t];
 				}
 			}
 
@@ -999,13 +1005,13 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double)
 	const auto result = find_lowest_entropy(model, *output, random_double, &argminx, &argminy);
 	if (result != Result::kUnfinished) { return result; }
 
-	std::vector<double> distribution(model._num_patterns);
-	for (int t = 0; t < model._num_patterns; ++t) 
+	std::vector<double> distribution(model.mCommonParams._num_patterns);
+	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{
-		distribution[t] = output->_wave.ref(argminx, argminy, t) ? model._pattern_weight[t] : 0;
+		distribution[t] = output->_wave.ref(argminx, argminy, t) ? model.mCommonParams._pattern_weight[t] : 0;
 	}
 	size_t r = spin_the_bottle(distribution, random_double());
-	for (int t = 0; t < model._num_patterns; ++t) 
+	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{
 		output->_wave.ref(argminx, argminy, t) = (t == r);
 	}
@@ -1017,25 +1023,25 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double)
 Output create_output(const Model& model)
 {
 	Output output;
-	output._wave = Array3D<Bool>(model.mOutsideCommonParams._width, model.mOutsideCommonParams._height, model._num_patterns, true);
-	output._changes = Array2D<Bool>(model.mOutsideCommonParams._width, model.mOutsideCommonParams._height, false);
+	output._wave = Array3D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, model.mCommonParams._num_patterns, true);
+	output._changes = Array2D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, false);
 
-	if (model._foundation != kInvalidIndex) 
+	if (model.mCommonParams._foundation != kInvalidIndex) 
 	{
-		for (const auto x : irange(model.mOutsideCommonParams._width)) 
+		for (const auto x : irange(model.mCommonParams.mOutsideCommonParams._width)) 
 		{
-			for (const auto t : irange(model._num_patterns)) 
+			for (const auto t : irange(model.mCommonParams._num_patterns)) 
 			{
-				if (t != model._foundation) 
+				if (t != model.mCommonParams._foundation) 
 				{
-					output._wave.ref(x, model.mOutsideCommonParams._height - 1, t) = false;
+					output._wave.ref(x, model.mCommonParams.mOutsideCommonParams._height - 1, t) = false;
 				}
 			}
-			output._changes.ref(x, model.mOutsideCommonParams._height - 1) = true;
+			output._changes.ref(x, model.mCommonParams.mOutsideCommonParams._height - 1) = true;
 
-			for (const auto y : irange(model.mOutsideCommonParams._height - 1)) 
+			for (const auto y : irange(model.mCommonParams.mOutsideCommonParams._height - 1)) 
 			{
-				output._wave.ref(x, y, model._foundation) = false;
+				output._wave.ref(x, y, model.mCommonParams._foundation) = false;
 				output._changes.ref(x, y) = true;
 			}
 
