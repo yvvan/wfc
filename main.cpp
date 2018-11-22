@@ -542,6 +542,7 @@ Tile rotate(const Tile& in_tile, const size_t tile_size)
 TileModel::TileModel(TileModelConfig config)
 {
 	mInternal = fromConfig(config);
+	mCommonParams = mInternal.mCommonParams;
 }
 
 TileModelInternal fromConfig(const TileModelConfig& config)
@@ -708,9 +709,9 @@ bool TileModel::propagate(Output* output) const
 {
 	bool did_change = false;
 
-	for (int x2 = 0; x2 < mInternal.mCommonParams.mOutsideCommonParams._width; ++x2) 
+	for (int x2 = 0; x2 < mCommonParams.mOutsideCommonParams._width; ++x2) 
 	{
-		for (int y2 = 0; y2 < mInternal.mCommonParams.mOutsideCommonParams._height; ++y2) 
+		for (int y2 = 0; y2 < mCommonParams.mOutsideCommonParams._height; ++y2) 
 		{
 			for (int d = 0; d < 4; ++d) 
 			{
@@ -719,8 +720,8 @@ bool TileModel::propagate(Output* output) const
 				{
 					if (x2 == 0) 
 					{
-						if (!mInternal.mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
-						x1 = mInternal.mCommonParams.mOutsideCommonParams._width - 1;
+						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
+						x1 = mCommonParams.mOutsideCommonParams._width - 1;
 					} 
 					else 
 					{
@@ -729,9 +730,9 @@ bool TileModel::propagate(Output* output) const
 				} 
 				else if (d == 1) 
 				{
-					if (y2 == mInternal.mCommonParams.mOutsideCommonParams._height - 1) 
+					if (y2 == mCommonParams.mOutsideCommonParams._height - 1) 
 					{
-						if (!mInternal.mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
+						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
 						y1 = 0;
 					}
 					else 
@@ -741,9 +742,9 @@ bool TileModel::propagate(Output* output) const
 				} 
 				else if (d == 2) 
 				{
-					if (x2 == mInternal.mCommonParams.mOutsideCommonParams._width - 1) 
+					if (x2 == mCommonParams.mOutsideCommonParams._width - 1) 
 					{
-						if (!mInternal.mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
+						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
 						x1 = 0;
 					} 
 					else 
@@ -755,8 +756,8 @@ bool TileModel::propagate(Output* output) const
 				{
 					if (y2 == 0) 
 					{
-						if (!mInternal.mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
-						y1 = mInternal.mCommonParams.mOutsideCommonParams._height - 1;
+						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
+						y1 = mCommonParams.mOutsideCommonParams._height - 1;
 					} 
 					else 
 					{
@@ -766,12 +767,12 @@ bool TileModel::propagate(Output* output) const
 
 				if (!output->_changes.ref(x1, y1)) { continue; }
 
-				for (int t2 = 0; t2 < mInternal.mCommonParams._num_patterns; ++t2) 
+				for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
 				{
 					if (output->_wave.ref(x2, y2, t2)) 
 					{
 						bool b = false;
-						for (int t1 = 0; t1 < mInternal.mCommonParams._num_patterns && !b; ++t1) 
+						for (int t1 = 0; t1 < mCommonParams._num_patterns && !b; ++t1) 
 						{
 							if (output->_wave.ref(x1, y1, t1)) 
 							{
@@ -795,18 +796,18 @@ bool TileModel::propagate(Output* output) const
 
 Image TileModel::image(const Output& output) const
 {
-	Image result(mInternal.mCommonParams.mOutsideCommonParams._width * mInternal._tile_size, mInternal.mCommonParams.mOutsideCommonParams._height * mInternal._tile_size, {});
+	Image result(mCommonParams.mOutsideCommonParams._width * mInternal._tile_size, mCommonParams.mOutsideCommonParams._height * mInternal._tile_size, {});
 
-	for (int x = 0; x < mInternal.mCommonParams.mOutsideCommonParams._width; ++x) 
+	for (int x = 0; x < mCommonParams.mOutsideCommonParams._width; ++x) 
 	{
-		for (int y = 0; y < mInternal.mCommonParams.mOutsideCommonParams._height; ++y) 
+		for (int y = 0; y < mCommonParams.mOutsideCommonParams._height; ++y) 
 		{
 			double sum = 0;
-			for (const auto t : irange(mInternal.mCommonParams._num_patterns)) 
+			for (const auto t : irange(mCommonParams._num_patterns)) 
 			{
 				if (output._wave.ref(x, y, t)) 
 				{
-					sum += mInternal.mCommonParams._pattern_weight[t];
+					sum += mCommonParams._pattern_weight[t];
 				}
 			}
 
@@ -821,15 +822,15 @@ Image TileModel::image(const Output& output) const
 					else 
 					{
 						double r = 0, g = 0, b = 0, a = 0;
-						for (int t = 0; t < mInternal.mCommonParams._num_patterns; ++t) 
+						for (int t = 0; t < mCommonParams._num_patterns; ++t) 
 						{
 							if (output._wave.ref(x, y, t)) 
 							{
 								RGBA c = mInternal._tiles[t][xt + yt * mInternal._tile_size];
-								r += (double)c.r * mInternal.mCommonParams._pattern_weight[t] / sum;
-								g += (double)c.g * mInternal.mCommonParams._pattern_weight[t] / sum;
-								b += (double)c.b * mInternal.mCommonParams._pattern_weight[t] / sum;
-								a += (double)c.a * mInternal.mCommonParams._pattern_weight[t] / sum;
+								r += (double)c.r * mCommonParams._pattern_weight[t] / sum;
+								g += (double)c.g * mCommonParams._pattern_weight[t] / sum;
+								b += (double)c.b * mCommonParams._pattern_weight[t] / sum;
+								a += (double)c.a * mCommonParams._pattern_weight[t] / sum;
 							}
 						}
 
