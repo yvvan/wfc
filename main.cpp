@@ -116,19 +116,14 @@ struct CommonParam
 {
 	size_t _width;      // Of output image.
 	size_t _height;     // Of output image.
-	size_t _num_patterns;
 	bool   _periodic_out;
-	size_t _foundation = kInvalidIndex; // Index of pattern which is at the base, or kInvalidIndex
 };
 
 class Model
 {
 public:
 	CommonParam mCommonParam;
-	size_t              _width;      // Of output image.
-	size_t              _height;     // Of output image.
-	size_t              _num_patterns;
-	bool                _periodic_out;
+	size_t _num_patterns;
 	size_t              _foundation = kInvalidIndex; // Index of pattern which is at the base, or kInvalidIndex
 
 	// The weight of each pattern (e.g. how often that pattern occurs in the sample image).
@@ -157,7 +152,7 @@ public:
 
 	bool on_boundary(int x, int y) const override
 	{
-		return !_periodic_out && (x + _n > mCommonParam._width || y + _n > mCommonParam._height);
+		return !mCommonParam._periodic_out && (x + _n > mCommonParam._width || y + _n > mCommonParam._height);
 	}
 
 	Image image(const Output& output) const override;
@@ -299,7 +294,7 @@ OverlappingModel::OverlappingModel(
 	_width        = width;
 	_height       = height;
 	_num_patterns = hashed_patterns.size();
-	_periodic_out = periodic_out;
+	mCommonParam._periodic_out = periodic_out;
 	_n            = n;
 	_palette      = palette;
 
@@ -387,7 +382,7 @@ bool OverlappingModel::propagate(Output* output) const
 					if      (sy <  0)       { sy += mCommonParam._height; }
 					else if (sy >= mCommonParam._height) { sy -= mCommonParam._height; }
 
-					if (!_periodic_out && (sx + _n > mCommonParam._width || sy + _n > mCommonParam._height)) 
+					if (!mCommonParam._periodic_out && (sx + _n > mCommonParam._width || sy + _n > mCommonParam._height)) 
 					{
 						continue;
 					}
@@ -525,7 +520,7 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, i
 {
 	_width        = width;
 	_height       = height;
-	_periodic_out = periodic_out;
+	mCommonParam._periodic_out = periodic_out;
 
 	_tile_size        = config.get_or("tile_size", 16);
 	const bool unique = config.get_or("unique",    false);
@@ -693,7 +688,7 @@ bool TileModel::propagate(Output* output) const
 				{
 					if (x2 == 0) 
 					{
-						if (!_periodic_out) { continue; }
+						if (!mCommonParam._periodic_out) { continue; }
 						x1 = mCommonParam._width - 1;
 					} 
 					else 
@@ -705,7 +700,7 @@ bool TileModel::propagate(Output* output) const
 				{
 					if (y2 == mCommonParam._height - 1) 
 					{
-						if (!_periodic_out) { continue; }
+						if (!mCommonParam._periodic_out) { continue; }
 						y1 = 0;
 					}
 					else 
@@ -717,7 +712,7 @@ bool TileModel::propagate(Output* output) const
 				{
 					if (x2 == mCommonParam._width - 1) 
 					{
-						if (!_periodic_out) { continue; }
+						if (!mCommonParam._periodic_out) { continue; }
 						x1 = 0;
 					} 
 					else 
@@ -729,7 +724,7 @@ bool TileModel::propagate(Output* output) const
 				{
 					if (y2 == 0) 
 					{
-						if (!_periodic_out) { continue; }
+						if (!mCommonParam._periodic_out) { continue; }
 						y1 = mCommonParam._height - 1;
 					} 
 					else 
