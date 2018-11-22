@@ -773,7 +773,6 @@ void run_config_file(const std::string& path)
 		for (const auto& p : samples["overlapping"].as_object()) 
 		{
 			LOG_SCOPE_F(INFO, "%s", p.key().c_str());
-			const auto model = make_overlapping(image_dir, p.value());
 
 			const auto& config = p.value();
 			size_t limit       = config.get_or("limit",       0);
@@ -781,7 +780,9 @@ void run_config_file(const std::string& path)
 
 			const std::string& name = p.key();
 
+			const auto model = make_overlapping(image_dir, p.value());
 			run_and_write(name, limit, screenshots, *model);
+
 			p.value().check_dangling();
 		}
 	}
@@ -791,13 +792,13 @@ void run_config_file(const std::string& path)
 		for (const auto& p : samples["tiled"].as_object()) 
 		{
 			LOG_SCOPE_F(INFO, "Tiled %s", p.key().c_str());
-			const auto model = make_tiled(image_dir, p.value());
 
 			const auto& config = p.value();
 			size_t limit       = config.get_or("limit",       0);
 			size_t screenshots = config.get_or("screenshots", 2);
 			const std::string& name = p.key();
 
+			const auto model = make_tiled(image_dir, p.value());
 			run_and_write(name, limit, screenshots, *model);
 		}
 	}
