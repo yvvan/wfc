@@ -1,34 +1,9 @@
 #ifndef _WFC_ALGORITHM_H_
 #define _WFC_ALGORITHM_H_
 
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <limits>
-#include <memory>
-#include <numeric>
-#include <random>
-#include <unordered_map>
-#include <unordered_set>
+#include <functional>
 #include <vector>
-#include <iostream>
-
-#include <configuru.hpp>
-#include <emilib/irange.hpp>
-#include <emilib/strprintf.hpp>
-#include <loguru.hpp>
-#include <stb_image.h>
-#include <stb_image_write.h>
-
-
-#include <wfc/configuru.h>
-#include <wfc/overlapping_model.h>
-#include <wfc/tile_model.h>
-#include <wfc/arrays.h>
 #include <wfc/imodel.h>
-#include <wfc/common.h>
-
-using emilib::irange;
 
 using RandomDouble      = std::function<double()>;
 

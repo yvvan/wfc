@@ -1,5 +1,16 @@
 #include <wfc/algorithm.h>
 
+#include <algorithm>
+
+#include <emilib/irange.hpp>
+#include <emilib/strprintf.hpp>
+
+#include <stb_image_write.h>
+
+#include <wfc/common.h>
+
+using emilib::irange;
+
 const char* result2str(const Result result)
 {
 	return result == Result::kSuccess ? "success"
