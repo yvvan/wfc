@@ -1,23 +1,3 @@
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <limits>
-#include <memory>
-#include <numeric>
-#include <random>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-#include <iostream>
-
-#include <configuru.hpp>
-#include <emilib/irange.hpp>
-#include <emilib/strprintf.hpp>
-#include <loguru.hpp>
-#include <stb_image.h>
-#include <stb_image_write.h>
-
-
 #include <wfc/algorithm.h>
 #include <wfc/configuru.h>
 #include <wfc/overlapping_model.h>
