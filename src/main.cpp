@@ -658,11 +658,8 @@ Result run(Output* output, const Model& model, size_t seed, size_t limit)
 	return Result::kUnfinished;
 }
 
-void run_and_write(const std::string& name, const configuru::Config& config, const Model& model)
+void run_and_write(const std::string& name, size_t limit, size_t screenshots, const Model& model)
 {
-	const size_t limit       = config.get_or("limit",       0);
-	const size_t screenshots = config.get_or("screenshots", 2);
-
 	for (const auto i : irange(screenshots)) 
 	{
 		for (const auto attempt : irange(10)) 
@@ -777,7 +774,12 @@ void run_config_file(const std::string& path)
 		{
 			LOG_SCOPE_F(INFO, "%s", p.key().c_str());
 			const auto model = make_overlapping(image_dir, p.value());
-			run_and_write(p.key(), p.value(), *model);
+
+			const auto& config = p.value();
+			size_t limit       = config.get_or("limit",       0);
+			size_t screenshots = config.get_or("screenshots", 2);
+
+			run_and_write(p.key(), limit, screenshots, *model);
 			p.value().check_dangling();
 		}
 	}
@@ -788,7 +790,12 @@ void run_config_file(const std::string& path)
 		{
 			LOG_SCOPE_F(INFO, "Tiled %s", p.key().c_str());
 			const auto model = make_tiled(image_dir, p.value());
-			run_and_write(p.key(), p.value(), *model);
+
+			const auto& config = p.value();
+			size_t limit       = config.get_or("limit",       0);
+			size_t screenshots = config.get_or("screenshots", 2);
+
+			run_and_write(p.key(), limit, screenshots, *model);
 		}
 	}
 }
