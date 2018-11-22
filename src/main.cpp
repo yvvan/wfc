@@ -706,18 +706,12 @@ OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, co
 		.n = n,
 		.commonParam =
 		{
-			._width = config.get_or("width",        48),
-			._height = config.get_or("height",       48),
+			._width = (size_t)config.get_or("width",        48),
+			._height = (size_t)config.get_or("height",       48),
 			._periodic_out = config.get_or("periodic_out", true)
 		},
 		.foundation_pattern = foundation
 	};
-}
-
-std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const configuru::Config& config)
-{
-	OverlappingModelConfig overlappingModelConfig = extractOverlappingConfig(image_dir, config);
-	return std::make_unique<OverlappingModel>(overlappingModelConfig);
 }
 
 Tile loadTile(const std::string& subdir, const std::string& image_dir, const std::string& tile_name)
@@ -744,8 +738,8 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 		.subset_name = topConfig.get_or("subset",   std::string()),
 		.commonParam =
 		{
-			._width = topConfig.get_or("width",    48),
-			._height = topConfig.get_or("height",   48),
+			._width = (size_t)topConfig.get_or("width",    48),
+			._height = (size_t)topConfig.get_or("height",   48),
 			._periodic_out = topConfig.get_or("periodic", false)
 		},
 		.tile_loader = [image_dir, subdir] (const std::string& tile_name)
@@ -753,13 +747,6 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 			return loadTile(subdir, image_dir, tile_name);
 		}
 	};
-}
-
-std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru::Config& topConfig)
-{
-	TileModelConfig tileModelConfig = extractConfig(image_dir, topConfig);
-	auto internal = fromConfig(tileModelConfig);
-	return std::make_unique<TileModel>(internal);
 }
 
 void run_config_file(const std::string& path)
@@ -780,7 +767,9 @@ void run_config_file(const std::string& path)
 
 			const std::string& name = p.key();
 
-			const auto model = make_overlapping(image_dir, p.value());
+			OverlappingModelConfig overlappingModelConfig = extractOverlappingConfig(image_dir, config);
+
+			auto model = std::make_unique<OverlappingModel>(overlappingModelConfig);
 			run_and_write(name, limit, screenshots, *model);
 
 			p.value().check_dangling();
@@ -798,7 +787,10 @@ void run_config_file(const std::string& path)
 			size_t screenshots = config.get_or("screenshots", 2);
 			const std::string& name = p.key();
 
-			const auto model = make_tiled(image_dir, p.value());
+			TileModelConfig tileModelConfig = extractConfig(image_dir, config);
+			auto internal = fromConfig(tileModelConfig);
+			auto model = std::make_unique<TileModel>(internal);
+
 			run_and_write(name, limit, screenshots, *model);
 		}
 	}
