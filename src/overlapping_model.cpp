@@ -1,16 +1,6 @@
 #include <wfc/overlapping_model.h>
 
-#include <algorithm>
-#include <array>
 #include <cmath>
-#include <limits>
-#include <memory>
-#include <numeric>
-#include <random>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-#include <iostream>
 
 #include <emilib/irange.hpp>
 

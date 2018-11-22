@@ -39,4 +39,6 @@ private:
 	Palette                            _palette;
 };
 
+Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size);
+
 #endif
