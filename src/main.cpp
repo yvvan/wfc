@@ -36,7 +36,6 @@ using emilib::irange;
 using RandomDouble      = std::function<double()>;
 
 
-const size_t kUpscale             =   4; // Upscale images before saving
 
 enum class Result
 {
@@ -52,19 +51,6 @@ const char* result2str(const Result result)
 	     : "unfinished";
 }
 
-
-Image upsample(const Image& image)
-{
-	Image result(image.width() * kUpscale, image.height() * kUpscale, {});
-	for (const auto y : irange(result.height())) 
-	{
-		for (const auto x : irange(result.width())) 
-		{
-			result.ref(x, y) = image.ref(x / kUpscale, y / kUpscale);
-		}
-	}
-	return result;
-}
 
 double calc_sum(const std::vector<double>& a)
 {
@@ -95,53 +81,6 @@ size_t spin_the_bottle(const std::vector<double>& a, double between_zero_and_one
 	}
 
 	return 0;
-}
-
-Image image_from_graphics(const Graphics& graphics, const Palette& palette)
-{
-	Image result(graphics.width(), graphics.height(), {0, 0, 0, 0});
-
-	for (const auto y : irange(graphics.height())) 
-	{
-		for (const auto x : irange(graphics.width())) 
-		{
-			const auto& tile_constributors = graphics.ref(x, y);
-			if (tile_constributors.empty()) 
-			{
-				result.ref(x, y) = {0, 0, 0, 255};
-			} 
-			else if (tile_constributors.size() == 1) 
-			{
-				result.ref(x, y) = palette[tile_constributors[0]];
-			} 
-			else 
-			{
-				size_t r = 0;
-				size_t g = 0;
-				size_t b = 0;
-				size_t a = 0;
-				for (const auto tile : tile_constributors) 
-				{
-					r += palette[tile].r;
-					g += palette[tile].g;
-					b += palette[tile].b;
-					a += palette[tile].a;
-				}
-				r /= tile_constributors.size();
-				g /= tile_constributors.size();
-				b /= tile_constributors.size();
-				a /= tile_constributors.size();
-				result.ref(x, y) = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
-			}
-		}
-	}
-
-	return result;
-}
-
-Image OverlappingModel::image(const Output& output) const
-{
-	return upsample(image_from_graphics(graphics(output), _palette));
 }
 
 Result find_lowest_entropy(const Model& model, const Output& output, RandomDouble& random_double,

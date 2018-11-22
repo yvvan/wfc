@@ -5,6 +5,8 @@
 #include <wfc/imodel.h>
 #include <wfc/common.h>
 
+const size_t kUpscale             =   4; // Upscale images before saving
+
 struct OverlappingModelConfig
 {
 	const PatternPrevalence hashed_patterns;
@@ -40,5 +42,9 @@ private:
 };
 
 Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size);
+
+Image image_from_graphics(const Graphics& graphics, const Palette& palette);
+
+Image upsample(const Image& image);
 
 #endif
