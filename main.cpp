@@ -143,15 +143,19 @@ public:
 
 // ----------------------------------------------------------------------------
 
+struct OverlappingModelConfig
+{
+	const PatternPrevalence& hashed_patterns;
+	const Palette&           palette;
+	int                      n;
+	OutsideCommonParams commonParam;
+	PatternHash              foundation_pattern;
+};
+
 class OverlappingModel : public Model
 {
 public:
-	OverlappingModel(
-		const PatternPrevalence& hashed_patterns,
-		const Palette&           palette,
-		int                      n,
-		OutsideCommonParams commonParam,
-		PatternHash              foundation_pattern);
+	OverlappingModel(OverlappingModelConfig config);
 
 	bool propagate(Output* output) const override;
 
@@ -300,39 +304,34 @@ Pattern make_pattern(int n, Functor fun)
 
 // ----------------------------------------------------------------------------
 
-OverlappingModel::OverlappingModel(
-	const PatternPrevalence& hashed_patterns,
-	const Palette&           palette,
-	int                      n,
-	OutsideCommonParams commonParam,
-	PatternHash              foundation_pattern)
+OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 {
-	mCommonParams.mOutsideCommonParams = commonParam;
-	mCommonParams._num_patterns = hashed_patterns.size();
-	_n            = n;
-	_palette      = palette;
+	mCommonParams.mOutsideCommonParams = config.commonParam;
+	mCommonParams._num_patterns = config.hashed_patterns.size();
+	_n            = config.n;
+	_palette      = config.palette;
 
 	mCommonParams._foundation = kInvalidIndex;
-	for (const auto& it : hashed_patterns) 
+	for (const auto& it : config.hashed_patterns) 
 	{
-		if (it.first == foundation_pattern) 
+		if (it.first == config.foundation_pattern) 
 		{
 			mCommonParams._foundation = _patterns.size();
 		}
 
-		_patterns.push_back(pattern_from_hash(it.first, n, _palette.size()));
+		_patterns.push_back(pattern_from_hash(it.first, config.n, _palette.size()));
 		mCommonParams._pattern_weight.push_back(it.second);
 	}
 
 	const auto agrees = [&](const Pattern& p1, const Pattern& p2, int dx, int dy) 
 	{
-		int xmin = dx < 0 ? 0 : dx, xmax = dx < 0 ? dx + n : n;
-		int ymin = dy < 0 ? 0 : dy, ymax = dy < 0 ? dy + n : n;
+		int xmin = dx < 0 ? 0 : dx, xmax = dx < 0 ? dx + config.n : config.n;
+		int ymin = dy < 0 ? 0 : dy, ymax = dy < 0 ? dy + config.n : config.n;
 		for (int y = ymin; y < ymax; ++y) 
 		{
 			for (int x = xmin; x < xmax; ++x) 
 			{
-				if (p1[x + n * y] != p2[x - dx + n * (y - dy)]) 
+				if (p1[x + config.n * y] != p2[x - dx + config.n * (y - dy)]) 
 				{
 					return false;
 				}
@@ -341,21 +340,21 @@ OverlappingModel::OverlappingModel(
 		return true;
 	};
 
-	_propagator = Array3D<std::vector<PatternIndex>>(mCommonParams._num_patterns, 2 * n - 1, 2 * n - 1, {});
+	_propagator = Array3D<std::vector<PatternIndex>>(mCommonParams._num_patterns, 2 * config.n - 1, 2 * config.n - 1, {});
 
 	size_t longest_propagator = 0;
 	size_t sum_propagator = 0;
 
 	for (auto t : irange(mCommonParams._num_patterns)) 
 	{
-		for (auto x : irange<int>(2 * n - 1)) 
+		for (auto x : irange<int>(2 * config.n - 1)) 
 		{
-			for (auto y : irange<int>(2 * n - 1)) 
+			for (auto y : irange<int>(2 * config.n - 1)) 
 			{
 				auto& list = _propagator.ref(t, x, y);
 				for (auto t2 : irange(mCommonParams._num_patterns)) 
 				{
-					if (agrees(_patterns[t], _patterns[t2], x - n + 1, y - n + 1)) 
+					if (agrees(_patterns[t], _patterns[t2], x - config.n + 1, y - config.n + 1)) 
 					{
 						list.push_back(t2);
 					}
@@ -1132,14 +1131,21 @@ std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const conf
 	const auto hashed_patterns = extract_patterns(sample_image, n, periodic_in, symmetry, has_foundation ? &foundation : nullptr);
 	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
 
-	OutsideCommonParams commonParam
+	OverlappingModelConfig overlappingModelConfig
 	{
-		._width = config.get_or("width",        48),
-		._height = config.get_or("height",       48),
-		._periodic_out = config.get_or("periodic_out", true)
+		.hashed_patterns = hashed_patterns,
+		.palette = sample_image.palette,
+		.n = n,
+		.commonParam =
+		{
+			._width = config.get_or("width",        48),
+			._height = config.get_or("height",       48),
+			._periodic_out = config.get_or("periodic_out", true)
+		},
+		.foundation_pattern = foundation
 	};
 
-	return std::make_unique<OverlappingModel>(hashed_patterns, sample_image.palette, n, commonParam, foundation);
+	return std::make_unique<OverlappingModel>(overlappingModelConfig);
 }
 
 std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru::Config& topConfig)
