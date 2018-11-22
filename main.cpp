@@ -112,9 +112,19 @@ Image upsample(const Image& image)
 
 // ----------------------------------------------------------------------------
 
+struct CommonParam
+{
+	size_t _width;      // Of output image.
+	size_t _height;     // Of output image.
+	size_t _num_patterns;
+	bool   _periodic_out;
+	size_t _foundation = kInvalidIndex; // Index of pattern which is at the base, or kInvalidIndex
+};
+
 class Model
 {
 public:
+	CommonParam mCommonParam;
 	size_t              _width;      // Of output image.
 	size_t              _height;     // Of output image.
 	size_t              _num_patterns;
@@ -147,7 +157,7 @@ public:
 
 	bool on_boundary(int x, int y) const override
 	{
-		return !_periodic_out && (x + _n > _width || y + _n > _height);
+		return !_periodic_out && (x + _n > mCommonParam._width || y + _n > mCommonParam._height);
 	}
 
 	Image image(const Output& output) const override;
@@ -355,9 +365,9 @@ bool OverlappingModel::propagate(Output* output) const
 {
 	bool did_change = false;
 
-	for (int x1 = 0; x1 < _width; ++x1) 
+	for (int x1 = 0; x1 < mCommonParam._width; ++x1) 
 	{
-		for (int y1 = 0; y1 < _height; ++y1) 
+		for (int y1 = 0; y1 < mCommonParam._height; ++y1) 
 		{
 			if (!output->_changes.ref(x1, y1)) { continue; }
 			output->_changes.ref(x1, y1) = false;
@@ -370,14 +380,14 @@ bool OverlappingModel::propagate(Output* output) const
 					auto y2 = y1 + dy;
 
 					auto sx = x2;
-					if      (sx <  0)      { sx += _width; }
-					else if (sx >= _width) { sx -= _width; }
+					if      (sx <  0)      { sx += mCommonParam._width; }
+					else if (sx >= mCommonParam._width) { sx -= mCommonParam._width; }
 
 					auto sy = y2;
-					if      (sy <  0)       { sy += _height; }
-					else if (sy >= _height) { sy -= _height; }
+					if      (sy <  0)       { sy += mCommonParam._height; }
+					else if (sy >= mCommonParam._height) { sy -= mCommonParam._height; }
 
-					if (!_periodic_out && (sx + _n > _width || sy + _n > _height)) 
+					if (!_periodic_out && (sx + _n > mCommonParam._width || sy + _n > mCommonParam._height)) 
 					{
 						continue;
 					}
@@ -415,10 +425,10 @@ bool OverlappingModel::propagate(Output* output) const
 
 Graphics OverlappingModel::graphics(const Output& output) const
 {
-	Graphics result(_width, _height, {});
-	for (const auto y : irange(_height)) 
+	Graphics result(mCommonParam._width, mCommonParam._height, {});
+	for (const auto y : irange(mCommonParam._height)) 
 	{
-		for (const auto x : irange(_width)) 
+		for (const auto x : irange(mCommonParam._width)) 
 		{
 			auto& tile_constributors = result.ref(x, y);
 
@@ -427,10 +437,10 @@ Graphics OverlappingModel::graphics(const Output& output) const
 				for (int dx = 0; dx < _n; ++dx) 
 				{
 					int sx = x - dx;
-					if (sx < 0) sx += _width;
+					if (sx < 0) sx += mCommonParam._width;
 
 					int sy = y - dy;
-					if (sy < 0) sy += _height;
+					if (sy < 0) sy += mCommonParam._height;
 
 					if (on_boundary(sx, sy)) { continue; }
 
@@ -672,9 +682,9 @@ bool TileModel::propagate(Output* output) const
 {
 	bool did_change = false;
 
-	for (int x2 = 0; x2 < _width; ++x2) 
+	for (int x2 = 0; x2 < mCommonParam._width; ++x2) 
 	{
-		for (int y2 = 0; y2 < _height; ++y2) 
+		for (int y2 = 0; y2 < mCommonParam._height; ++y2) 
 		{
 			for (int d = 0; d < 4; ++d) 
 			{
@@ -684,7 +694,7 @@ bool TileModel::propagate(Output* output) const
 					if (x2 == 0) 
 					{
 						if (!_periodic_out) { continue; }
-						x1 = _width - 1;
+						x1 = mCommonParam._width - 1;
 					} 
 					else 
 					{
@@ -693,7 +703,7 @@ bool TileModel::propagate(Output* output) const
 				} 
 				else if (d == 1) 
 				{
-					if (y2 == _height - 1) 
+					if (y2 == mCommonParam._height - 1) 
 					{
 						if (!_periodic_out) { continue; }
 						y1 = 0;
@@ -705,7 +715,7 @@ bool TileModel::propagate(Output* output) const
 				} 
 				else if (d == 2) 
 				{
-					if (x2 == _width - 1) 
+					if (x2 == mCommonParam._width - 1) 
 					{
 						if (!_periodic_out) { continue; }
 						x1 = 0;
@@ -720,7 +730,7 @@ bool TileModel::propagate(Output* output) const
 					if (y2 == 0) 
 					{
 						if (!_periodic_out) { continue; }
-						y1 = _height - 1;
+						y1 = mCommonParam._height - 1;
 					} 
 					else 
 					{
@@ -759,11 +769,11 @@ bool TileModel::propagate(Output* output) const
 
 Image TileModel::image(const Output& output) const
 {
-	Image result(_width * _tile_size, _height * _tile_size, {});
+	Image result(mCommonParam._width * _tile_size, mCommonParam._height * _tile_size, {});
 
-	for (int x = 0; x < _width; ++x) 
+	for (int x = 0; x < mCommonParam._width; ++x) 
 	{
-		for (int y = 0; y < _height; ++y) 
+		for (int y = 0; y < mCommonParam._height; ++y) 
 		{
 			double sum = 0;
 			for (const auto t : irange(_num_patterns)) 
@@ -942,9 +952,9 @@ Result find_lowest_entropy(const Model& model, const Output& output, RandomDoubl
 
 	double min = std::numeric_limits<double>::infinity();
 
-	for (int x = 0; x < model._width; ++x) 
+	for (int x = 0; x < model.mCommonParam._width; ++x) 
 	{
-		for (int y = 0; y < model._height; ++y) 
+		for (int y = 0; y < model.mCommonParam._height; ++y) 
 		{
 			if (model.on_boundary(x, y)) { continue; }
 
@@ -1017,23 +1027,23 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double)
 Output create_output(const Model& model)
 {
 	Output output;
-	output._wave = Array3D<Bool>(model._width, model._height, model._num_patterns, true);
-	output._changes = Array2D<Bool>(model._width, model._height, false);
+	output._wave = Array3D<Bool>(model.mCommonParam._width, model.mCommonParam._height, model._num_patterns, true);
+	output._changes = Array2D<Bool>(model.mCommonParam._width, model.mCommonParam._height, false);
 
 	if (model._foundation != kInvalidIndex) 
 	{
-		for (const auto x : irange(model._width)) 
+		for (const auto x : irange(model.mCommonParam._width)) 
 		{
 			for (const auto t : irange(model._num_patterns)) 
 			{
 				if (t != model._foundation) 
 				{
-					output._wave.ref(x, model._height - 1, t) = false;
+					output._wave.ref(x, model.mCommonParam._height - 1, t) = false;
 				}
 			}
-			output._changes.ref(x, model._height - 1) = true;
+			output._changes.ref(x, model.mCommonParam._height - 1) = true;
 
-			for (const auto y : irange(model._height - 1)) 
+			for (const auto y : irange(model.mCommonParam._height - 1)) 
 			{
 				output._wave.ref(x, y, model._foundation) = false;
 				output._changes.ref(x, y) = true;
@@ -1116,7 +1126,7 @@ std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const conf
 	const auto hashed_patterns = extract_patterns(sample_image, n, periodic_in, symmetry, has_foundation ? &foundation : nullptr);
 	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
 
-	return std::make_unique<OverlappingModel>(hashed_patterns, sample_image.palette, n, periodic_out, out_width, out_height, foundation);;;;
+	return std::make_unique<OverlappingModel>(hashed_patterns, sample_image.palette, n, periodic_out, out_width, out_height, foundation);
 }
 
 std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru::Config& config)
