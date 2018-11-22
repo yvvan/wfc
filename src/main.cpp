@@ -749,7 +749,24 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 	};
 }
 
-void run_config_file(const std::string& path)
+struct GeneralConfig
+{
+	size_t limit;
+	size_t screenshots;
+
+	const std::string name;
+};
+
+struct ConfigActions
+{
+
+	std::function<void(const OverlappingModelConfig&)> overlappingAction;
+
+	std::function<void(const TileModelConfig&)> tileAction;
+
+};
+
+void run_config_file(const std::string& path, ConfigActions configActions)
 {
 	LOG_F(INFO, "Running all samples in %s", path.c_str());
 	const auto samples = configuru::parse_file(path, configuru::CFG);
@@ -762,15 +779,18 @@ void run_config_file(const std::string& path)
 			LOG_SCOPE_F(INFO, "%s", p.key().c_str());
 
 			const auto& config = p.value();
-			size_t limit       = config.get_or("limit",       0);
-			size_t screenshots = config.get_or("screenshots", 2);
 
-			const std::string& name = p.key();
+			GeneralConfig generalConfig
+			{
+				.limit       = (size_t)config.get_or("limit",       0),
+				.screenshots = (size_t)config.get_or("screenshots", 2),
+				.name = p.key()
+			};
 
 			OverlappingModelConfig overlappingModelConfig = extractOverlappingConfig(image_dir, config);
 
 			auto model = std::make_unique<OverlappingModel>(overlappingModelConfig);
-			run_and_write(name, limit, screenshots, *model);
+			run_and_write(generalConfig.name, generalConfig.limit, generalConfig.screenshots, *model);
 
 			p.value().check_dangling();
 		}
@@ -783,15 +803,18 @@ void run_config_file(const std::string& path)
 			LOG_SCOPE_F(INFO, "Tiled %s", p.key().c_str());
 
 			const auto& config = p.value();
-			size_t limit       = config.get_or("limit",       0);
-			size_t screenshots = config.get_or("screenshots", 2);
-			const std::string& name = p.key();
+			GeneralConfig generalConfig
+			{
+				.limit       = (size_t)config.get_or("limit",       0),
+				.screenshots = (size_t)config.get_or("screenshots", 2),
+				.name = p.key()
+			};
 
 			TileModelConfig tileModelConfig = extractConfig(image_dir, config);
 			auto internal = fromConfig(tileModelConfig);
 			auto model = std::make_unique<TileModel>(internal);
 
-			run_and_write(name, limit, screenshots, *model);
+			run_and_write(generalConfig.name, generalConfig.limit, generalConfig.screenshots, *model);
 		}
 	}
 }
@@ -820,8 +843,10 @@ int main(int argc, char* argv[])
 		files.push_back("samples.cfg");
 	}
 
+	ConfigActions actions;
+
 	for (const auto& file : files) 
 	{
-		run_config_file(file);
+		run_config_file(file, actions);
 	}
 }
