@@ -1,12 +1,14 @@
 #ifndef _WFC_RGBA_H_
 #define _WFC_RGBA_H_
 
+#include <cstdint>
+
 struct RGBA
 {
 	uint8_t r, g, b, a;
 };
 
-bool operator==(RGBA x, RGBA y)
+inline bool operator==(const RGBA& x, const RGBA& y)
 {
 	return x.r == y.r 
 		&& x.g == y.g 

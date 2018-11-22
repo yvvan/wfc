@@ -8,6 +8,8 @@ include_directories(libs libs/emilib include)
 
 add_library(libs libs/libs.cpp)
 
+add_library(wfc src/tile_model.cpp)
+
 add_executable(wfc-sebastian src/main.cpp)
 
-target_link_libraries(wfc-sebastian libs pthread ${CMAKE_DL_LIBS})
+target_link_libraries(wfc-sebastian libs wfc pthread ${CMAKE_DL_LIBS})

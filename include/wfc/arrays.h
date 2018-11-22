@@ -2,6 +2,7 @@
 #define _WFC_ARRAYS_H_
 
 #include <vector>
+#include <cstdlib>
 
 struct Dimension2D
 {
