@@ -143,9 +143,7 @@ public:
 		const PatternPrevalence& hashed_patterns,
 		const Palette&           palette,
 		int                      n,
-		bool                     periodic_out,
-		size_t                   width,
-		size_t                   height,
+		CommonParam commonParam,
 		PatternHash              foundation_pattern);
 
 	bool propagate(Output* output) const override;
@@ -176,7 +174,7 @@ using TileLoader = std::function<Tile(const std::string& tile_name)>;
 class TileModel : public Model
 {
 public:
-	TileModel(const configuru::Config& config, std::string subset_name, int width, int height, bool periodic, const TileLoader& tile_loader);
+	TileModel(const configuru::Config& config, std::string subset_name, CommonParam commonParam, const TileLoader& tile_loader);
 
 	bool propagate(Output* output) const override;
 
@@ -286,15 +284,11 @@ OverlappingModel::OverlappingModel(
 	const PatternPrevalence& hashed_patterns,
 	const Palette&           palette,
 	int                      n,
-	bool                     periodic_out,
-	size_t                   width,
-	size_t                   height,
+	CommonParam commonParam,
 	PatternHash              foundation_pattern)
 {
-	_width        = width;
-	_height       = height;
+	mCommonParam = commonParam;
 	_num_patterns = hashed_patterns.size();
-	mCommonParam._periodic_out = periodic_out;
 	_n            = n;
 	_palette      = palette;
 
@@ -516,11 +510,9 @@ Tile rotate(const Tile& in_tile, const size_t tile_size)
 	return out_tile;
 }
 
-TileModel::TileModel(const configuru::Config& config, std::string subset_name, int width, int height, bool periodic_out, const TileLoader& tile_loader)
+TileModel::TileModel(const configuru::Config& config, std::string subset_name, CommonParam commonParam, const TileLoader& tile_loader)
 {
-	_width        = width;
-	_height       = height;
-	mCommonParam._periodic_out = periodic_out;
+	mCommonParam = commonParam;
 
 	_tile_size        = config.get_or("tile_size", 16);
 	const bool unique = config.get_or("unique",    false);
@@ -1121,7 +1113,14 @@ std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const conf
 	const auto hashed_patterns = extract_patterns(sample_image, n, periodic_in, symmetry, has_foundation ? &foundation : nullptr);
 	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
 
-	return std::make_unique<OverlappingModel>(hashed_patterns, sample_image.palette, n, periodic_out, out_width, out_height, foundation);
+	CommonParam commonParam
+	{
+		._width = out_width,
+		._height = out_height,
+		._periodic_out = periodic_out
+	};
+
+	return std::make_unique<OverlappingModel>(hashed_patterns, sample_image.palette, n, commonParam, foundation);
 }
 
 std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru::Config& config)
@@ -1146,7 +1145,14 @@ std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru:
 
 	const auto root_dir = image_dir + subdir + "/";
 	const auto tile_config = configuru::parse_file(root_dir + "data.cfg", configuru::CFG);
-	return std::make_unique<TileModel>(tile_config, subset, out_width, out_height, periodic, tile_loader);
+
+	CommonParam commonParam
+	{
+		._width = out_width,
+		._height = out_height,
+		._periodic_out = periodic
+	};
+	return std::make_unique<TileModel>(tile_config, subset, commonParam, tile_loader);
 }
 
 void run_config_file(const std::string& path)
