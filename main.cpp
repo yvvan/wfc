@@ -1115,7 +1115,7 @@ void run_and_write(const std::string& name, const configuru::Config& config, con
 	}
 }
 
-std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const configuru::Config& config)
+OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, const configuru::Config& config)
 {
 	const auto image_filename = config["image"].as_string();
 	const auto in_path = image_dir + image_filename;
@@ -1131,7 +1131,7 @@ std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const conf
 	const auto hashed_patterns = extract_patterns(sample_image, n, periodic_in, symmetry, has_foundation ? &foundation : nullptr);
 	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
 
-	OverlappingModelConfig overlappingModelConfig
+	return
 	{
 		.hashed_patterns = hashed_patterns,
 		.palette = sample_image.palette,
@@ -1144,7 +1144,11 @@ std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const conf
 		},
 		.foundation_pattern = foundation
 	};
+}
 
+std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const configuru::Config& config)
+{
+	OverlappingModelConfig overlappingModelConfig = extractOverlappingConfig(image_dir, config);
 	return std::make_unique<OverlappingModel>(overlappingModelConfig);
 }
 
