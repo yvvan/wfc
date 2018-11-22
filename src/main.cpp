@@ -762,7 +762,7 @@ struct ConfigActions
 
 	std::function<void(const GeneralConfig&, const OverlappingModelConfig&)> overlappingAction;
 
-	std::function<void(const GeneralConfig&, const TileModelConfig&)> tileAction;
+	std::function<void(const GeneralConfig&, const TileModelInternal&)> tileAction;
 
 };
 
@@ -809,7 +809,9 @@ void run_config_file(const std::string& path, ConfigActions actions)
 			};
 
 			TileModelConfig tileModelConfig = extractConfig(image_dir, config);
-			actions.tileAction(generalConfig, tileModelConfig);
+			auto internal = fromConfig(tileModelConfig);
+
+			actions.tileAction(generalConfig, internal);
 
 		}
 	}
@@ -846,9 +848,8 @@ int main(int argc, char* argv[])
 			auto model = std::make_unique<OverlappingModel>(overlappingModelConfig);
 			run_and_write(generalConfig.name, generalConfig.limit, generalConfig.screenshots, *model);
 		},
-		.tileAction = [] (const GeneralConfig& generalConfig, const TileModelConfig& tileModelConfig)
+		.tileAction = [] (const GeneralConfig& generalConfig, const TileModelInternal& internal)
 		{
-			auto internal = fromConfig(tileModelConfig);
 			auto model = std::make_unique<TileModel>(internal);
 
 			run_and_write(generalConfig.name, generalConfig.limit, generalConfig.screenshots, *model);
