@@ -107,23 +107,23 @@ Result find_lowest_entropy(const Model& model, const Output& output, RandomDoubl
 	}
 }
 
-Result observe(const Model& model, Output* output, RandomDouble& random_double)
+Result observe(const Model& model, Output& output, RandomDouble& random_double)
 {
 	int argminx, argminy;
-	const auto result = find_lowest_entropy(model, *output, random_double, &argminx, &argminy);
+	const auto result = find_lowest_entropy(model, output, random_double, &argminx, &argminy);
 	if (result != Result::kUnfinished) { return result; }
 
 	std::vector<double> distribution(model.mCommonParams._num_patterns);
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{
-		distribution[t] = output->_wave.ref(argminx, argminy, t) ? model.mCommonParams._pattern_weight[t] : 0;
+		distribution[t] = output._wave.ref(argminx, argminy, t) ? model.mCommonParams._pattern_weight[t] : 0;
 	}
 	size_t r = spin_the_bottle(distribution, random_double());
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{
-		output->_wave.ref(argminx, argminy, t) = (t == r);
+		output._wave.ref(argminx, argminy, t) = (t == r);
 	}
-	output->_changes.ref(argminx, argminy) = true;
+	output._changes.ref(argminx, argminy) = true;
 
 	return Result::kUnfinished;
 }
@@ -153,14 +153,14 @@ Output create_output(const Model& model)
 				output._changes.ref(x, y) = true;
 			}
 
-			while (model.propagate(&output));
+			while (model.propagate(output));
 		}
 	}
 
 	return output;
 }
 
-Result run(Output* output, const Model& model, size_t seed, size_t limit)
+Result run(Output& output, const Model& model, size_t seed, size_t limit)
 {
 	std::mt19937 gen(seed);
 	std::uniform_real_distribution<double> dis(0.0, 1.0);
@@ -196,7 +196,7 @@ void run_and_write(const std::string& name, size_t limit, size_t screenshots, co
 
 			Output output = create_output(model);
 
-			const auto result = run(&output, model, seed, limit);
+			const auto result = run(output, model, seed, limit);
 
 			if (result == Result::kSuccess) 
 			{

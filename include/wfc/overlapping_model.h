@@ -21,7 +21,7 @@ class OverlappingModel : public Model
 public:
 	OverlappingModel(OverlappingModelConfig config);
 
-	bool propagate(Output* output) const override;
+	bool propagate(Output& output) const override;
 
 	bool on_boundary(int x, int y) const override
 	{

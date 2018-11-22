@@ -12,7 +12,7 @@ TileModel::TileModel(TileModelInternal internal) :
 	mCommonParams = mInternal.mCommonParams;
 }
 
-bool TileModel::propagate(Output* output) const
+bool TileModel::propagate(Output& output) const
 {
 	bool did_change = false;
 
@@ -72,24 +72,24 @@ bool TileModel::propagate(Output* output) const
 					}
 				}
 
-				if (!output->_changes.ref(x1, y1)) { continue; }
+				if (!output._changes.ref(x1, y1)) { continue; }
 
 				for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
 				{
-					if (output->_wave.ref(x2, y2, t2)) 
+					if (output._wave.ref(x2, y2, t2)) 
 					{
 						bool b = false;
 						for (int t1 = 0; t1 < mCommonParams._num_patterns && !b; ++t1) 
 						{
-							if (output->_wave.ref(x1, y1, t1)) 
+							if (output._wave.ref(x1, y1, t1)) 
 							{
 								b = mInternal._propagator.ref(d, t1, t2);
 							}
 						}
 						if (!b) 
 						{
-							output->_wave.ref(x2, y2, t2) = false;
-							output->_changes.ref(x2, y2) = true;
+							output._wave.ref(x2, y2, t2) = false;
+							output._changes.ref(x2, y2) = true;
 							did_change = true;
 						}
 					}

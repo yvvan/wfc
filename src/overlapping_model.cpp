@@ -138,7 +138,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	    (double)sum_propagator / _propagator.size(), longest_propagator, sum_propagator);
 }
 
-bool OverlappingModel::propagate(Output* output) const
+bool OverlappingModel::propagate(Output& output) const
 {
 	bool did_change = false;
 
@@ -146,8 +146,8 @@ bool OverlappingModel::propagate(Output* output) const
 	{
 		for (int y1 = 0; y1 < mCommonParams.mOutsideCommonParams._height; ++y1) 
 		{
-			if (!output->_changes.ref(x1, y1)) { continue; }
-			output->_changes.ref(x1, y1) = false;
+			if (!output._changes.ref(x1, y1)) { continue; }
+			output._changes.ref(x1, y1) = false;
 
 			for (int dx = -_n + 1; dx < _n; ++dx) 
 			{
@@ -171,14 +171,14 @@ bool OverlappingModel::propagate(Output* output) const
 
 					for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
 					{
-						if (!output->_wave.ref(sx, sy, t2)) { continue; }
+						if (!output._wave.ref(sx, sy, t2)) { continue; }
 
 						bool can_pattern_fit = false;
 
 						const auto& prop = _propagator.ref(t2, _n - 1 - dx, _n - 1 - dy);
 						for (const auto& t3 : prop) 
 						{
-							if (output->_wave.ref(x1, y1, t3)) 
+							if (output._wave.ref(x1, y1, t3)) 
 							{
 								can_pattern_fit = true;
 								break;
@@ -187,8 +187,8 @@ bool OverlappingModel::propagate(Output* output) const
 
 						if (!can_pattern_fit) 
 						{
-							output->_changes.ref(sx, sy) = true;
-							output->_wave.ref(sx, sy, t2) = false;
+							output._changes.ref(sx, sy) = true;
+							output._wave.ref(sx, sy, t2) = false;
 							did_change = true;
 						}
 					}

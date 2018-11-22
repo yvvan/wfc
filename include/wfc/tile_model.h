@@ -21,7 +21,7 @@ class TileModel : public Model
 public:
 	TileModel(TileModelInternal internal);
 
-	bool propagate(Output* output) const override;
+	bool propagate(Output& output) const override;
 
 	bool on_boundary(int x, int y) const override
 	{
