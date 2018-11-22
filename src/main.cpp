@@ -97,9 +97,6 @@ size_t spin_the_bottle(const std::vector<double>& a, double between_zero_and_one
 	return 0;
 }
 
-// ----------------------------------------------------------------------------
-
-
 Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 {
 	Image result(graphics.width(), graphics.height(), {0, 0, 0, 0});
@@ -146,9 +143,6 @@ Image OverlappingModel::image(const Output& output) const
 {
 	return upsample(image_from_graphics(graphics(output), _palette));
 }
-
-// ----------------------------------------------------------------------------
-
 
 Result find_lowest_entropy(const Model& model, const Output& output, RandomDouble& random_double,
                            int* argminx, int* argminy)
