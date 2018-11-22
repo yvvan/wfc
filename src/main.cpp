@@ -1,10 +1,5 @@
 #include <wfc/algorithm.h>
 #include <wfc/configuru.h>
-#include <wfc/overlapping_model.h>
-#include <wfc/tile_model.h>
-#include <wfc/arrays.h>
-#include <wfc/imodel.h>
-#include <wfc/common.h>
 
 const auto kUsage = R"(
 wfc.bin [-h/--help] [job=samples.cfg, ...]
