@@ -207,7 +207,7 @@ struct TileModelInternal
 class TileModel : public Model
 {
 public:
-	TileModel(TileModelConfig config);
+	TileModel(TileModelInternal internal);
 
 	bool propagate(Output* output) const override;
 
@@ -539,9 +539,11 @@ Tile rotate(const Tile& in_tile, const size_t tile_size)
 	return out_tile;
 }
 
-TileModel::TileModel(TileModelConfig config)
+TileModel::TileModel(TileModelInternal internal) :
+	mInternal(internal)
 {
-	mInternal = fromConfig(config);
+	// Needed because other functions access from base class
+	// TODO: Remove
 	mCommonParams = mInternal.mCommonParams;
 }
 
@@ -1209,7 +1211,8 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru::Config& topConfig)
 {
 	TileModelConfig tileModelConfig = extractConfig(image_dir, topConfig);
-	return std::make_unique<TileModel>(tileModelConfig);
+	auto internal = fromConfig(tileModelConfig);
+	return std::make_unique<TileModel>(internal);
 }
 
 void run_config_file(const std::string& path)
