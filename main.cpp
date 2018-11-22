@@ -178,10 +178,23 @@ private:
 using Tile = std::vector<RGBA>;
 using TileLoader = std::function<Tile(const std::string& tile_name)>;
 
+struct TileModelConfig
+{
+
+	const configuru::Config& config; 
+	
+	std::string subset_name;
+	
+	OutsideCommonParams commonParam;
+	
+	const TileLoader& tile_loader;
+
+};
+
 class TileModel : public Model
 {
 public:
-	TileModel(const configuru::Config& config, std::string subset_name, OutsideCommonParams commonParam, const TileLoader& tile_loader);
+	TileModel(TileModelConfig config);
 
 	bool propagate(Output* output) const override;
 
@@ -518,18 +531,18 @@ Tile rotate(const Tile& in_tile, const size_t tile_size)
 	return out_tile;
 }
 
-TileModel::TileModel(const configuru::Config& config, std::string subset_name, OutsideCommonParams commonParam, const TileLoader& tile_loader)
+TileModel::TileModel(TileModelConfig config)
 {
-	mCommonParams.mOutsideCommonParams = commonParam;
+	mCommonParams.mOutsideCommonParams = config.commonParam;
 	mCommonParams._foundation = kInvalidIndex;
 
-	_tile_size        = config.get_or("tile_size", 16);
-	const bool unique = config.get_or("unique",    false);
+	_tile_size        = config.config.get_or("tile_size", 16);
+	const bool unique = config.config.get_or("unique",    false);
 
 	std::unordered_set<std::string> subset;
-	if (subset_name != "") 
+	if (config.subset_name != "") 
 	{
-		for (const auto& tile_name : config["subsets"][subset_name].as_array()) 
+		for (const auto& tile_name : config.config["subsets"][config.subset_name].as_array()) 
 		{
 			subset.insert(tile_name.as_string());
 		}
@@ -538,7 +551,7 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, O
 	std::vector<std::array<int,     8>>  action;
 	std::unordered_map<std::string, size_t> first_occurrence;
 
-	for (const auto& tile : config["tiles"].as_array()) 
+	for (const auto& tile : config.config["tiles"].as_array()) 
 	{
 		const std::string tile_name = tile["name"].as_string();
 		if (!subset.empty() && subset.count(tile_name) == 0) { continue; }
@@ -610,14 +623,14 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, O
 		{
 			for (int t = 0; t < cardinality; ++t) 
 			{
-				const Tile bitmap = tile_loader(emilib::strprintf("%s %d", tile_name.c_str(), t));
+				const Tile bitmap = config.tile_loader(emilib::strprintf("%s %d", tile_name.c_str(), t));
 				CHECK_EQ_F(bitmap.size(), _tile_size * _tile_size);
 				_tiles.push_back(bitmap);
 			}
 		}
 		else 
 		{
-			const Tile bitmap = tile_loader(emilib::strprintf("%s", tile_name.c_str()));
+			const Tile bitmap = config.tile_loader(emilib::strprintf("%s", tile_name.c_str()));
 			CHECK_EQ_F(bitmap.size(), _tile_size * _tile_size);
 			_tiles.push_back(bitmap);
 			for (int t = 1; t < cardinality; ++t) 
@@ -636,7 +649,7 @@ TileModel::TileModel(const configuru::Config& config, std::string subset_name, O
 
 	_propagator = Array3D<Bool>(4, mCommonParams._num_patterns, mCommonParams._num_patterns, false);
 
-	for (const auto& neighbor : config["neighbors"].as_array()) 
+	for (const auto& neighbor : config.config["neighbors"].as_array()) 
 	{
 		const auto left  = neighbor["left"];
 		const auto right = neighbor["right"];
@@ -1109,10 +1122,7 @@ std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const conf
 	const auto in_path = image_dir + image_filename;
 
 	const int    n              = config.get_or("n",             3);
-	const size_t out_width      = config.get_or("width",        48);
-	const size_t out_height     = config.get_or("height",       48);
 	const size_t symmetry       = config.get_or("symmetry",      8);
-	const bool   periodic_out   = config.get_or("periodic_out", true);
 	const bool   periodic_in    = config.get_or("periodic_in",  true);
 	const auto   has_foundation = config.get_or("foundation",   false);
 
@@ -1124,21 +1134,18 @@ std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const conf
 
 	OutsideCommonParams commonParam
 	{
-		._width = out_width,
-		._height = out_height,
-		._periodic_out = periodic_out
+		._width = config.get_or("width",        48),
+		._height = config.get_or("height",       48),
+		._periodic_out = config.get_or("periodic_out", true)
 	};
 
 	return std::make_unique<OverlappingModel>(hashed_patterns, sample_image.palette, n, commonParam, foundation);
 }
 
-std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru::Config& config)
+std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru::Config& topConfig)
 {
-	const std::string subdir     = config["subdir"].as_string();
-	const size_t      out_width  = config.get_or("width",    48);
-	const size_t      out_height = config.get_or("height",   48);
-	const std::string subset     = config.get_or("subset",   std::string());
-	const bool        periodic   = config.get_or("periodic", false);
+	const std::string subdir     = topConfig["subdir"].as_string();
+	const std::string subset     = topConfig.get_or("subset",   std::string());
 
 	const TileLoader tile_loader = [&](const std::string& tile_name) -> Tile
 	{
@@ -1155,13 +1162,20 @@ std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru:
 	const auto root_dir = image_dir + subdir + "/";
 	const auto tile_config = configuru::parse_file(root_dir + "data.cfg", configuru::CFG);
 
-	OutsideCommonParams commonParam
+	TileModelConfig tileModelConfig
 	{
-		._width = out_width,
-		._height = out_height,
-		._periodic_out = periodic
+		.config = tile_config,
+		.subset_name = subset,
+		.commonParam =
+		{
+			._width = topConfig.get_or("width",    48),
+			._height = topConfig.get_or("height",   48),
+			._periodic_out = topConfig.get_or("periodic", false)
+		},
+		.tile_loader = tile_loader
 	};
-	return std::make_unique<TileModel>(tile_config, subset, commonParam, tile_loader);
+
+	return std::make_unique<TileModel>(tileModelConfig);
 }
 
 void run_config_file(const std::string& path)
