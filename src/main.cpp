@@ -779,7 +779,9 @@ void run_config_file(const std::string& path)
 			size_t limit       = config.get_or("limit",       0);
 			size_t screenshots = config.get_or("screenshots", 2);
 
-			run_and_write(p.key(), limit, screenshots, *model);
+			const std::string& name = p.key();
+
+			run_and_write(name, limit, screenshots, *model);
 			p.value().check_dangling();
 		}
 	}
@@ -794,8 +796,9 @@ void run_config_file(const std::string& path)
 			const auto& config = p.value();
 			size_t limit       = config.get_or("limit",       0);
 			size_t screenshots = config.get_or("screenshots", 2);
+			const std::string& name = p.key();
 
-			run_and_write(p.key(), limit, screenshots, *model);
+			run_and_write(name, limit, screenshots, *model);
 		}
 	}
 }
