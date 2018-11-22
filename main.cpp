@@ -493,7 +493,6 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 
 Image OverlappingModel::image(const Output& output) const
 {
-	std::cout << "OverlappingModel::foundation: " << _foundation << "\n";
 	return upsample(image_from_graphics(graphics(output), _palette));
 }
 
@@ -760,7 +759,6 @@ bool TileModel::propagate(Output* output) const
 
 Image TileModel::image(const Output& output) const
 {
-	std::cout << "TileModel::foundation: " << _foundation << "\n";
 	Image result(mCommonParam._width * _tile_size, mCommonParam._height * _tile_size, {});
 
 	for (int x = 0; x < mCommonParam._width; ++x) 
