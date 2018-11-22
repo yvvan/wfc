@@ -8,7 +8,9 @@ include_directories(libs libs/emilib include)
 
 add_library(libs libs/libs.cpp)
 
-add_library(wfc src/tile_model.cpp)
+add_library(wfc 
+	src/tile_model.cpp
+	src/overlapping_model.cpp)
 
 add_executable(wfc-sebastian src/main.cpp)
 
