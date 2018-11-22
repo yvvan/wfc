@@ -189,7 +189,9 @@ void run_and_write(const std::string& name, size_t limit, size_t screenshots, co
 	{
 		for (const auto attempt : irange(10)) 
 		{
+			// Suppress unused var warning with attempt
 			(void)attempt;
+
 			int seed = rand();
 
 			Output output = create_output(model);
