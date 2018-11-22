@@ -1148,21 +1148,26 @@ std::unique_ptr<Model> make_overlapping(const std::string& image_dir, const conf
 	return std::make_unique<OverlappingModel>(overlappingModelConfig);
 }
 
+Tile loadTile(const std::string& subdir, const std::string& image_dir, const std::string& tile_name)
+{
+	const std::string path = emilib::strprintf("%s%s/%s.bmp", image_dir.c_str(), subdir.c_str(), tile_name.c_str());
+	int width, height, comp;
+	RGBA* rgba = reinterpret_cast<RGBA*>(stbi_load(path.c_str(), &width, &height, &comp, 4));
+	CHECK_NOTNULL_F(rgba);
+	const auto num_pixels = width * height;
+	Tile tile(rgba, rgba + num_pixels);
+	stbi_image_free(rgba);
+	return tile;
+}
+
 std::unique_ptr<Model> make_tiled(const std::string& image_dir, const configuru::Config& topConfig)
 {
 	const std::string subdir     = topConfig["subdir"].as_string();
 	const std::string subset     = topConfig.get_or("subset",   std::string());
 
-	const TileLoader tile_loader = [&](const std::string& tile_name) -> Tile
+	const TileLoader tile_loader = [=] (const std::string& tile_name)
 	{
-		const std::string path = emilib::strprintf("%s%s/%s.bmp", image_dir.c_str(), subdir.c_str(), tile_name.c_str());
-		int width, height, comp;
-		RGBA* rgba = reinterpret_cast<RGBA*>(stbi_load(path.c_str(), &width, &height, &comp, 4));
-		CHECK_NOTNULL_F(rgba);
-		const auto num_pixels = width * height;
-		Tile tile(rgba, rgba + num_pixels);
-		stbi_image_free(rgba);
-		return tile;
+		return loadTile(image_dir, subdir, tile_name);
 	};
 
 	const auto root_dir = image_dir + subdir + "/";
