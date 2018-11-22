@@ -145,8 +145,8 @@ public:
 
 struct OverlappingModelConfig
 {
-	const PatternPrevalence& hashed_patterns;
-	const Palette&           palette;
+	const PatternPrevalence hashed_patterns;
+	const Palette           palette;
 	int                      n;
 	OutsideCommonParams commonParam;
 	PatternHash              foundation_pattern;
@@ -185,13 +185,13 @@ using TileLoader = std::function<Tile(const std::string& tile_name)>;
 struct TileModelConfig
 {
 
-	const configuru::Config& config; 
+	const configuru::Config config; 
 	
 	std::string subset_name;
 	
 	OutsideCommonParams commonParam;
 	
-	const TileLoader& tile_loader;
+	const TileLoader tile_loader;
 
 };
 
@@ -1182,7 +1182,7 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 		},
 		.tile_loader = [image_dir, subdir] (const std::string& tile_name)
 		{
-			return loadTile(image_dir, subdir, tile_name);
+			return loadTile(subdir, image_dir, tile_name);
 		}
 	};
 }
