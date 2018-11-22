@@ -6,8 +6,8 @@ set(CMAKE_CXX_FLAGS "-Wno-sign-compare ${CMAKE_CXX_FLAGS}")
 
 include_directories(libs libs/emilib include)
 
-add_library(libs libs.cpp)
+add_library(libs libs/libs.cpp)
 
-add_executable(wfc-sebastian main.cpp)
+add_executable(wfc-sebastian src/main.cpp)
 
 target_link_libraries(wfc-sebastian libs pthread ${CMAKE_DL_LIBS})
