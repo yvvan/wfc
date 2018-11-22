@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <iostream>
 
 #include <configuru.hpp>
 #include <emilib/irange.hpp>
@@ -124,7 +125,7 @@ class Model
 public:
 	CommonParam mCommonParam;
 	size_t _num_patterns;
-	size_t              _foundation = kInvalidIndex; // Index of pattern which is at the base, or kInvalidIndex
+	size_t              _foundation; // Index of pattern which is at the base, or kInvalidIndex
 
 	// The weight of each pattern (e.g. how often that pattern occurs in the sample image).
 	std::vector<double> _pattern_weight; // num_patterns
@@ -292,6 +293,7 @@ OverlappingModel::OverlappingModel(
 	_n            = n;
 	_palette      = palette;
 
+	_foundation = kInvalidIndex;
 	for (const auto& it : hashed_patterns) 
 	{
 		if (it.first == foundation_pattern) 
@@ -491,6 +493,7 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 
 Image OverlappingModel::image(const Output& output) const
 {
+	std::cout << "OverlappingModel::foundation: " << _foundation << "\n";
 	return upsample(image_from_graphics(graphics(output), _palette));
 }
 
@@ -513,6 +516,7 @@ Tile rotate(const Tile& in_tile, const size_t tile_size)
 TileModel::TileModel(const configuru::Config& config, std::string subset_name, CommonParam commonParam, const TileLoader& tile_loader)
 {
 	mCommonParam = commonParam;
+	_foundation = kInvalidIndex;
 
 	_tile_size        = config.get_or("tile_size", 16);
 	const bool unique = config.get_or("unique",    false);
@@ -756,6 +760,7 @@ bool TileModel::propagate(Output* output) const
 
 Image TileModel::image(const Output& output) const
 {
+	std::cout << "TileModel::foundation: " << _foundation << "\n";
 	Image result(mCommonParam._width * _tile_size, mCommonParam._height * _tile_size, {});
 
 	for (int x = 0; x < mCommonParam._width; ++x) 
