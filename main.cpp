@@ -18,7 +18,7 @@
 #include <stb_image_write.h>
 
 
-#include "arrays.hpp"
+#include <wfc/arrays.h>
 #include <wfc/imodel.h>
 
 const auto kUsage = R"(

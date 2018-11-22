@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <wfc/rgba.h>
+#include <wfc/arrays.h>
 
 using Bool              = uint8_t; // To avoid problems with vector<bool>
 

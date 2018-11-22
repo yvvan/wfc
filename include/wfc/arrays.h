@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _WFC_ARRAYS_H_
+#define _WFC_ARRAYS_H_
 
 #include <vector>
 
@@ -106,3 +107,5 @@ class Array3D
 		std::vector<T> mData;
 
 };
+
+#endif
