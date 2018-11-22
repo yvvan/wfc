@@ -9,6 +9,7 @@ include_directories(libs libs/emilib include)
 add_library(libs libs/libs.cpp)
 
 add_library(wfc 
+	src/configuru.cpp
 	src/tile_model.cpp
 	src/overlapping_model.cpp)
 
