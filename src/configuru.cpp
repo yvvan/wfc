@@ -1,5 +1,10 @@
 #include <wfc/configuru.h>
 
+#include <algorithm>
+#include <unordered_set>
+
+#include <emilib/strprintf.hpp>
+#include <stb_image.h>
 
 PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
 {

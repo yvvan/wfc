@@ -1,29 +1,14 @@
 #ifndef _WFC_CONFIGURU_H_
 #define _WFC_CONFIGURU_H_
 
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <limits>
-#include <memory>
-#include <numeric>
-#include <random>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-#include <iostream>
+#include <functional>
 
+// emilib
 #include <configuru.hpp>
 #include <emilib/irange.hpp>
-#include <emilib/strprintf.hpp>
-#include <loguru.hpp>
-#include <stb_image.h>
-#include <stb_image_write.h>
-
 
 #include <wfc/overlapping_model.h>
 #include <wfc/tile_model.h>
-#include <wfc/arrays.h>
 #include <wfc/imodel.h>
 #include <wfc/common.h>
 
