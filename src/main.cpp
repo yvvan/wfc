@@ -760,13 +760,13 @@ struct GeneralConfig
 struct ConfigActions
 {
 
-	std::function<void(const OverlappingModelConfig&)> overlappingAction;
+	std::function<void(const GeneralConfig&, const OverlappingModelConfig&)> overlappingAction;
 
-	std::function<void(const TileModelConfig&)> tileAction;
+	std::function<void(const GeneralConfig&, const TileModelConfig&)> tileAction;
 
 };
 
-void run_config_file(const std::string& path, ConfigActions configActions)
+void run_config_file(const std::string& path, ConfigActions actions)
 {
 	LOG_F(INFO, "Running all samples in %s", path.c_str());
 	const auto samples = configuru::parse_file(path, configuru::CFG);
@@ -788,9 +788,7 @@ void run_config_file(const std::string& path, ConfigActions configActions)
 			};
 
 			OverlappingModelConfig overlappingModelConfig = extractOverlappingConfig(image_dir, config);
-
-			auto model = std::make_unique<OverlappingModel>(overlappingModelConfig);
-			run_and_write(generalConfig.name, generalConfig.limit, generalConfig.screenshots, *model);
+			actions.overlappingAction(generalConfig, overlappingModelConfig);
 
 			p.value().check_dangling();
 		}
@@ -811,10 +809,8 @@ void run_config_file(const std::string& path, ConfigActions configActions)
 			};
 
 			TileModelConfig tileModelConfig = extractConfig(image_dir, config);
-			auto internal = fromConfig(tileModelConfig);
-			auto model = std::make_unique<TileModel>(internal);
+			actions.tileAction(generalConfig, tileModelConfig);
 
-			run_and_write(generalConfig.name, generalConfig.limit, generalConfig.screenshots, *model);
 		}
 	}
 }
@@ -843,7 +839,21 @@ int main(int argc, char* argv[])
 		files.push_back("samples.cfg");
 	}
 
-	ConfigActions actions;
+	ConfigActions actions =
+	{
+		.overlappingAction = [] (const GeneralConfig& generalConfig, const OverlappingModelConfig& overlappingModelConfig)
+		{
+			auto model = std::make_unique<OverlappingModel>(overlappingModelConfig);
+			run_and_write(generalConfig.name, generalConfig.limit, generalConfig.screenshots, *model);
+		},
+		.tileAction = [] (const GeneralConfig& generalConfig, const TileModelConfig& tileModelConfig)
+		{
+			auto internal = fromConfig(tileModelConfig);
+			auto model = std::make_unique<TileModel>(internal);
+
+			run_and_write(generalConfig.name, generalConfig.limit, generalConfig.screenshots, *model);
+		}
+	};
 
 	for (const auto& file : files) 
 	{
