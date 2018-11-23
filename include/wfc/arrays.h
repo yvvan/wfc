@@ -28,12 +28,12 @@ class Array2D
             mData(w * h, value)
         {}
 
-		T& ref(size_t x, size_t y)
+		typename std::vector<T>::reference ref(size_t x, size_t y)
 		{
 			return mData[index(x, y)];
 		}
 
-		const T& ref(size_t x, size_t y) const
+		typename std::vector<T>::const_reference ref(size_t x, size_t y) const
 		{
 			return mData[index(x, y)];
 		}
@@ -81,12 +81,12 @@ class Array3D
 			mData(w * h * d, value)
 		{}
 
-		T& ref(size_t x, size_t y, size_t z)
+		typename std::vector<T>::reference ref(size_t x, size_t y, size_t z)
 		{
 			return mData[index(x, y, z)];
 		}
 
-		const T& ref(size_t x, size_t y, size_t z) const
+		typename std::vector<T>::const_reference ref(size_t x, size_t y, size_t z) const
 		{
 			return mData[index(x, y, z)];
 		}
