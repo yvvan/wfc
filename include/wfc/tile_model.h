@@ -9,29 +9,35 @@
 
 struct TileModelInternal
 {
+
 	CommonParams mCommonParams;
 
-	Array3D<Bool>                  _propagator; // 4 X _num_patterns X _num_patterns
+	// 4 X _num_patterns X _num_patterns
+	Array3D<Bool> _propagator;
+
 	std::vector<std::vector<RGBA>> _tiles;
-	size_t                         _tile_size;
+
+	size_t _tile_size;
+
 };
 
 class TileModel : public Model
 {
-public:
-	TileModel(TileModelInternal internal);
 
-	bool propagate(Output& output) const override;
+	public:
 
-	bool on_boundary(int x, int y) const override
-	{
-		return false;
-	}
+		TileModel(const TileModelInternal& internal);
 
-	Image image(const Output& output) const override;
+		bool propagate(Output& output) const override;
 
-private:
-	TileModelInternal mInternal;
+		bool on_boundary(int x, int y) const override;
+
+		Image image(const Output& output) const override;
+
+	private:
+
+		const TileModelInternal& mInternal;
+
 };
 
 #endif

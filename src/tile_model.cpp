@@ -4,12 +4,17 @@
 
 using namespace emilib;
 
-TileModel::TileModel(TileModelInternal internal) :
+TileModel::TileModel(const TileModelInternal& internal) :
 	mInternal(internal)
 {
 	// Needed because other functions access from base class
 	// TODO: Remove
 	mCommonParams = mInternal.mCommonParams;
+}
+
+bool TileModel::on_boundary(int x, int y) const
+{
+	return false;
 }
 
 bool TileModel::propagate(Output& output) const

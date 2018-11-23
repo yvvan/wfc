@@ -6,7 +6,8 @@
 #include <wfc/rgba.h>
 #include <wfc/arrays.h>
 
-using Bool              = uint8_t; // To avoid problems with vector<bool>
+// To avoid problems with vector<bool>
+using Bool = uint8_t;
 
 // What actually changes
 struct Output
@@ -22,7 +23,7 @@ struct OutsideCommonParams
 {
 	size_t _width;      // Of output image.
 	size_t _height;     // Of output image.
-	bool   _periodic_out;
+	bool _periodic_out;
 };
 
 struct CommonParams
@@ -39,13 +40,17 @@ using Image = Array2D<RGBA>;
 
 class Model
 {
-public:
 
-	CommonParams mCommonParams;
+	public:
 
-	virtual bool propagate(Output& output) const = 0;
-	virtual bool on_boundary(int x, int y) const = 0;
-	virtual Image image(const Output& output) const = 0;
+		CommonParams mCommonParams;
+
+		virtual bool propagate(Output& output) const = 0;
+
+		virtual bool on_boundary(int x, int y) const = 0;
+
+		virtual Image image(const Output& output) const = 0;
+
 };
 
 
