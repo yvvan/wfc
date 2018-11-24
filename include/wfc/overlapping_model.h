@@ -5,7 +5,20 @@
 #include <wfc/imodel.h>
 #include <wfc/common.h>
 
+#include <unordered_map>
+
+
+using ColorIndex        = uint8_t; // tile index or color index. If you have more than 255, don't.
+using Palette           = std::vector<RGBA>;
+using Pattern           = std::vector<ColorIndex>;
+
+using Graphics = Array2D<std::vector<ColorIndex>>;
+using PatternIndex      = uint16_t;
 const size_t kUpscale             =   4; // Upscale images before saving
+
+using PatternHash       = uint64_t; // Another representation of a Pattern.
+
+using PatternPrevalence = std::unordered_map<PatternHash, size_t>;
 
 struct PalettedImage
 {
