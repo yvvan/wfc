@@ -13,6 +13,15 @@ struct Dimension2D
 
 };
 
+struct Index2D
+{
+
+	size_t x;
+
+	size_t y;
+
+};
+
 template <class T>
 class Array2D
 {
@@ -27,6 +36,16 @@ class Array2D
             mDimensions{w, h}, 
             mData(w * h, value)
         {}
+
+		typename std::vector<T>::reference operator[](const Index2D& index2D)
+		{
+			return mData[index(index2D.x, index2D.y)];
+		}
+
+		typename std::vector<T>::const_reference operator[](const Index2D& index2D) const
+		{
+			return mData[index(index2D.x, index2D.y)];
+		}
 
 		typename std::vector<T>::reference ref(size_t x, size_t y)
 		{

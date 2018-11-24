@@ -4,6 +4,8 @@
 
 #include <emilib/irange.hpp>
 
+#include <wfc/ranges.h>
+
 using namespace emilib;
 
 template <class Functor>
@@ -62,14 +64,15 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 {
 	Image result(graphics.size().width, graphics.size().height, {0, 0, 0, 0});
 
-	for (const auto y : irange(graphics.size().height)) 
+	auto range = range2D(graphics.size());
+
+	auto rangeFcn = [&] (const Index2D& index)
 	{
-		for (const auto x : irange(graphics.size().width)) 
-		{
-			const auto& tile_contributors = graphics.ref(x, y);
-			result.ref(x, y) = collapsePixel(tile_contributors, palette);
-		}
-	}
+		const auto& tile_contributors = graphics[index];
+		result[index] = collapsePixel(tile_contributors, palette);
+	};
+
+	range(rangeFcn);
 
 	return result;
 }
