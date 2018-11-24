@@ -110,7 +110,7 @@ bool TileModel::propagate(Output& output) const
 
 Image TileModel::image(const Output& output) const
 {
-	Image result(mCommonParams.mOutsideCommonParams._width * mInternal._tile_size, mCommonParams.mOutsideCommonParams._height * mInternal._tile_size, {});
+	Image result({ mCommonParams.mOutsideCommonParams._width * mInternal._tile_size, mCommonParams.mOutsideCommonParams._height * mInternal._tile_size } , {});
 
 	for (int x = 0; x < mCommonParams.mOutsideCommonParams._width; ++x) 
 	{

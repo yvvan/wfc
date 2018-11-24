@@ -129,7 +129,7 @@ Output create_output(const Model& model)
 {
 	Output output;
 	output._wave = Array3D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, model.mCommonParams._num_patterns, true);
-	output._changes = Array2D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, false);
+	output._changes = Array2D<Bool>({ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height }, false);
 
 	if (model.mCommonParams._foundation != kInvalidIndex) 
 	{

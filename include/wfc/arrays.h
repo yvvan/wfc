@@ -32,9 +32,9 @@ class Array2D
             mDimensions{0, 0}
         {}
 
-		Array2D(size_t w, size_t h, T value = {}) : 
-            mDimensions{w, h}, 
-            mData(w * h, value)
+		Array2D(const Dimension2D& dimension, T value = {}) : 
+            mDimensions(dimension), 
+            mData(dimension.width * dimension.height, value)
         {}
 
 		typename std::vector<T>::reference operator[](const Index2D& index2D)

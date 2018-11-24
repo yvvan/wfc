@@ -62,7 +62,7 @@ RGBA collapsePixel(const std::vector<ColorIndex>& tile_contributors, const Palet
 
 Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 {
-	Image result(graphics.size().width, graphics.size().height, {0, 0, 0, 0});
+	Image result(graphics.size(), {0, 0, 0, 0});
 
 	auto range = range2D(graphics.size());
 
@@ -238,8 +238,9 @@ bool OverlappingModel::propagate(Output& output) const
 
 Graphics OverlappingModel::graphics(const Output& output) const
 {
-	Graphics result(mCommonParams.mOutsideCommonParams._width, mCommonParams.mOutsideCommonParams._height, {});
 	Dimension2D dimension{mCommonParams.mOutsideCommonParams._width, mCommonParams.mOutsideCommonParams._height};
+
+	Graphics result(dimension, {});
 
 	auto range = range2D(dimension);
 
@@ -282,7 +283,7 @@ Image OverlappingModel::image(const Output& output) const
 
 Image upsample(const Image& image)
 {
-	Image result(image.size().width * kUpscale, image.size().height * kUpscale, {});
+	Image result({ image.size().width * kUpscale, image.size().height * kUpscale }, {});
 
 	auto range = range2D(result.size());
 
