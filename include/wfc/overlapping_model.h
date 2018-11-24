@@ -7,8 +7,25 @@
 
 const size_t kUpscale             =   4; // Upscale images before saving
 
+struct PalettedImage
+{
+	size_t                  width, height;
+	std::vector<ColorIndex> data; // width * height
+	Palette                 palette;
+
+	inline ColorIndex at_wrapped(size_t x, size_t y) const
+	{
+		return data[width * (y % height) + (x % width)];
+	}
+};
+
+
 struct OverlappingModelConfig
 {
+	PalettedImage sample_image;
+	bool periodic_in;
+	size_t symmetry;
+	bool has_foundation;
 	const PatternPrevalence hashed_patterns;
 	const Palette           palette;
 	int                      n;

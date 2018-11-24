@@ -21,18 +21,6 @@ using namespace emilib;
 
 const size_t MAX_COLORS = 1 << (sizeof(ColorIndex) * 8);
 
-struct PalettedImage
-{
-	size_t                  width, height;
-	std::vector<ColorIndex> data; // width * height
-	Palette                 palette;
-
-	inline ColorIndex at_wrapped(size_t x, size_t y) const
-	{
-		return data[width * (y % height) + (x % width)];
-	}
-};
-
 template <class Functor>
 Pattern make_pattern(int n, Functor fun)
 {

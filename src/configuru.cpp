@@ -53,9 +53,7 @@ Pattern reflect(const Pattern& p, int n)
 
 
 // n = side of the pattern, e.g. 3.
-PatternPrevalence extract_patterns(
-	const PalettedImage& sample, int n, bool periodic_in, size_t symmetry,
-	PatternHash* out_lowest_pattern)
+PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern)
 {
 	CHECK_LE_F(n, sample.width);
 	CHECK_LE_F(n, sample.height);
@@ -344,6 +342,10 @@ OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, co
 
 	return
 	{
+		.sample_image = sample_image,
+		.periodic_in = periodic_in,
+		.symmetry = symmetry,
+		.has_foundation = has_foundation,
 		.hashed_patterns = hashed_patterns,
 		.palette = sample_image.palette,
 		.n = n,
