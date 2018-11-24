@@ -168,7 +168,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	}
 
 	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu",
-	    (double)sum_propagator / _propagator.size(), longest_propagator, sum_propagator);
+	    (double)sum_propagator / _propagator.volume(), longest_propagator, sum_propagator);
 }
 
 bool OverlappingModel::propagate(Output& output) const

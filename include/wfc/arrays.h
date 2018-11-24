@@ -97,7 +97,7 @@ class Array3D
 			return mData[index(x, y, z)];
 		}
 
-		size_t size() const 
+		size_t volume() const 
 		{
 			return mData.size();
 		}
