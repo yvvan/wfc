@@ -283,13 +283,22 @@ Image OverlappingModel::image(const Output& output) const
 Image upsample(const Image& image)
 {
 	Image result(image.size().width * kUpscale, image.size().height * kUpscale, {});
-	for (const auto y : irange(result.size().height)) 
+
+	auto range = range2D(result.size());
+
+	auto rangeFcn = [&] (const Index2D& index)
 	{
-		for (const auto x : irange(result.size().width)) 
+		Index2D scaled
 		{
-			result.ref(x, y) = image.ref(x / kUpscale, y / kUpscale);
-		}
-	}
+			index.x / kUpscale, 
+			index.y / kUpscale 
+		};
+
+		result[index] = image[scaled];
+	};
+
+	range(rangeFcn);
+
 	return result;
 }
 
