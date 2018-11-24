@@ -38,8 +38,11 @@ class Array2D
 			return mData[index(x, y)];
 		}
 
-		size_t   width()  const { return mDimensions.width;       }
-		size_t   height() const { return mDimensions.height;      }
+		Dimension2D size() const
+		{
+			return mDimensions;
+		}
+
 		const T* data()   const { return mData.data(); }
 
 	private:

@@ -51,7 +51,7 @@ void run_and_write(const GeneralConfig& generalConfig, const Model& model)
 		{
 			const auto image = model.image(output);
 			const auto out_path = emilib::strprintf("output/%s_%d.png", generalConfig.name.c_str(), numSuccess);
-			CHECK_F(stbi_write_png(out_path.c_str(), image.width(), image.height(), 4, image.data(), 0) != 0,
+			CHECK_F(stbi_write_png(out_path.c_str(), image.size().width, image.size().height, 4, image.data(), 0) != 0,
 					"Failed to write image to %s", out_path.c_str());
 
 			++numSuccess;

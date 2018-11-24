@@ -60,11 +60,11 @@ RGBA collapsePixel(const std::vector<ColorIndex>& tile_contributors, const Palet
 
 Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 {
-	Image result(graphics.width(), graphics.height(), {0, 0, 0, 0});
+	Image result(graphics.size().width, graphics.size().height, {0, 0, 0, 0});
 
-	for (const auto y : irange(graphics.height())) 
+	for (const auto y : irange(graphics.size().height)) 
 	{
-		for (const auto x : irange(graphics.width())) 
+		for (const auto x : irange(graphics.size().width)) 
 		{
 			const auto& tile_contributors = graphics.ref(x, y);
 			result.ref(x, y) = collapsePixel(tile_contributors, palette);
@@ -275,10 +275,10 @@ Image OverlappingModel::image(const Output& output) const
 
 Image upsample(const Image& image)
 {
-	Image result(image.width() * kUpscale, image.height() * kUpscale, {});
-	for (const auto y : irange(result.height())) 
+	Image result(image.size().width * kUpscale, image.size().height * kUpscale, {});
+	for (const auto y : irange(result.size().height)) 
 	{
-		for (const auto x : irange(result.width())) 
+		for (const auto x : irange(result.size().width)) 
 		{
 			result.ref(x, y) = image.ref(x / kUpscale, y / kUpscale);
 		}
