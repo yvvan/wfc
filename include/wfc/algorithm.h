@@ -15,7 +15,9 @@ enum class Result
 	kUnfinished,
 };
 
-void run_and_write(const std::string& name, size_t limit, size_t screenshots, const Model& model);
+class GeneralConfig;
+
+void run_and_write(const GeneralConfig& generalConfig, const Model& model);
 
 const char* result2str(const Result result);
 

@@ -1,6 +1,8 @@
 #include <wfc/algorithm.h>
 #include <wfc/configuru.h>
 
+#include <experimental/optional>
+
 const auto kUsage = R"(
 wfc.bin [-h/--help] [job=samples.cfg, ...]
 	-h/--help   Print this help
@@ -36,13 +38,13 @@ int main(int argc, char* argv[])
 		.overlappingAction = [] (const GeneralConfig& generalConfig, const OverlappingModelConfig& overlappingModelConfig)
 		{
 			OverlappingModel model(overlappingModelConfig);
-			run_and_write(generalConfig.name, generalConfig.limit, generalConfig.screenshots, model);
+			run_and_write(generalConfig, model);
 		},
 		.tileAction = [] (const GeneralConfig& generalConfig, const TileModelInternal& internal)
 		{
 			TileModel model(internal);
 
-			run_and_write(generalConfig.name, generalConfig.limit, generalConfig.screenshots, model);
+			run_and_write(generalConfig, model);
 		}
 	};
 

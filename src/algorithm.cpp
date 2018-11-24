@@ -1,6 +1,7 @@
 #include <wfc/algorithm.h>
 
 #include <algorithm>
+#include <iostream>
 
 #include <emilib/irange.hpp>
 #include <emilib/strprintf.hpp>
@@ -8,6 +9,7 @@
 #include <stb_image_write.h>
 
 #include <wfc/common.h>
+#include <wfc/configuru.h>
 
 using emilib::irange;
 
@@ -183,29 +185,33 @@ Result run(Output& output, const Model& model, size_t seed, size_t limit)
 	return Result::kUnfinished;
 }
 
-void run_and_write(const std::string& name, size_t limit, size_t screenshots, const Model& model)
+void run_and_write(const GeneralConfig& generalConfig, const Model& model)
 {
-	for (const auto i : irange(screenshots)) 
+	int numTries = 0;
+	int numSuccess = 0;
+
+	const int maxTries = 20;
+	const int desiredSuccess = generalConfig.screenshots;
+	
+	int randSeed = 0;
+
+	while (numTries < maxTries && numSuccess < desiredSuccess)
 	{
-		for (const auto attempt : irange(10)) 
+		++numTries;
+		int seed = randSeed++;
+
+		Output output = create_output(model);
+
+		const auto result = run(output, model, seed, generalConfig.limit);
+
+		if (result == Result::kSuccess) 
 		{
-			// Suppress unused var warning with attempt
-			(void)attempt;
+			const auto image = model.image(output);
+			const auto out_path = emilib::strprintf("output/%s_%d.png", generalConfig.name.c_str(), numSuccess);
+			CHECK_F(stbi_write_png(out_path.c_str(), image.width(), image.height(), 4, image.data(), 0) != 0,
+					"Failed to write image to %s", out_path.c_str());
 
-			int seed = rand();
-
-			Output output = create_output(model);
-
-			const auto result = run(output, model, seed, limit);
-
-			if (result == Result::kSuccess) 
-			{
-				const auto image = model.image(output);
-				const auto out_path = emilib::strprintf("output/%s_%lu.png", name.c_str(), i);
-				CHECK_F(stbi_write_png(out_path.c_str(), image.width(), image.height(), 4, image.data(), 0) != 0,
-				        "Failed to write image to %s", out_path.c_str());
-				break;
-			}
+			++numSuccess;
 		}
 	}
 }
