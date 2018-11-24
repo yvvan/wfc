@@ -64,15 +64,13 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 {
 	Image result(graphics.size(), {0, 0, 0, 0});
 
-	auto range = range2D(graphics.size());
-
 	auto rangeFcn = [&] (const Index2D& index)
 	{
 		const auto& tile_contributors = graphics[index];
 		result[index] = collapsePixel(tile_contributors, palette);
 	};
 
-	range(rangeFcn);
+	runForDimension(graphics.size(), rangeFcn);
 
 	return result;
 }
@@ -242,7 +240,6 @@ Graphics OverlappingModel::graphics(const Output& output) const
 
 	Graphics result(dimension, {});
 
-	auto range = range2D(dimension);
 
 	auto rangeFcn = [&] (const Index2D& index)
 	{
@@ -271,7 +268,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 		}
 	};
 
-	range(rangeFcn);
+	runForDimension(dimension, rangeFcn);
 
 	return result;
 }
@@ -285,8 +282,6 @@ Image upsample(const Image& image)
 {
 	Image result({ image.size().width * kUpscale, image.size().height * kUpscale }, {});
 
-	auto range = range2D(result.size());
-
 	auto rangeFcn = [&] (const Index2D& index)
 	{
 		Index2D scaled
@@ -298,7 +293,7 @@ Image upsample(const Image& image)
 		result[index] = image[scaled];
 	};
 
-	range(rangeFcn);
+	runForDimension(result.size(), rangeFcn);
 
 	return result;
 }
@@ -316,8 +311,6 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 		.width = periodic_in ? sample.width : sample.width - n + 1,
 		.height = periodic_in ? sample.height : sample.height - n + 1
 	};
-
-	auto range = range2D(dimension);
 
 	auto rangeFcn = [&] (const Index2D& index)
 	{
@@ -342,7 +335,7 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 		}
 	};
 
-	range(rangeFcn);
+	runForDimension(dimension, rangeFcn);
 
 	return patterns;
 }

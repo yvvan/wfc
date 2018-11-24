@@ -17,5 +17,12 @@ auto range2D(const Dimension2D& dimension)
 	};
 };
 
+template <class Functor>
+void runForDimension(const Dimension2D& dimension, Functor functor)
+{
+	auto range = range2D(dimension);
+	range(functor);
+};
+
 
 #endif
