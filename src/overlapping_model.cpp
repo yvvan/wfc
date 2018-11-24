@@ -301,31 +301,38 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 
 	PatternPrevalence patterns;
 
-	for (size_t y : irange(periodic_in ? sample.height : sample.height - n + 1)) 
+	Dimension2D dimension
 	{
-		for (size_t x : irange(periodic_in ? sample.width : sample.width - n + 1)) 
-		{
-			std::array<Pattern, 8> ps;
-			ps[0] = patternFromSample(sample, n, x, y);
-			ps[1] = reflect(ps[0], n);
-			ps[2] = rotate(ps[0], n);
-			ps[3] = reflect(ps[2], n);
-			ps[4] = rotate(ps[2], n);
-			ps[5] = reflect(ps[4], n);
-			ps[6] = rotate(ps[4], n);
-			ps[7] = reflect(ps[6], n);
+		.width = periodic_in ? sample.width : sample.width - n + 1,
+		.height = periodic_in ? sample.height : sample.height - n + 1
+	};
 
-			for (int k = 0; k < symmetry; ++k) 
+	auto range = range2D(dimension);
+
+	auto rangeFcn = [&] (const Index2D& index)
+	{
+		std::array<Pattern, 8> ps;
+		ps[0] = patternFromSample(sample, n, index.x, index.y);
+		ps[1] = reflect(ps[0], n);
+		ps[2] = rotate(ps[0], n);
+		ps[3] = reflect(ps[2], n);
+		ps[4] = rotate(ps[2], n);
+		ps[5] = reflect(ps[4], n);
+		ps[6] = rotate(ps[4], n);
+		ps[7] = reflect(ps[6], n);
+
+		for (int k = 0; k < symmetry; ++k) 
+		{
+			auto hash = hash_from_pattern(ps[k], sample.palette.size());
+			patterns[hash] += 1;
+			if (out_lowest_pattern && index.y == sample.height - 1) 
 			{
-				auto hash = hash_from_pattern(ps[k], sample.palette.size());
-				patterns[hash] += 1;
-				if (out_lowest_pattern && y == sample.height - 1) 
-				{
-					*out_lowest_pattern = hash;
-				}
+				*out_lowest_pattern = hash;
 			}
 		}
-	}
+	};
+
+	range(rangeFcn);
 
 	return patterns;
 }
