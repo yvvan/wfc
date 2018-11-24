@@ -239,35 +239,39 @@ bool OverlappingModel::propagate(Output& output) const
 Graphics OverlappingModel::graphics(const Output& output) const
 {
 	Graphics result(mCommonParams.mOutsideCommonParams._width, mCommonParams.mOutsideCommonParams._height, {});
-	for (const auto y : irange(mCommonParams.mOutsideCommonParams._height)) 
+	Dimension2D dimension{mCommonParams.mOutsideCommonParams._width, mCommonParams.mOutsideCommonParams._height};
+
+	auto range = range2D(dimension);
+
+	auto rangeFcn = [&] (const Index2D& index)
 	{
-		for (const auto x : irange(mCommonParams.mOutsideCommonParams._width)) 
+		auto& tile_contributors = result[index];
+
+		for (int dy = 0; dy < _n; ++dy) 
 		{
-			auto& tile_contributors = result.ref(x, y);
-
-			for (int dy = 0; dy < _n; ++dy) 
+			for (int dx = 0; dx < _n; ++dx) 
 			{
-				for (int dx = 0; dx < _n; ++dx) 
+				int sx = index.x - dx;
+				if (sx < 0) sx += mCommonParams.mOutsideCommonParams._width;
+
+				int sy = index.y - dy;
+				if (sy < 0) sy += mCommonParams.mOutsideCommonParams._height;
+
+				if (on_boundary(sx, sy)) { continue; }
+
+				for (int t = 0; t < mCommonParams._num_patterns; ++t) 
 				{
-					int sx = x - dx;
-					if (sx < 0) sx += mCommonParams.mOutsideCommonParams._width;
-
-					int sy = y - dy;
-					if (sy < 0) sy += mCommonParams.mOutsideCommonParams._height;
-
-					if (on_boundary(sx, sy)) { continue; }
-
-					for (int t = 0; t < mCommonParams._num_patterns; ++t) 
+					if (output._wave.ref(sx, sy, t)) 
 					{
-						if (output._wave.ref(sx, sy, t)) 
-						{
-							tile_contributors.push_back(_patterns[t][dx + dy * _n]);
-						}
+						tile_contributors.push_back(_patterns[t][dx + dy * _n]);
 					}
 				}
 			}
 		}
-	}
+	};
+
+	range(rangeFcn);
+
 	return result;
 }
 
