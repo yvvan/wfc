@@ -15,10 +15,6 @@ enum class Result
 	kUnfinished,
 };
 
-class GeneralConfig;
-
-void run_and_write(const GeneralConfig& generalConfig, const Model& model);
-
 const char* result2str(const Result result);
 
 double calc_sum(const std::vector<double>& a);
@@ -33,7 +29,7 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double);
 
 Output create_output(const Model& model);
 
-Result run(Output* output, const Model& model, size_t seed, size_t limit);
+Result run(Output& output, const Model& model, size_t seed, size_t limit);
 
 
 #endif

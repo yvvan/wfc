@@ -9,6 +9,7 @@ include_directories(libs libs/emilib include)
 add_library(libs libs/libs.cpp)
 
 add_library(wfc 
+	src/app.cpp
 	src/algorithm.cpp
 	src/configuru.cpp
 	src/tile_model.cpp
