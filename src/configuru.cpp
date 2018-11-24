@@ -247,22 +247,13 @@ OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, co
 	const auto image_filename = config["image"].as_string();
 	const auto in_path = image_dir + image_filename;
 
-	const int    n              = config.get_or("n",             3);
-	const size_t symmetry       = config.get_or("symmetry",      8);
-	const bool   periodic_in    = config.get_or("periodic_in",  true);
-	const auto   has_foundation = config.get_or("foundation",   false);
-
-	const auto sample_image = load_paletted_image(in_path.c_str());
-	LOG_F(INFO, "palette size: %lu", sample_image.palette.size());
-
 	return
 	{
-		.sample_image = sample_image,
-		.periodic_in = periodic_in,
-		.symmetry = symmetry,
-		.has_foundation = has_foundation,
-		.palette = sample_image.palette,
-		.n = n,
+		.sample_image = load_paletted_image(in_path),
+		.periodic_in = config.get_or("periodic_in", true),
+		.symmetry = (size_t)config.get_or("symmetry", 8),
+		.has_foundation = config.get_or("foundation", false),
+		.n = config.get_or("n", 3),
 		.commonParam =
 		{
 			._width = (size_t)config.get_or("width",        48),

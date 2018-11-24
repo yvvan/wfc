@@ -88,6 +88,8 @@ Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size)
 
 OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 {
+	LOG_F(INFO, "palette size: %lu", config.sample_image.palette.size());
+
 	PatternHash foundation = kInvalidHash;
 	const auto hashed_patterns = extract_patterns(config.sample_image, config.n, config.periodic_in, config.symmetry, config.has_foundation ? &foundation : nullptr);
 	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
@@ -95,7 +97,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	mCommonParams.mOutsideCommonParams = config.commonParam;
 	mCommonParams._num_patterns = hashed_patterns.size();
 	_n            = config.n;
-	_palette      = config.palette;
+	_palette      = config.sample_image.palette;
 
 	mCommonParams._foundation = kInvalidIndex;
 	for (const auto& it : hashed_patterns) 

@@ -28,7 +28,6 @@ struct OverlappingModelConfig
 	bool periodic_in;
 	size_t symmetry;
 	bool has_foundation;
-	const Palette           palette;
 	int                      n;
 	OutsideCommonParams commonParam;
 };
