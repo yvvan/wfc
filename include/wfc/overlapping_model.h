@@ -19,6 +19,8 @@ struct PalettedImage
 	}
 };
 
+const PatternHash kInvalidHash = -1;
+
 
 struct OverlappingModelConfig
 {
@@ -26,12 +28,15 @@ struct OverlappingModelConfig
 	bool periodic_in;
 	size_t symmetry;
 	bool has_foundation;
-	const PatternPrevalence hashed_patterns;
 	const Palette           palette;
 	int                      n;
 	OutsideCommonParams commonParam;
-	PatternHash              foundation_pattern;
 };
+
+// n = side of the pattern, e.g. 3.
+PatternPrevalence extract_patterns(
+	const PalettedImage& sample, int n, bool periodic_in, size_t symmetry,
+	PatternHash* out_lowest_pattern);
 
 class OverlappingModel : public Model
 {
@@ -63,5 +68,14 @@ Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size);
 Image image_from_graphics(const Graphics& graphics, const Palette& palette);
 
 Image upsample(const Image& image);
+
+Pattern patternFromSample(const PalettedImage& sample, int n, size_t x, size_t y);
+
+Pattern rotate(const Pattern& p, int n);
+
+Pattern reflect(const Pattern& p, int n);
+
+PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size);
+
 
 #endif

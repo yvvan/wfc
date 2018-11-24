@@ -12,41 +12,12 @@
 #include <wfc/imodel.h>
 #include <wfc/common.h>
 
-const PatternHash kInvalidHash = -1;
-
 using Tile = std::vector<RGBA>;
 using TileLoader = std::function<Tile(const std::string& tile_name)>;
 
 using namespace emilib;
 
 const size_t MAX_COLORS = 1 << (sizeof(ColorIndex) * 8);
-
-template <class Functor>
-Pattern make_pattern(int n, Functor fun)
-{
-	Pattern result(n * n);
-	for (auto dy : irange(n)) 
-	{
-		for (auto dx : irange(n)) 
-		{
-			result[dy * n + dx] = fun(dx, dy);
-		}
-	}
-	return result;
-};
-
-PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size);
-
-Pattern patternFromSample(const PalettedImage& sample, int n, size_t x, size_t y);
-
-Pattern rotate(const Pattern& p, int n);
-
-Pattern reflect(const Pattern& p, int n);
-
-// n = side of the pattern, e.g. 3.
-PatternPrevalence extract_patterns(
-	const PalettedImage& sample, int n, bool periodic_in, size_t symmetry,
-	PatternHash* out_lowest_pattern);
 
 Tile rotate(const Tile& in_tile, const size_t tile_size);
 

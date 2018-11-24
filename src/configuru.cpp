@@ -6,88 +6,6 @@
 #include <emilib/strprintf.hpp>
 #include <stb_image.h>
 
-PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
-{
-	CHECK_LT_F(std::pow((double)palette_size, (double)pattern.size()),
-	           std::pow(2.0, sizeof(PatternHash) * 8),
-	           "Too large palette (it is %lu) or too large pattern size (it's %.0f)",
-	           palette_size, std::sqrt(pattern.size()));
-
-	PatternHash result = 0;
-	size_t power = 1;
-	for (const auto i : irange(pattern.size()))
-	{
-		result += pattern[pattern.size() - 1 - i] * power;
-		power *= palette_size;
-	}
-	return result;
-}
-
-
-Pattern patternFromSample(const PalettedImage& sample, int n, size_t x, size_t y)
-{
-	auto functor = [&] (size_t dx, size_t dy)
-	{
-		return sample.at_wrapped(x + dx, y + dy);
-	};
-	return make_pattern(n, functor);
-}
-
-Pattern rotate(const Pattern& p, int n)
-{
-	auto functor = [&](size_t x, size_t y)
-	{ 
-		return p[n - 1 - y + x * n]; 
-	};
-	return make_pattern(n, functor);
-}
-
-Pattern reflect(const Pattern& p, int n)
-{
-	auto functor = [&](size_t x, size_t y)
-	{ 
-		return p[n - 1 - x + y * n];
-	};
-	return make_pattern(n, functor);
-}
-
-
-// n = side of the pattern, e.g. 3.
-PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern)
-{
-	CHECK_LE_F(n, sample.width);
-	CHECK_LE_F(n, sample.height);
-
-	PatternPrevalence patterns;
-
-	for (size_t y : irange(periodic_in ? sample.height : sample.height - n + 1)) 
-	{
-		for (size_t x : irange(periodic_in ? sample.width : sample.width - n + 1)) 
-		{
-			std::array<Pattern, 8> ps;
-			ps[0] = patternFromSample(sample, n, x, y);
-			ps[1] = reflect(ps[0], n);
-			ps[2] = rotate(ps[0], n);
-			ps[3] = reflect(ps[2], n);
-			ps[4] = rotate(ps[2], n);
-			ps[5] = reflect(ps[4], n);
-			ps[6] = rotate(ps[4], n);
-			ps[7] = reflect(ps[6], n);
-
-			for (int k = 0; k < symmetry; ++k) 
-			{
-				auto hash = hash_from_pattern(ps[k], sample.palette.size());
-				patterns[hash] += 1;
-				if (out_lowest_pattern && y == sample.height - 1) 
-				{
-					*out_lowest_pattern = hash;
-				}
-			}
-		}
-	}
-
-	return patterns;
-}
 
 Tile rotate(const Tile& in_tile, const size_t tile_size)
 {
@@ -336,9 +254,6 @@ OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, co
 
 	const auto sample_image = load_paletted_image(in_path.c_str());
 	LOG_F(INFO, "palette size: %lu", sample_image.palette.size());
-	PatternHash foundation = kInvalidHash;
-	const auto hashed_patterns = extract_patterns(sample_image, n, periodic_in, symmetry, has_foundation ? &foundation : nullptr);
-	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
 
 	return
 	{
@@ -346,7 +261,6 @@ OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, co
 		.periodic_in = periodic_in,
 		.symmetry = symmetry,
 		.has_foundation = has_foundation,
-		.hashed_patterns = hashed_patterns,
 		.palette = sample_image.palette,
 		.n = n,
 		.commonParam =
@@ -354,8 +268,7 @@ OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, co
 			._width = (size_t)config.get_or("width",        48),
 			._height = (size_t)config.get_or("height",       48),
 			._periodic_out = config.get_or("periodic_out", true)
-		},
-		.foundation_pattern = foundation
+		}
 	};
 }
 

@@ -6,6 +6,20 @@
 
 using namespace emilib;
 
+template <class Functor>
+Pattern make_pattern(int n, Functor fun)
+{
+	Pattern result(n * n);
+	for (auto dy : irange(n)) 
+	{
+		for (auto dx : irange(n)) 
+		{
+			result[dy * n + dx] = fun(dx, dy);
+		}
+	}
+	return result;
+};
+
 Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 {
 	Image result(graphics.width(), graphics.height(), {0, 0, 0, 0});
@@ -74,15 +88,19 @@ Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size)
 
 OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 {
+	PatternHash foundation = kInvalidHash;
+	const auto hashed_patterns = extract_patterns(config.sample_image, config.n, config.periodic_in, config.symmetry, config.has_foundation ? &foundation : nullptr);
+	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
+
 	mCommonParams.mOutsideCommonParams = config.commonParam;
-	mCommonParams._num_patterns = config.hashed_patterns.size();
+	mCommonParams._num_patterns = hashed_patterns.size();
 	_n            = config.n;
 	_palette      = config.palette;
 
 	mCommonParams._foundation = kInvalidIndex;
-	for (const auto& it : config.hashed_patterns) 
+	for (const auto& it : hashed_patterns) 
 	{
-		if (it.first == config.foundation_pattern) 
+		if (it.first == foundation) 
 		{
 			mCommonParams._foundation = _patterns.size();
 		}
@@ -253,3 +271,83 @@ Image upsample(const Image& image)
 	return result;
 }
 
+// n = side of the pattern, e.g. 3.
+PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern)
+{
+	CHECK_LE_F(n, sample.width);
+	CHECK_LE_F(n, sample.height);
+
+	PatternPrevalence patterns;
+
+	for (size_t y : irange(periodic_in ? sample.height : sample.height - n + 1)) 
+	{
+		for (size_t x : irange(periodic_in ? sample.width : sample.width - n + 1)) 
+		{
+			std::array<Pattern, 8> ps;
+			ps[0] = patternFromSample(sample, n, x, y);
+			ps[1] = reflect(ps[0], n);
+			ps[2] = rotate(ps[0], n);
+			ps[3] = reflect(ps[2], n);
+			ps[4] = rotate(ps[2], n);
+			ps[5] = reflect(ps[4], n);
+			ps[6] = rotate(ps[4], n);
+			ps[7] = reflect(ps[6], n);
+
+			for (int k = 0; k < symmetry; ++k) 
+			{
+				auto hash = hash_from_pattern(ps[k], sample.palette.size());
+				patterns[hash] += 1;
+				if (out_lowest_pattern && y == sample.height - 1) 
+				{
+					*out_lowest_pattern = hash;
+				}
+			}
+		}
+	}
+
+	return patterns;
+}
+
+Pattern patternFromSample(const PalettedImage& sample, int n, size_t x, size_t y)
+{
+	auto functor = [&] (size_t dx, size_t dy)
+	{
+		return sample.at_wrapped(x + dx, y + dy);
+	};
+	return make_pattern(n, functor);
+}
+
+Pattern rotate(const Pattern& p, int n)
+{
+	auto functor = [&](size_t x, size_t y)
+	{ 
+		return p[n - 1 - y + x * n]; 
+	};
+	return make_pattern(n, functor);
+}
+
+Pattern reflect(const Pattern& p, int n)
+{
+	auto functor = [&](size_t x, size_t y)
+	{ 
+		return p[n - 1 - x + y * n];
+	};
+	return make_pattern(n, functor);
+}
+
+PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
+{
+	CHECK_LT_F(std::pow((double)palette_size, (double)pattern.size()),
+	           std::pow(2.0, sizeof(PatternHash) * 8),
+	           "Too large palette (it is %lu) or too large pattern size (it's %.0f)",
+	           palette_size, std::sqrt(pattern.size()));
+
+	PatternHash result = 0;
+	size_t power = 1;
+	for (const auto i : irange(pattern.size()))
+	{
+		result += pattern[pattern.size() - 1 - i] * power;
+		power *= palette_size;
+	}
+	return result;
+}
