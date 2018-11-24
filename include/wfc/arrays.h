@@ -43,7 +43,10 @@ class Array2D
 			return mDimensions;
 		}
 
-		const T* data()   const { return mData.data(); }
+		const T* data() const
+		{
+			return mData.data();
+		}
 
 	private:
 
