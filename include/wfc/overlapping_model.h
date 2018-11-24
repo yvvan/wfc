@@ -89,5 +89,6 @@ Pattern reflect(const Pattern& p, int n);
 
 PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size);
 
+RGBA collapsePixel(const std::vector<ColorIndex>& tile_contributors, const Palette& palette);
 
 #endif

@@ -20,6 +20,44 @@ Pattern make_pattern(int n, Functor fun)
 	return result;
 };
 
+RGBA collapsePixel(const std::vector<ColorIndex>& tile_contributors, const Palette& palette)
+{
+	RGBA toReturn;
+
+	if (tile_contributors.empty()) 
+	{
+		// No contributors, so set to 0
+		toReturn = {0, 0, 0, 255};
+	} 
+	else if (tile_contributors.size() == 1) 
+	{
+		// One contributor, so use that
+		toReturn = palette[tile_contributors[0]];
+	} 
+	else 
+	{
+		// Multiple contributors, so average them
+		size_t r = 0;
+		size_t g = 0;
+		size_t b = 0;
+		size_t a = 0;
+		for (const auto tile : tile_contributors) 
+		{
+			r += palette[tile].r;
+			g += palette[tile].g;
+			b += palette[tile].b;
+			a += palette[tile].a;
+		}
+		r /= tile_contributors.size();
+		g /= tile_contributors.size();
+		b /= tile_contributors.size();
+		a /= tile_contributors.size();
+		toReturn = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
+	}
+
+	return toReturn;
+}
+
 Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 {
 	Image result(graphics.width(), graphics.height(), {0, 0, 0, 0});
@@ -29,34 +67,7 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 		for (const auto x : irange(graphics.width())) 
 		{
 			const auto& tile_contributors = graphics.ref(x, y);
-			if (tile_contributors.empty()) 
-			{
-				// No 
-				result.ref(x, y) = {0, 0, 0, 255};
-			} 
-			else if (tile_contributors.size() == 1) 
-			{
-				result.ref(x, y) = palette[tile_contributors[0]];
-			} 
-			else 
-			{
-				size_t r = 0;
-				size_t g = 0;
-				size_t b = 0;
-				size_t a = 0;
-				for (const auto tile : tile_contributors) 
-				{
-					r += palette[tile].r;
-					g += palette[tile].g;
-					b += palette[tile].b;
-					a += palette[tile].a;
-				}
-				r /= tile_contributors.size();
-				g /= tile_contributors.size();
-				b /= tile_contributors.size();
-				a /= tile_contributors.size();
-				result.ref(x, y) = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
-			}
+			result.ref(x, y) = collapsePixel(tile_contributors, palette);
 		}
 	}
 
