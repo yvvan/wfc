@@ -28,6 +28,8 @@ bool TileModel::propagate(Output& output) const
 			for (int d = 0; d < 4; ++d) 
 			{
 				int x1 = x2, y1 = y2;
+
+				// Looks like this might be wrap-around algorithm? 
 				if (d == 0) 
 				{
 					if (x2 == 0) 

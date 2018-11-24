@@ -28,14 +28,15 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 	{
 		for (const auto x : irange(graphics.width())) 
 		{
-			const auto& tile_constributors = graphics.ref(x, y);
-			if (tile_constributors.empty()) 
+			const auto& tile_contributors = graphics.ref(x, y);
+			if (tile_contributors.empty()) 
 			{
+				// No 
 				result.ref(x, y) = {0, 0, 0, 255};
 			} 
-			else if (tile_constributors.size() == 1) 
+			else if (tile_contributors.size() == 1) 
 			{
-				result.ref(x, y) = palette[tile_constributors[0]];
+				result.ref(x, y) = palette[tile_contributors[0]];
 			} 
 			else 
 			{
@@ -43,17 +44,17 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette)
 				size_t g = 0;
 				size_t b = 0;
 				size_t a = 0;
-				for (const auto tile : tile_constributors) 
+				for (const auto tile : tile_contributors) 
 				{
 					r += palette[tile].r;
 					g += palette[tile].g;
 					b += palette[tile].b;
 					a += palette[tile].a;
 				}
-				r /= tile_constributors.size();
-				g /= tile_constributors.size();
-				b /= tile_constributors.size();
-				a /= tile_constributors.size();
+				r /= tile_contributors.size();
+				g /= tile_contributors.size();
+				b /= tile_contributors.size();
+				a /= tile_contributors.size();
 				result.ref(x, y) = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
 			}
 		}
@@ -130,6 +131,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 
 	_propagator = Array3D<std::vector<PatternIndex>>(mCommonParams._num_patterns, 2 * config.n - 1, 2 * config.n - 1, {});
 
+	// These are just used for printouts
 	size_t longest_propagator = 0;
 	size_t sum_propagator = 0;
 
@@ -147,7 +149,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 						list.push_back(t2);
 					}
 				}
-				list.shrink_to_fit();
+
 				longest_propagator = std::max(longest_propagator, list.size());
 				sum_propagator += list.size();
 			}
@@ -227,7 +229,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 	{
 		for (const auto x : irange(mCommonParams.mOutsideCommonParams._width)) 
 		{
-			auto& tile_constributors = result.ref(x, y);
+			auto& tile_contributors = result.ref(x, y);
 
 			for (int dy = 0; dy < _n; ++dy) 
 			{
@@ -245,7 +247,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 					{
 						if (output._wave.ref(sx, sy, t)) 
 						{
-							tile_constributors.push_back(_patterns[t][dx + dy * _n]);
+							tile_contributors.push_back(_patterns[t][dx + dy * _n]);
 						}
 					}
 				}
