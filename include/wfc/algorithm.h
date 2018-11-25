@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <vector>
+#include <experimental/optional>
 
 #include <wfc/imodel.h>
 
@@ -30,5 +31,6 @@ Output create_output(const Model& model);
 
 Result run(Output& output, const Model& model, size_t seed, size_t limit);
 
+std::experimental::optional<Image> createImage(const Model& model, size_t seed, size_t limit);
 
 #endif

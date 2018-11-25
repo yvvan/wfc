@@ -182,3 +182,19 @@ Result run(Output& output, const Model& model, size_t seed, size_t limit)
 	LOG_F(INFO, "Unfinished after %lu iterations", limit);
 	return Result::kUnfinished;
 }
+
+std::experimental::optional<Image> createImage(const Model& model, size_t seed, size_t limit)
+{
+	Output output = create_output(model);
+
+	const auto result = run(output, model, seed, limit);
+
+	if (result == Result::kSuccess) 
+	{
+		return model.image(output);
+	}
+	else
+	{
+		return std::experimental::optional<Image>();
+	}
+}
