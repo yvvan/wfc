@@ -47,7 +47,7 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 struct GeneralConfig
 {
 	size_t limit;
-	size_t screenshots;
+	size_t numOutput;
 
 	const std::string name;
 };

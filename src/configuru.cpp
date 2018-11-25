@@ -316,7 +316,7 @@ void run_config_file(const std::string& path, ConfigActions actions)
 			GeneralConfig generalConfig
 			{
 				.limit       = (size_t)config.get_or("limit",       0),
-				.screenshots = (size_t)config.get_or("screenshots", 2),
+				.numOutput = (size_t)config.get_or("numOutput", 2),
 				.name = p.key()
 			};
 
@@ -337,7 +337,7 @@ void run_config_file(const std::string& path, ConfigActions actions)
 			GeneralConfig generalConfig
 			{
 				.limit       = (size_t)config.get_or("limit",       0),
-				.screenshots = (size_t)config.get_or("screenshots", 2),
+				.numOutput = (size_t)config.get_or("numOutput", 2),
 				.name = p.key()
 			};
 
