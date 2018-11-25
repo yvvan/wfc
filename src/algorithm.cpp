@@ -160,13 +160,13 @@ Output create_output(const Model& model)
 	return output;
 }
 
-Result run(Output& output, const Model& model, size_t seed, size_t limit)
+Result run(Output& output, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
 {
 	std::mt19937 gen(seed);
 	std::uniform_real_distribution<double> dis(0.0, 1.0);
 	RandomDouble random_double = [&]() { return dis(gen); };
 
-	for (size_t l = 0; l < limit || limit == 0; ++l) 
+	for (size_t l = 0; !(limit) || l < *limit; ++l) 
 	{
 		Result result = observe(model, output, random_double);
 
@@ -183,7 +183,7 @@ Result run(Output& output, const Model& model, size_t seed, size_t limit)
 	return Result::kUnfinished;
 }
 
-std::experimental::optional<Image> createImage(const Model& model, size_t seed, size_t limit)
+std::experimental::optional<Image> createImage(const Model& model, size_t seed, std::experimental::optional<size_t> limit)
 {
 	Output output = create_output(model);
 

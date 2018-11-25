@@ -29,8 +29,8 @@ Result observe(const Model& model, Output* output, RandomDouble& random_double);
 
 Output create_output(const Model& model);
 
-Result run(Output& output, const Model& model, size_t seed, size_t limit);
+Result run(Output& output, const Model& model, size_t seed, std::experimental::optional<size_t> limit);
 
-std::experimental::optional<Image> createImage(const Model& model, size_t seed, size_t limit);
+std::experimental::optional<Image> createImage(const Model& model, size_t seed, std::experimental::optional<size_t> limit);
 
 #endif

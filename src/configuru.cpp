@@ -299,6 +299,23 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 	};
 }
 
+GeneralConfig importGeneralConfig(const std::string& name, const auto& config)
+{
+	size_t importedLimit = (size_t)config.get_or("limit", 0);
+	std::experimental::optional<size_t> actualLimit;
+	if (importedLimit != 0)
+	{
+		actualLimit = importedLimit;
+	}
+
+	return
+	{
+		.limit       = actualLimit,
+		.numOutput = (size_t)config.get_or("numOutput", 2),
+		.name = name
+	};
+}
+
 void run_config_file(const std::string& path, ConfigActions actions)
 {
 	LOG_F(INFO, "Running all samples in %s", path.c_str());
@@ -312,13 +329,8 @@ void run_config_file(const std::string& path, ConfigActions actions)
 			LOG_SCOPE_F(INFO, "%s", p.key().c_str());
 
 			const auto& config = p.value();
-
-			GeneralConfig generalConfig
-			{
-				.limit       = (size_t)config.get_or("limit",       0),
-				.numOutput = (size_t)config.get_or("numOutput", 2),
-				.name = p.key()
-			};
+			
+			GeneralConfig generalConfig = importGeneralConfig(p.key(), config);
 
 			OverlappingModelConfig overlappingModelConfig = extractOverlappingConfig(image_dir, config);
 			actions.overlappingAction(generalConfig, overlappingModelConfig);
@@ -334,12 +346,8 @@ void run_config_file(const std::string& path, ConfigActions actions)
 			LOG_SCOPE_F(INFO, "Tiled %s", p.key().c_str());
 
 			const auto& config = p.value();
-			GeneralConfig generalConfig
-			{
-				.limit       = (size_t)config.get_or("limit",       0),
-				.numOutput = (size_t)config.get_or("numOutput", 2),
-				.name = p.key()
-			};
+
+			GeneralConfig generalConfig = importGeneralConfig(p.key(), config);
 
 			TileModelConfig tileModelConfig = extractConfig(image_dir, config);
 			auto internal = fromConfig(tileModelConfig);
