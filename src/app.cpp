@@ -52,9 +52,9 @@ void run_and_write(const std::string& name, int screenshots, ImageFunction func)
 	while (numTries < maxTries && numSuccess < desiredSuccess)
 	{
 		++numTries;
-		int seed = randSeed++;
 
-		auto result = func(seed);
+		// Generate an image based on the seed
+		auto result = func(randSeed++);
 
 		if (result) 
 		{
