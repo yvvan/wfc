@@ -128,40 +128,62 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 	return Result::kUnfinished;
 }
 
-Output create_output(const Model& model)
+Output foundationOutput(const Model& model, size_t foundation)
 {
 	Output output;
 	output._wave = Array3D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, model.mCommonParams._num_patterns, true);
 	output._changes = Array2D<Bool>({ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height }, false);
 
+	for (const auto x : irange(model.mCommonParams.mOutsideCommonParams._width)) 
+	{
+		// Setting the foundation section of the output
+		// Wave only true for foundation
+		for (const auto t : irange(model.mCommonParams._num_patterns)) 
+		{
+			if (t != *(model.mCommonParams._foundation)) 
+			{
+				output._wave.ref(x, model.mCommonParams.mOutsideCommonParams._height - 1, t) = false;
+			}
+		}
+
+		// Setting the rest of the output
+		// Wave all false for foundation
+		for (const auto y : irange(model.mCommonParams.mOutsideCommonParams._height - 1)) 
+		{
+			output._wave.ref(x, y, *(model.mCommonParams._foundation)) = false;
+		}
+
+		for (const auto y : irange(model.mCommonParams.mOutsideCommonParams._height)) 
+		{
+			output._changes.ref(x, y) = true;
+		}
+
+		while (model.propagate(output));
+	}
+	return output;
+}
+
+Output basicOutput(const Model& model)
+{
+	return
+	{
+		._wave = Array3D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, model.mCommonParams._num_patterns, true),
+		._changes = Array2D<Bool>({ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height }, false)
+	};
+}
+
+Output create_output(const Model& model)
+{
 	if (model.mCommonParams._foundation) 
 	{
-		for (const auto x : irange(model.mCommonParams.mOutsideCommonParams._width)) 
-		{
-			// Setting the foundation section of the output
-			// Wave only true for foundation
-			for (const auto t : irange(model.mCommonParams._num_patterns)) 
-			{
-				if (t != *(model.mCommonParams._foundation)) 
-				{
-					output._wave.ref(x, model.mCommonParams.mOutsideCommonParams._height - 1, t) = false;
-				}
-			}
-			output._changes.ref(x, model.mCommonParams.mOutsideCommonParams._height - 1) = true;
-
-			// Setting the rest of the output
-			// Wave all false for foundation
-			for (const auto y : irange(model.mCommonParams.mOutsideCommonParams._height - 1)) 
-			{
-				output._wave.ref(x, y, *(model.mCommonParams._foundation)) = false;
-				output._changes.ref(x, y) = true;
-			}
-
-			while (model.propagate(output));
-		}
+		// Tile has a clearly-defined "ground"/"foundation"
+		return foundationOutput(model, *(model.mCommonParams._foundation)); 
 	}
-
-	return output;
+	else
+	{
+		// More general scenario
+		return basicOutput(model);
+	}
 }
 
 Result run(Output& output, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
