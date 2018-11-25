@@ -34,15 +34,16 @@ void runModel(const GeneralConfig& generalConfig, const Model& model)
 		return createImage(model, seed, generalConfig.limit);
 	};
 
-	run_and_write(generalConfig.name, generalConfig.screenshots, imageFunc);
+	const int maxTries = 10 * generalConfig.screenshots;
+
+	seedLoop(generalConfig.name, generalConfig.screenshots, maxTries, imageFunc);
 }
 
-void run_and_write(const std::string& name, int screenshots, ImageFunction func)
+void seedLoop(const std::string& name, int screenshots, int maxTries, ImageFunction func)
 {
 	int numTries = 0;
 	int numSuccess = 0;
 
-	const int maxTries = 20;
 	const int desiredSuccess = screenshots;
 	
 	int randSeed = 0;
