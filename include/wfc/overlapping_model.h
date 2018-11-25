@@ -3,7 +3,6 @@
 
 #include <wfc/arrays.h>
 #include <wfc/imodel.h>
-#include <wfc/common.h>
 
 #include <unordered_map>
 

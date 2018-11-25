@@ -190,6 +190,7 @@ bool OverlappingModel::propagate(Output& output) const
 					auto x2 = x1 + dx;
 					auto y2 = y1 + dy;
 
+					// Do wrap around
 					auto sx = x2;
 					if      (sx <  0)      { sx += mCommonParams.mOutsideCommonParams._width; }
 					else if (sx >= mCommonParams.mOutsideCommonParams._width) { sx -= mCommonParams.mOutsideCommonParams._width; }
@@ -198,6 +199,7 @@ bool OverlappingModel::propagate(Output& output) const
 					if      (sy <  0)       { sy += mCommonParams.mOutsideCommonParams._height; }
 					else if (sy >= mCommonParams.mOutsideCommonParams._height) { sy -= mCommonParams.mOutsideCommonParams._height; }
 
+					// Same as on_boundary?
 					if (!mCommonParams.mOutsideCommonParams._periodic_out && (sx + _n > mCommonParams.mOutsideCommonParams._width || sy + _n > mCommonParams.mOutsideCommonParams._height)) 
 					{
 						continue;

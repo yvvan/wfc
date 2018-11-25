@@ -21,6 +21,8 @@ Tile rotate(const Tile& in_tile, const size_t tile_size)
 	return out_tile;
 }
 
+// TODO: Seems like part of the algorithm is here - should be moved to algorithm-specific files. This file is just meant
+// for loading config with configuru.
 TileModelInternal fromConfig(const TileModelConfig& config)
 {
 	TileModelInternal toReturn;

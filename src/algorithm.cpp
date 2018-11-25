@@ -4,8 +4,6 @@
 
 #include <emilib/irange.hpp>
 
-#include <wfc/common.h>
-
 using emilib::irange;
 
 const char* result2str(const Result result)

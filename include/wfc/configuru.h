@@ -11,7 +11,6 @@
 #include <wfc/overlapping_model.h>
 #include <wfc/tile_model.h>
 #include <wfc/imodel.h>
-#include <wfc/common.h>
 
 using Tile = std::vector<RGBA>;
 using TileLoader = std::function<Tile(const std::string& tile_name)>;
