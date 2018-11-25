@@ -176,6 +176,7 @@ bool OverlappingModel::propagate(Output& output) const
 {
 	bool did_change = false;
 
+	// This whole set of nested loops looks very similar to the one in graphics()
 	for (int x1 = 0; x1 < mCommonParams.mOutsideCommonParams._width; ++x1) 
 	{
 		for (int y1 = 0; y1 < mCommonParams.mOutsideCommonParams._height; ++y1) 
@@ -208,6 +209,8 @@ bool OverlappingModel::propagate(Output& output) const
 					for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
 					{
 						if (!output._wave.ref(sx, sy, t2)) { continue; }
+
+						// This part below seems to be the only thing fundamentally diff from graphics() algorithm:
 
 						bool can_pattern_fit = false;
 
