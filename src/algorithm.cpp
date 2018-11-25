@@ -138,6 +138,8 @@ Output create_output(const Model& model)
 	{
 		for (const auto x : irange(model.mCommonParams.mOutsideCommonParams._width)) 
 		{
+			// Setting the foundation section of the output
+			// Wave only true for foundation
 			for (const auto t : irange(model.mCommonParams._num_patterns)) 
 			{
 				if (t != *(model.mCommonParams._foundation)) 
@@ -147,6 +149,8 @@ Output create_output(const Model& model)
 			}
 			output._changes.ref(x, model.mCommonParams.mOutsideCommonParams._height - 1) = true;
 
+			// Setting the rest of the output
+			// Wave all false for foundation
 			for (const auto y : irange(model.mCommonParams.mOutsideCommonParams._height - 1)) 
 			{
 				output._wave.ref(x, y, *(model.mCommonParams._foundation)) = false;
