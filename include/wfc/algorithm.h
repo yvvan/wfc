@@ -20,7 +20,7 @@ const char* result2str(const Result result);
 double calc_sum(const std::vector<double>& a);
 
 // Pick a random index weighted by a
-size_t spin_the_bottle(const std::vector<double>& a, double between_zero_and_one);
+size_t weightedIndexSelect(const std::vector<double>& a, double randFraction);
 
 Result find_lowest_entropy(const Model& model, const Output& output, RandomDouble& random_double,
                            int* argminx, int* argminy);

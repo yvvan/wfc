@@ -21,16 +21,17 @@ double calc_sum(const std::vector<double>& a)
 }
 
 // Pick a random index weighted by a
-size_t spin_the_bottle(const std::vector<double>& a, double between_zero_and_one)
+size_t weightedIndexSelect(const std::vector<double>& a, double randFraction)
 {
 	double sum = calc_sum(a);
 
 	if (sum == 0.0) 
 	{
-		return std::floor(between_zero_and_one * a.size());
+		// ???
+		return std::floor(randFraction * a.size());
 	}
 
-	double between_zero_and_sum = between_zero_and_one * sum;
+	double between_zero_and_sum = randFraction * sum;
 
 	double accumulated = 0;
 
@@ -115,7 +116,7 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 	{
 		distribution[t] = output._wave.ref(argminx, argminy, t) ? model.mCommonParams._pattern_weight[t] : 0;
 	}
-	size_t r = spin_the_bottle(distribution, random_double());
+	size_t r = weightedIndexSelect(distribution, random_double());
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{
 		output._wave.ref(argminx, argminy, t) = (t == r);
