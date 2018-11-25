@@ -47,8 +47,7 @@ size_t weightedIndexSelect(const std::vector<double>& a, double randFraction)
 	return 0;
 }
 
-Result find_lowest_entropy(const Model& model, const Output& output, RandomDouble& random_double,
-                           int* argminx, int* argminy)
+Result find_lowest_entropy(const Model& model, const Output& output, int* argminx, int* argminy)
 {
 	// We actually calculate exp(entropy), i.e. the sum of the weights of the possible patterns
 
@@ -82,9 +81,12 @@ Result find_lowest_entropy(const Model& model, const Output& output, RandomDoubl
 				continue; // Already frozen
 			}
 
+			// TODO: Add this back in, or remove?
+			/*
 			// Add a tie-breaking bias:
 			const double noise = 0.5 * random_double();
 			entropy += noise;
+			*/
 
 			if (entropy < min) 
 			{
@@ -108,7 +110,7 @@ Result find_lowest_entropy(const Model& model, const Output& output, RandomDoubl
 Result observe(const Model& model, Output& output, RandomDouble& random_double)
 {
 	int argminx, argminy;
-	const auto result = find_lowest_entropy(model, output, random_double, &argminx, &argminy);
+	const auto result = find_lowest_entropy(model, output, &argminx, &argminy);
 	if (result != Result::kUnfinished) { return result; }
 
 	std::vector<double> distribution(model.mCommonParams._num_patterns);

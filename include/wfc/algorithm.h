@@ -22,8 +22,7 @@ double calc_sum(const std::vector<double>& a);
 // Pick a random index weighted by a
 size_t weightedIndexSelect(const std::vector<double>& a, double randFraction);
 
-Result find_lowest_entropy(const Model& model, const Output& output, RandomDouble& random_double,
-                           int* argminx, int* argminy);
+Result find_lowest_entropy(const Model& model, const Output& output, int* argminx, int* argminy);
 
 Result observe(const Model& model, Output* output, RandomDouble& random_double);
 
