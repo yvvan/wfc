@@ -112,7 +112,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	_n            = config.n;
 	_palette      = config.sample_image.palette;
 
-	mCommonParams._foundation = kInvalidIndex;
+	mCommonParams._foundation = std::experimental::optional<size_t>();
 	for (const auto& it : hashed_patterns) 
 	{
 		if (it.first == foundation) 

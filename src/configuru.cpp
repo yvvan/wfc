@@ -26,7 +26,9 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 	TileModelInternal toReturn;
 
 	toReturn.mCommonParams.mOutsideCommonParams = config.commonParam;
-	toReturn.mCommonParams._foundation = kInvalidIndex;
+
+	// Tile model does not support _foundation. Variable should be removed
+	toReturn.mCommonParams._foundation = std::experimental::optional<size_t>();
 
 	toReturn._tile_size        = config.config.get_or("tile_size", 16);
 	const bool unique = config.config.get_or("unique",    false);

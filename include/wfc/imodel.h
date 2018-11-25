@@ -2,6 +2,7 @@
 #define _WFC_IMODEL_H_
 
 #include <vector>
+#include <experimental/optional>
 
 #include <wfc/rgba.h>
 #include <wfc/arrays.h>
@@ -28,12 +29,17 @@ struct OutsideCommonParams
 
 struct CommonParams
 {
+
 	OutsideCommonParams mOutsideCommonParams;
+
 	size_t _num_patterns;
-	size_t _foundation; // Index of pattern which is at the base, or kInvalidIndex
+
+	// Index of pattern which is at the base of the image if the image has a base. Otherwise, kInvalidIndex
+	std::experimental::optional<size_t> _foundation; 
 
 	// The weight of each pattern (e.g. how often that pattern occurs in the sample image).
 	std::vector<double> _pattern_weight; // num_patterns
+
 };
 
 using Image = Array2D<RGBA>;

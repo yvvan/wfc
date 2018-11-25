@@ -134,13 +134,13 @@ Output create_output(const Model& model)
 	output._wave = Array3D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, model.mCommonParams._num_patterns, true);
 	output._changes = Array2D<Bool>({ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height }, false);
 
-	if (model.mCommonParams._foundation != kInvalidIndex) 
+	if (model.mCommonParams._foundation) 
 	{
 		for (const auto x : irange(model.mCommonParams.mOutsideCommonParams._width)) 
 		{
 			for (const auto t : irange(model.mCommonParams._num_patterns)) 
 			{
-				if (t != model.mCommonParams._foundation) 
+				if (t != *(model.mCommonParams._foundation)) 
 				{
 					output._wave.ref(x, model.mCommonParams.mOutsideCommonParams._height - 1, t) = false;
 				}
@@ -149,7 +149,7 @@ Output create_output(const Model& model)
 
 			for (const auto y : irange(model.mCommonParams.mOutsideCommonParams._height - 1)) 
 			{
-				output._wave.ref(x, y, model.mCommonParams._foundation) = false;
+				output._wave.ref(x, y, *(model.mCommonParams._foundation)) = false;
 				output._changes.ref(x, y) = true;
 			}
 
