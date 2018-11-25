@@ -2,12 +2,19 @@
 #define _WFC_APP_H_
 
 #include <string>
+#include <functional>
+#include <experimental/optional>
+
+#include <wfc/imodel.h>
 
 class GeneralConfig;
 class Model;
 
 void runConfiguruFile(const std::string& fileName);
 
-void run_and_write(const GeneralConfig& generalConfig, const Model& model);
+using ImageFunction = std::function<std::experimental::optional<Image>(size_t seed)>;
+
+void run_and_write(const std::string& name, int screenshots, ImageFunction func);
+
 
 #endif

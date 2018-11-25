@@ -15,26 +15,37 @@ void runConfiguruFile(const std::string& fileName)
 		.overlappingAction = [] (const GeneralConfig& generalConfig, const OverlappingModelConfig& overlappingModelConfig)
 		{
 			OverlappingModel model(overlappingModelConfig);
-			run_and_write(generalConfig, model);
+
+			auto imageFunc = [&] (size_t seed)
+			{
+				return createImage(model, seed, generalConfig.limit);
+			};
+
+			run_and_write(generalConfig.name, generalConfig.screenshots, imageFunc);
 		},
 		.tileAction = [] (const GeneralConfig& generalConfig, const TileModelInternal& internal)
 		{
 			TileModel model(internal);
 
-			run_and_write(generalConfig, model);
+			auto imageFunc = [&] (size_t seed)
+			{
+				return createImage(model, seed, generalConfig.limit);
+			};
+
+			run_and_write(generalConfig.name, generalConfig.screenshots, imageFunc);
 		}
 	};
 
 	run_config_file(fileName, actions);
 }
 
-void run_and_write(const GeneralConfig& generalConfig, const Model& model)
+void run_and_write(const std::string& name, int screenshots, ImageFunction func)
 {
 	int numTries = 0;
 	int numSuccess = 0;
 
 	const int maxTries = 20;
-	const int desiredSuccess = generalConfig.screenshots;
+	const int desiredSuccess = screenshots;
 	
 	int randSeed = 0;
 
@@ -43,14 +54,12 @@ void run_and_write(const GeneralConfig& generalConfig, const Model& model)
 		++numTries;
 		int seed = randSeed++;
 
-		Output output = create_output(model);
+		auto result = func(seed);
 
-		const auto result = run(output, model, seed, generalConfig.limit);
-
-		if (result == Result::kSuccess) 
+		if (result) 
 		{
-			const auto image = model.image(output);
-			const auto out_path = emilib::strprintf("output/%s_%d.png", generalConfig.name.c_str(), numSuccess);
+			const auto& image = *result;
+			const auto out_path = emilib::strprintf("output/%s_%d.png", name.c_str(), numSuccess);
 			CHECK_F(stbi_write_png(out_path.c_str(), image.size().width, image.size().height, 4, image.data(), 0) != 0,
 					"Failed to write image to %s", out_path.c_str());
 
@@ -58,3 +67,4 @@ void run_and_write(const GeneralConfig& generalConfig, const Model& model)
 		}
 	}
 }
+
