@@ -15,28 +15,26 @@ void runConfiguruFile(const std::string& fileName)
 		.overlappingAction = [] (const GeneralConfig& generalConfig, const OverlappingModelConfig& overlappingModelConfig)
 		{
 			OverlappingModel model(overlappingModelConfig);
-
-			auto imageFunc = [&] (size_t seed)
-			{
-				return createImage(model, seed, generalConfig.limit);
-			};
-
-			run_and_write(generalConfig.name, generalConfig.screenshots, imageFunc);
+			runModel(generalConfig, model);
 		},
 		.tileAction = [] (const GeneralConfig& generalConfig, const TileModelInternal& internal)
 		{
 			TileModel model(internal);
-
-			auto imageFunc = [&] (size_t seed)
-			{
-				return createImage(model, seed, generalConfig.limit);
-			};
-
-			run_and_write(generalConfig.name, generalConfig.screenshots, imageFunc);
+			runModel(generalConfig, model);
 		}
 	};
 
 	run_config_file(fileName, actions);
+}
+
+void runModel(const GeneralConfig& generalConfig, const Model& model)
+{
+	auto imageFunc = [&] (size_t seed)
+	{
+		return createImage(model, seed, generalConfig.limit);
+	};
+
+	run_and_write(generalConfig.name, generalConfig.screenshots, imageFunc);
 }
 
 void run_and_write(const std::string& name, int screenshots, ImageFunction func)

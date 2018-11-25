@@ -16,5 +16,6 @@ using ImageFunction = std::function<std::experimental::optional<Image>(size_t se
 
 void run_and_write(const std::string& name, int screenshots, ImageFunction func);
 
+void runModel(const GeneralConfig& generalConfig, const Model& model);
 
 #endif
