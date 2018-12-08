@@ -6,6 +6,7 @@
 #include <experimental/optional>
 
 #include <wfc/imodel.h>
+#include <wfc/image_generator.h>
 
 using RandomDouble      = std::function<double()>;
 
@@ -15,8 +16,6 @@ enum class Result
 	kFail,
 	kUnfinished,
 };
-
-using ImageGenerator = std::function< std::experimental::optional<Image>(size_t) >;
 
 const char* result2str(const Result result);
 
