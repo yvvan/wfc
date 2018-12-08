@@ -14,35 +14,24 @@ void runConfiguruFile(const std::string& fileName)
 	{
 		.overlappingAction = [] (const GeneralConfig& generalConfig, const OverlappingModelConfig& overlappingModelConfig)
 		{
-			OverlappingModel model(overlappingModelConfig);
-			runModel(generalConfig, model);
+			auto imageGenerator = overlappingGenerator(overlappingModelConfig, generalConfig.limit);
+			seedLoop(generalConfig.name, generalConfig.numOutput, imageGenerator);
 		},
 		.tileAction = [] (const GeneralConfig& generalConfig, const TileModelInternal& internal)
 		{
-			TileModel model(internal);
-			runModel(generalConfig, model);
+			auto imageGenerator = tileGenerator(internal, generalConfig.limit);
+			seedLoop(generalConfig.name, generalConfig.numOutput, imageGenerator);
 		}
 	};
 
 	run_config_file(fileName, actions);
 }
 
-void runModel(const GeneralConfig& generalConfig, const Model& model)
-{
-	auto imageFunc = [&] (size_t seed)
-	{
-		return createImage(model, seed, generalConfig.limit);
-	};
-
-	const int maxTries = 10 * generalConfig.numOutput;
-
-	seedLoop(generalConfig.name, generalConfig.numOutput, maxTries, imageFunc);
-}
-
-void seedLoop(const std::string& name, int numOutput, int maxTries, ImageFunction func)
+void seedLoop(const std::string& name, int numOutput, const ImageGenerator& func)
 {
 	int numTries = 0;
 	int numSuccess = 0;
+	const int maxTries = 10 * numOutput;
 
 	const int desiredSuccess = numOutput;
 	

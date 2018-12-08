@@ -5,18 +5,11 @@
 #include <functional>
 #include <experimental/optional>
 
-#include <wfc/imodel.h>
-
-class GeneralConfig;
-class Model;
+#include <wfc/image_generator.h>
 
 void runConfiguruFile(const std::string& fileName);
 
-using ImageFunction = std::function<std::experimental::optional<Image>(size_t seed)>;
-
 //! \brief Run an image generation function multiple times with different seeds.
-void seedLoop(const std::string& name, int numOutput, int maxTries, ImageFunction func);
-
-void runModel(const GeneralConfig& generalConfig, const Model& model);
+void seedLoop(const std::string& name, int numOutput, const ImageGenerator& func);
 
 #endif
