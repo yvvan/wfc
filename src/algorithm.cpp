@@ -119,6 +119,7 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 	{
 		distribution[t] = output._wave.ref(argminx, argminy, t) ? model.mCommonParams._pattern_weight[t] : 0;
 	}
+
 	size_t r = weightedIndexSelect(distribution, random_double());
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{

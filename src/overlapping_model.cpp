@@ -175,66 +175,68 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 bool OverlappingModel::propagate(Output& output) const
 {
 	bool did_change = false;
+	Dimension2D dimension{mCommonParams.mOutsideCommonParams._width, mCommonParams.mOutsideCommonParams._height};
 
 	// This whole set of nested loops looks very similar to the one in graphics()
-	for (int x1 = 0; x1 < mCommonParams.mOutsideCommonParams._width; ++x1) 
+	auto rangeFcn = [&] (const Index2D& index)
 	{
-		for (int y1 = 0; y1 < mCommonParams.mOutsideCommonParams._height; ++y1) 
+		int x1 = index.x;
+		int y1 = index.y;
+		if (!output._changes.ref(x1, y1)) { return; }
+		output._changes.ref(x1, y1) = false;
+
+		for (int dx = -_n + 1; dx < _n; ++dx) 
 		{
-			if (!output._changes.ref(x1, y1)) { continue; }
-			output._changes.ref(x1, y1) = false;
-
-			for (int dx = -_n + 1; dx < _n; ++dx) 
+			for (int dy = -_n + 1; dy < _n; ++dy) 
 			{
-				for (int dy = -_n + 1; dy < _n; ++dy) 
+				auto x2 = x1 + dx;
+				auto y2 = y1 + dy;
+
+				// Do wrap around
+				auto sx = x2;
+				if      (sx <  0)      { sx += mCommonParams.mOutsideCommonParams._width; }
+				else if (sx >= mCommonParams.mOutsideCommonParams._width) { sx -= mCommonParams.mOutsideCommonParams._width; }
+
+				auto sy = y2;
+				if      (sy <  0)       { sy += mCommonParams.mOutsideCommonParams._height; }
+				else if (sy >= mCommonParams.mOutsideCommonParams._height) { sy -= mCommonParams.mOutsideCommonParams._height; }
+
+				// Same as on_boundary?
+				if (!mCommonParams.mOutsideCommonParams._periodic_out && (sx + _n > mCommonParams.mOutsideCommonParams._width || sy + _n > mCommonParams.mOutsideCommonParams._height)) 
 				{
-					auto x2 = x1 + dx;
-					auto y2 = y1 + dy;
+					continue;
+				}
 
-					// Do wrap around
-					auto sx = x2;
-					if      (sx <  0)      { sx += mCommonParams.mOutsideCommonParams._width; }
-					else if (sx >= mCommonParams.mOutsideCommonParams._width) { sx -= mCommonParams.mOutsideCommonParams._width; }
+				for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
+				{
+					if (!output._wave.ref(sx, sy, t2)) { continue; }
 
-					auto sy = y2;
-					if      (sy <  0)       { sy += mCommonParams.mOutsideCommonParams._height; }
-					else if (sy >= mCommonParams.mOutsideCommonParams._height) { sy -= mCommonParams.mOutsideCommonParams._height; }
+					// This part below seems to be the only thing fundamentally diff from graphics() algorithm:
 
-					// Same as on_boundary?
-					if (!mCommonParams.mOutsideCommonParams._periodic_out && (sx + _n > mCommonParams.mOutsideCommonParams._width || sy + _n > mCommonParams.mOutsideCommonParams._height)) 
+					bool can_pattern_fit = false;
+
+					const auto& prop = _propagator.ref(t2, _n - 1 - dx, _n - 1 - dy);
+					for (const auto& t3 : prop) 
 					{
-						continue;
+						if (output._wave.ref(x1, y1, t3)) 
+						{
+							can_pattern_fit = true;
+							break;
+						}
 					}
 
-					for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
+					if (!can_pattern_fit) 
 					{
-						if (!output._wave.ref(sx, sy, t2)) { continue; }
-
-						// This part below seems to be the only thing fundamentally diff from graphics() algorithm:
-
-						bool can_pattern_fit = false;
-
-						const auto& prop = _propagator.ref(t2, _n - 1 - dx, _n - 1 - dy);
-						for (const auto& t3 : prop) 
-						{
-							if (output._wave.ref(x1, y1, t3)) 
-							{
-								can_pattern_fit = true;
-								break;
-							}
-						}
-
-						if (!can_pattern_fit) 
-						{
-							output._changes.ref(sx, sy) = true;
-							output._wave.ref(sx, sy, t2) = false;
-							did_change = true;
-						}
+						output._changes.ref(sx, sy) = true;
+						output._wave.ref(sx, sy, t2) = false;
+						did_change = true;
 					}
 				}
 			}
 		}
-	}
+	};
+
+	runForDimension(dimension, rangeFcn);
 
 	return did_change;
 }
