@@ -16,6 +16,8 @@ enum class Result
 	kUnfinished,
 };
 
+using ImageGenerator = std::function< std::experimental::optional<Image>(size_t) >;
+
 const char* result2str(const Result result);
 
 double calc_sum(const std::vector<double>& a);
@@ -36,5 +38,9 @@ std::experimental::optional<Image> createImage(const Model& model, size_t seed, 
 Output basicOutput(const Model& model);
 
 Output foundationOutput(const Model& model, size_t foundation);
+
+class OverlappingModelConfig;
+
+ImageGenerator overlappingGenerator(const OverlappingModelConfig& config, std::experimental::optional<size_t> limit);
 
 #endif

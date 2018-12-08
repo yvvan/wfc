@@ -1,5 +1,7 @@
 #include <wfc/algorithm.h>
 
+#include <wfc/overlapping_model.h>
+
 #include <algorithm>
 
 #include <emilib/irange.hpp>
@@ -219,4 +221,13 @@ std::experimental::optional<Image> createImage(const Model& model, size_t seed, 
 	{
 		return std::experimental::optional<Image>();
 	}
+}
+
+ImageGenerator overlappingGenerator(const OverlappingModelConfig& config, std::experimental::optional<size_t> limit)
+{
+	OverlappingModel model(config);
+	return [=] (size_t seed)
+	{
+		return createImage(model, seed, limit);
+	};
 }
