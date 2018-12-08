@@ -1,6 +1,7 @@
 #include <wfc/algorithm.h>
 
 #include <wfc/overlapping_model.h>
+#include <wfc/tile_model.h>
 
 #include <algorithm>
 
@@ -226,6 +227,15 @@ std::experimental::optional<Image> createImage(const Model& model, size_t seed, 
 ImageGenerator overlappingGenerator(const OverlappingModelConfig& config, std::experimental::optional<size_t> limit)
 {
 	OverlappingModel model(config);
+	return [=] (size_t seed)
+	{
+		return createImage(model, seed, limit);
+	};
+}
+
+ImageGenerator tileGenerator(const TileModelInternal& config, std::experimental::optional<size_t> limit)
+{
+	TileModel model(config);
 	return [=] (size_t seed)
 	{
 		return createImage(model, seed, limit);

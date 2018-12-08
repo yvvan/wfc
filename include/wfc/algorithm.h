@@ -40,7 +40,10 @@ Output basicOutput(const Model& model);
 Output foundationOutput(const Model& model, size_t foundation);
 
 class OverlappingModelConfig;
+class TileModelInternal;
 
 ImageGenerator overlappingGenerator(const OverlappingModelConfig& config, std::experimental::optional<size_t> limit);
+
+ImageGenerator tileGenerator(const TileModelInternal& config, std::experimental::optional<size_t> limit);
 
 #endif
