@@ -194,15 +194,15 @@ bool OverlappingModel::propagate(Output& output) const
 
 				// Do wrap around
 				auto sx = x2;
-				if      (sx <  0)      { sx += mCommonParams.mOutsideCommonParams._width; }
-				else if (sx >= mCommonParams.mOutsideCommonParams._width) { sx -= mCommonParams.mOutsideCommonParams._width; }
+				if      (sx <  0)      { sx += dimension.width; }
+				else if (sx >= dimension.width) { sx -= dimension.width; }
 
 				auto sy = y2;
-				if      (sy <  0)       { sy += mCommonParams.mOutsideCommonParams._height; }
-				else if (sy >= mCommonParams.mOutsideCommonParams._height) { sy -= mCommonParams.mOutsideCommonParams._height; }
+				if      (sy <  0)       { sy += dimension.height; }
+				else if (sy >= dimension.height) { sy -= dimension.height; }
 
 				// Same as on_boundary?
-				if (!mCommonParams.mOutsideCommonParams._periodic_out && (sx + _n > mCommonParams.mOutsideCommonParams._width || sy + _n > mCommonParams.mOutsideCommonParams._height)) 
+				if (!mCommonParams.mOutsideCommonParams._periodic_out && (sx + _n > dimension.width || sy + _n > dimension.height)) 
 				{
 					continue;
 				}
