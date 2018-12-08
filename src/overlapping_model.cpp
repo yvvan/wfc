@@ -182,8 +182,13 @@ bool OverlappingModel::propagate(Output& output) const
 	{
 		int x1 = index.x;
 		int y1 = index.y;
-		if (!output._changes.ref(x1, y1)) { return; }
-		output._changes.ref(x1, y1) = false;
+
+		if (!output._changes[index])
+		{
+			return; 
+		}
+
+		output._changes[index] = false;
 
 		for (int dx = -_n + 1; dx < _n; ++dx) 
 		{
