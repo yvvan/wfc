@@ -80,6 +80,17 @@ class Array2D
 
 };
 
+struct Index3D
+{
+
+	size_t x;
+
+	size_t y;
+
+	size_t z;
+
+};
+
 struct Dimension3D
 {
 
@@ -105,6 +116,16 @@ class Array3D
 			mDimensions{w, h, d},
 			mData(w * h * d, value)
 		{}
+
+		typename std::vector<T>::reference operator[](const Index3D& index3D)
+		{
+			return mData[index(index3D.x, index3D.y, index3D.z)];
+		}
+
+		typename std::vector<T>::const_reference operator[](const Index3D& index3D) const
+		{
+			return mData[index(index3D.x, index3D.y, index3D.z)];
+		}
 
 		typename std::vector<T>::reference ref(size_t x, size_t y, size_t z)
 		{
@@ -133,5 +154,15 @@ class Array3D
 		std::vector<T> mData;
 
 };
+
+inline Index3D append(const Index2D& index2D, size_t z)
+{
+	return { index2D.x, index2D.y, z };
+}
+
+inline Dimension3D append(const Dimension2D& dimension2D, size_t depth)
+{
+	return { dimension2D.width, dimension2D.height, depth };
+}
 
 #endif
