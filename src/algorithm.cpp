@@ -48,7 +48,7 @@ size_t weightedIndexSelect(const std::vector<double>& a, double randFraction)
 	return 0;
 }
 
-Result find_lowest_entropy(const Model& model, const Output& output, Index2D& index2D)
+Result find_lowest_entropy(const Model& model, const Output& output, Index2D& toReturn)
 {
 	// We actually calculate exp(entropy), i.e. the sum of the weights of the possible patterns
 
@@ -65,7 +65,8 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& in
 
 			for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 			{
-				if (output._wave.ref(x, y, t)) 
+				Index3D index{ x, y, t };
+				if (output._wave[index]) 
 				{
 					num_superimposed += 1;
 					entropy += model.mCommonParams._pattern_weight[t];
@@ -92,7 +93,7 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& in
 			if (entropy < min) 
 			{
 				min = entropy;
-				index2D = { x, y };
+				toReturn = { x, y };
 			}
 		}
 	}
@@ -150,19 +151,22 @@ Output foundationOutput(const Model& model, size_t foundation)
 		{
 			if (t != *(model.mCommonParams._foundation)) 
 			{
-				output._wave.ref(x, model.mCommonParams.mOutsideCommonParams._height - 1, t) = false;
+				Index3D index{ x, model.mCommonParams.mOutsideCommonParams._height - 1, t };
+				output._wave[index] = false;
 			}
 		}
 
 		// Setting the rest of the output wave only true for not foundation
 		for (const auto y : irange(dimension.height - 1)) 
 		{
-			output._wave.ref(x, y, *(model.mCommonParams._foundation)) = false;
+			Index3D index{ x, y, *(model.mCommonParams._foundation) };
+			output._wave[index] = false;
 		}
 
 		for (const auto y : irange(dimension.height)) 
 		{
-			output._changes.ref(x, y) = true;
+			Index2D index{ x, y };
+			output._changes[index] = true;
 		}
 
 		while (model.propagate(output));
