@@ -153,7 +153,8 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 		{
 			for (auto y : irange<int>(2 * config.n - 1)) 
 			{
-				auto& list = _propagator.ref(t, x, y);
+				Index3D index3D{ t, x, y };
+				auto& list = _propagator[index3D];
 				for (auto t2 : irange(mCommonParams._num_patterns)) 
 				{
 					if (agrees(_patterns[t], _patterns[t2], x - config.n + 1, y - config.n + 1)) 
@@ -212,18 +213,25 @@ bool OverlappingModel::propagate(Output& output) const
 					continue;
 				}
 
+				Index2D sIndex{ sx, sy };
+
 				for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
 				{
-					if (!output._wave.ref(sx, sy, t2)) { continue; }
+					Index3D sPatternIndex = append(sIndex, t2);
+					if (!output._wave[sPatternIndex])
+					{
+						continue;
+					}
 
 					// This part below seems to be the only thing fundamentally diff from graphics() algorithm:
 
 					bool can_pattern_fit = false;
 
-					const auto& prop = _propagator.ref(t2, _n - 1 - dx, _n - 1 - dy);
+					Index3D shiftedIndex { t2, _n - 1 - dx, _n - 1 - dy };
+					const auto& prop = _propagator[shiftedIndex];
 					for (const auto& t3 : prop) 
 					{
-						if (output._wave.ref(x1, y1, t3)) 
+						if (output._wave[append(index, t3)]) 
 						{
 							can_pattern_fit = true;
 							break;
@@ -232,8 +240,8 @@ bool OverlappingModel::propagate(Output& output) const
 
 					if (!can_pattern_fit) 
 					{
-						output._changes.ref(sx, sy) = true;
-						output._wave.ref(sx, sy, t2) = false;
+						output._changes[sIndex] = true;
+						output._wave[sPatternIndex] = false;
 						did_change = true;
 					}
 				}
@@ -262,16 +270,17 @@ Graphics OverlappingModel::graphics(const Output& output) const
 			for (int dx = 0; dx < _n; ++dx) 
 			{
 				int sx = index.x - dx;
-				if (sx < 0) sx += mCommonParams.mOutsideCommonParams._width;
+				if (sx < 0) sx += dimension.width;
 
 				int sy = index.y - dy;
-				if (sy < 0) sy += mCommonParams.mOutsideCommonParams._height;
+				if (sy < 0) sy += dimension.height;
 
 				if (on_boundary(sx, sy)) { continue; }
 
 				for (int t = 0; t < mCommonParams._num_patterns; ++t) 
 				{
-					if (output._wave.ref(sx, sy, t)) 
+					Index3D index3D{ sx, sy, t };
+					if (output._wave[index3D]) 
 					{
 						tile_contributors.push_back(_patterns[t][dx + dy * _n]);
 					}
