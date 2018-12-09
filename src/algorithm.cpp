@@ -114,18 +114,21 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 	const auto result = find_lowest_entropy(model, output, &argminx, &argminy);
 	if (result != Result::kUnfinished) { return result; }
 
+	Index2D index2D{ argminx, argminy };
+	Index3D index3D = append(index2D, t);
+
 	std::vector<double> distribution(model.mCommonParams._num_patterns);
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{
-		distribution[t] = output._wave.ref(argminx, argminy, t) ? model.mCommonParams._pattern_weight[t] : 0;
+		distribution[t] = output._wave[index3D] ? model.mCommonParams._pattern_weight[t] : 0;
 	}
 
 	size_t r = weightedIndexSelect(distribution, random_double());
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{
-		output._wave.ref(argminx, argminy, t) = (t == r);
+		output._wave[index3D] = (t == r);
 	}
-	output._changes.ref(argminx, argminy) = true;
+	output._changes[index2D] = true;
 
 	return Result::kUnfinished;
 }
