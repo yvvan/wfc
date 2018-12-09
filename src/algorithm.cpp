@@ -115,17 +115,18 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 	if (result != Result::kUnfinished) { return result; }
 
 	Index2D index2D{ argminx, argminy };
-	Index3D index3D = append(index2D, t);
 
 	std::vector<double> distribution(model.mCommonParams._num_patterns);
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{
+		Index3D index3D = append(index2D, t);
 		distribution[t] = output._wave[index3D] ? model.mCommonParams._pattern_weight[t] : 0;
 	}
 
 	size_t r = weightedIndexSelect(distribution, random_double());
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{
+		Index3D index3D = append(index2D, t);
 		output._wave[index3D] = (t == r);
 	}
 	output._changes[index2D] = true;
@@ -135,9 +136,11 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 
 Output foundationOutput(const Model& model, size_t foundation)
 {
-	Output output;
-	output._wave = Array3D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, model.mCommonParams._num_patterns, true);
-	output._changes = Array2D<Bool>({ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height }, false);
+	Output output
+	{
+		._wave = Array3D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, model.mCommonParams._num_patterns, true),
+		._changes = Array2D<Bool>({ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height }, false)
+	};
 
 	for (const auto x : irange(model.mCommonParams.mOutsideCommonParams._width)) 
 	{
