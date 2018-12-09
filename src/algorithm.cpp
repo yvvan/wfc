@@ -136,13 +136,16 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 
 Output foundationOutput(const Model& model, size_t foundation)
 {
+	Dimension2D dimension{ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height };
+	Dimension2D waveDimension = append(dimension, model.mCommonParams._num_patterns);
+
 	Output output
 	{
-		._wave = Array3D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, model.mCommonParams._num_patterns, true),
-		._changes = Array2D<Bool>({ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height }, false)
+		._wave = Array3D<Bool>(waveDimension, true),
+		._changes = Array2D<Bool>(dimension, false)
 	};
 
-	for (const auto x : irange(model.mCommonParams.mOutsideCommonParams._width)) 
+	for (const auto x : irange(dimension.width)) 
 	{
 		// Setting the foundation section of the output wave only true for foundation
 		for (const auto t : irange(model.mCommonParams._num_patterns)) 
@@ -154,12 +157,12 @@ Output foundationOutput(const Model& model, size_t foundation)
 		}
 
 		// Setting the rest of the output wave only true for not foundation
-		for (const auto y : irange(model.mCommonParams.mOutsideCommonParams._height - 1)) 
+		for (const auto y : irange(dimension.height - 1)) 
 		{
 			output._wave.ref(x, y, *(model.mCommonParams._foundation)) = false;
 		}
 
-		for (const auto y : irange(model.mCommonParams.mOutsideCommonParams._height)) 
+		for (const auto y : irange(dimension.height)) 
 		{
 			output._changes.ref(x, y) = true;
 		}
@@ -171,10 +174,12 @@ Output foundationOutput(const Model& model, size_t foundation)
 
 Output basicOutput(const Model& model)
 {
+	Dimension2D dimension{ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height };
+	Dimension2D waveDimension = append(dimension, model.mCommonParams._num_patterns);
 	return
 	{
-		._wave = Array3D<Bool>(model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height, model.mCommonParams._num_patterns, true),
-		._changes = Array2D<Bool>({ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height }, false)
+		._wave = Array3D<Bool>(waveDimension, true),
+		._changes = Array2D<Bool>(dimension, false)
 	};
 }
 
