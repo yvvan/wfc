@@ -2,6 +2,7 @@
 
 #include <wfc/overlapping_model.h>
 #include <wfc/tile_model.h>
+#include <wfc/ranges.h>
 
 #include <algorithm>
 
