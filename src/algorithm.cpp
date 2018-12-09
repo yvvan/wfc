@@ -2,7 +2,6 @@
 
 #include <wfc/overlapping_model.h>
 #include <wfc/tile_model.h>
-#include <wfc/ranges.h>
 
 #include <algorithm>
 
@@ -55,58 +54,49 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& to
 
 	double min = std::numeric_limits<double>::infinity();
 
-	Result result;
-
-	auto rangeFcn = [&] (const Index2D& index2D)
+	for (int x = 0; x < model.mCommonParams.mOutsideCommonParams._width; ++x) 
 	{
-		if (model.on_boundary(index2D.x, index2D.y))
-		{ 
-			return false;
-		}
-
-		size_t num_superimposed = 0;
-		double entropy = 0;
-
-		for (int t = 1; t < model.mCommonParams._num_patterns; ++t) 
+		for (int y = 0; y < model.mCommonParams.mOutsideCommonParams._height; ++y) 
 		{
-			Index3D index = append(index2D, t);
-			if (output._wave[index]) 
+			if (model.on_boundary(x, y)) { continue; }
+
+			size_t num_superimposed = 0;
+			double entropy = 0;
+
+			for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 			{
-				num_superimposed += 1;
-				entropy += model.mCommonParams._pattern_weight[t];
+				Index3D index{ x, y, t };
+				if (output._wave[index]) 
+				{
+					num_superimposed += 1;
+					entropy += model.mCommonParams._pattern_weight[t];
+				}
+			}
+
+			if (entropy == 0 || num_superimposed == 0) 
+			{
+				return Result::kFail;
+			}
+
+			if (num_superimposed == 1) 
+			{
+				continue; // Already frozen
+			}
+
+			// TODO: Add this back in, or remove?
+			/*
+			// Add a tie-breaking bias:
+			const double noise = 0.5 * random_double();
+			entropy += noise;
+			*/
+
+			if (entropy < min) 
+			{
+				min = entropy;
+				toReturn = { x, y };
 			}
 		}
-
-		if (entropy == 0 || num_superimposed == 0) 
-		{
-			result = Result::kFail;
-			return true;
-		}
-
-		if (num_superimposed == 1) 
-		{
-			return false; // Already frozen
-		}
-
-		// TODO: Add this back in, or remove?
-		/*
-		// Add a tie-breaking bias:
-		const double noise = 0.5 * random_double();
-		entropy += noise;
-		*/
-
-		if (entropy < min) 
-		{
-			min = entropy;
-			toReturn = index2D;
-		}
-
-		// Loop normally
-		return false; 
-	};
-
-	Dimension2D dimension{ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height };
-	BreakRange::runForDimension(dimension, rangeFcn);
+	}
 
 	if (min == std::numeric_limits<double>::infinity()) 
 	{
