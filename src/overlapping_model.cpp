@@ -141,7 +141,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 		return true;
 	};
 
-	_propagator = Array3D<std::vector<PatternIndex>>(mCommonParams._num_patterns, 2 * config.n - 1, 2 * config.n - 1, {});
+	_propagator = Array3D<std::vector<PatternIndex>>({ mCommonParams._num_patterns, 2 * config.n - 1, 2 * config.n - 1}, {});
 
 	// These are just used for printouts
 	size_t longest_propagator = 0;

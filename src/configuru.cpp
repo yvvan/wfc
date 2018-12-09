@@ -144,7 +144,7 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 
 	toReturn.mCommonParams._num_patterns = action.size();
 
-	toReturn._propagator = Array3D<Bool>(4, toReturn.mCommonParams._num_patterns, toReturn.mCommonParams._num_patterns, false);
+	toReturn._propagator = Array3D<Bool>({4, toReturn.mCommonParams._num_patterns, toReturn.mCommonParams._num_patterns}, false);
 
 	for (const auto& neighbor : config.config["neighbors"].as_array()) 
 	{

@@ -48,7 +48,7 @@ size_t weightedIndexSelect(const std::vector<double>& a, double randFraction)
 	return 0;
 }
 
-Result find_lowest_entropy(const Model& model, const Output& output, int* argminx, int* argminy)
+Result find_lowest_entropy(const Model& model, const Output& output, Index2D& index2D)
 {
 	// We actually calculate exp(entropy), i.e. the sum of the weights of the possible patterns
 
@@ -92,8 +92,7 @@ Result find_lowest_entropy(const Model& model, const Output& output, int* argmin
 			if (entropy < min) 
 			{
 				min = entropy;
-				*argminx = x;
-				*argminy = y;
+				index2D = { x, y };
 			}
 		}
 	}
@@ -110,11 +109,10 @@ Result find_lowest_entropy(const Model& model, const Output& output, int* argmin
 
 Result observe(const Model& model, Output& output, RandomDouble& random_double)
 {
-	int argminx, argminy;
-	const auto result = find_lowest_entropy(model, output, &argminx, &argminy);
+	Index2D index2D;
+	const auto result = find_lowest_entropy(model, output, index2D);
 	if (result != Result::kUnfinished) { return result; }
 
-	Index2D index2D{ argminx, argminy };
 
 	std::vector<double> distribution(model.mCommonParams._num_patterns);
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
@@ -137,7 +135,7 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 Output foundationOutput(const Model& model, size_t foundation)
 {
 	Dimension2D dimension{ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height };
-	Dimension2D waveDimension = append(dimension, model.mCommonParams._num_patterns);
+	Dimension3D waveDimension = append(dimension, model.mCommonParams._num_patterns);
 
 	Output output
 	{
@@ -175,7 +173,7 @@ Output foundationOutput(const Model& model, size_t foundation)
 Output basicOutput(const Model& model)
 {
 	Dimension2D dimension{ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height };
-	Dimension2D waveDimension = append(dimension, model.mCommonParams._num_patterns);
+	Dimension3D waveDimension = append(dimension, model.mCommonParams._num_patterns);
 	return
 	{
 		._wave = Array3D<Bool>(waveDimension, true),

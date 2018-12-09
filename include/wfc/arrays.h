@@ -112,9 +112,9 @@ class Array3D
             mDimensions{0, 0, 0}
         {}
 
-		Array3D(size_t w, size_t h, size_t d, T value = {}) : 
-			mDimensions{w, h, d},
-			mData(w * h * d, value)
+		Array3D(Dimension3D dimension, T value = {}) : 
+			mDimensions(dimension),
+			mData(dimension.width * dimension.height * dimension.depth, value)
 		{}
 
 		typename std::vector<T>::reference operator[](const Index3D& index3D)
