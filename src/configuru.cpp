@@ -163,23 +163,23 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		int D = action[L][1];
 		int U = action[R][1];
 
-		toReturn._propagator.ref(0, L,            R           ) = true;
-		toReturn._propagator.ref(0, action[L][6], action[R][6]) = true;
-		toReturn._propagator.ref(0, action[R][4], action[L][4]) = true;
-		toReturn._propagator.ref(0, action[R][2], action[L][2]) = true;
+		toReturn._propagator[ { 0, L,            R            } ] = true;
+		toReturn._propagator[ { 0, action[L][6], action[R][6] } ] = true;
+		toReturn._propagator[ { 0, action[R][4], action[L][4] } ] = true;
+		toReturn._propagator[ { 0, action[R][2], action[L][2] } ] = true;
 
-		toReturn._propagator.ref(2, D,            U           ) = true;
-		toReturn._propagator.ref(1, action[U][6], action[D][6]) = true;
-		toReturn._propagator.ref(1, action[D][4], action[U][4]) = true;
-		toReturn._propagator.ref(1, action[U][2], action[D][2]) = true;
+		toReturn._propagator[ { 2, D,            U            } ] = true;
+		toReturn._propagator[ { 1, action[U][6], action[D][6] } ] = true;
+		toReturn._propagator[ { 1, action[D][4], action[U][4] } ] = true;
+		toReturn._propagator[ { 1, action[U][2], action[D][2] } ] = true;
 	}
 
 	for (int t1 = 0; t1 < toReturn.mCommonParams._num_patterns; ++t1) 
 	{
 		for (int t2 = 0; t2 < toReturn.mCommonParams._num_patterns; ++t2) 
 		{
-			toReturn._propagator.ref(2, t1, t2) = toReturn._propagator.ref(0, t2, t1);
-			toReturn._propagator.ref(3, t1, t2) = toReturn._propagator.ref(1, t2, t1);
+			toReturn._propagator[ { 2, t1, t2 } ] = toReturn._propagator[ { 0, t2, t1 } ];
+			toReturn._propagator[ { 3, t1, t2 } ] = toReturn._propagator[ { 1, t2, t1 } ];
 		}
 	}
 	return toReturn;
