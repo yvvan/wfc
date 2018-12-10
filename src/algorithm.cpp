@@ -5,6 +5,7 @@
 #include <wfc/ranges.h>
 
 #include <algorithm>
+#include <iostream>
 
 #include <emilib/irange.hpp>
 
@@ -55,48 +56,73 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& to
 
 	double min = std::numeric_limits<double>::infinity();
 
-	for (int x = 0; x < model.mCommonParams.mOutsideCommonParams._width; ++x) 
+	std::experimental::optional<Result> result;
+
+	auto func = [&] (auto x, auto y)
 	{
-		for (int y = 0; y < model.mCommonParams.mOutsideCommonParams._height; ++y) 
+		if (model.on_boundary(x, y))
 		{
-			if (model.on_boundary(x, y)) { continue; }
+			return false;
+		}
 
-			size_t num_superimposed = 0;
-			double entropy = 0;
+		size_t num_superimposed = 0;
+		double entropy = 0;
 
-			for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
+		for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
+		{
+			Index3D index{ x, y, t };
+			if (output._wave[index]) 
 			{
-				Index3D index{ x, y, t };
-				if (output._wave[index]) 
-				{
-					num_superimposed += 1;
-					entropy += model.mCommonParams._pattern_weight[t];
-				}
-			}
-
-			if (entropy == 0 || num_superimposed == 0) 
-			{
-				return Result::kFail;
-			}
-
-			if (num_superimposed == 1) 
-			{
-				continue; // Already frozen
-			}
-
-			// TODO: Add this back in, or remove?
-			/*
-			// Add a tie-breaking bias:
-			const double noise = 0.5 * random_double();
-			entropy += noise;
-			*/
-
-			if (entropy < min) 
-			{
-				min = entropy;
-				toReturn = { x, y };
+				num_superimposed += 1;
+				entropy += model.mCommonParams._pattern_weight[t];
 			}
 		}
+
+		if (entropy == 0 || num_superimposed == 0) 
+		{
+			result = Result::kFail;
+			return true;
+		}
+
+		if (num_superimposed == 1) 
+		{
+			return false; // Already frozen
+		}
+
+		// TODO: Add this back in, or remove?
+		/*
+		// Add a tie-breaking bias:
+		const double noise = 0.5 * random_double();
+		entropy += noise;
+		*/
+
+		if (entropy < min) 
+		{
+			min = entropy;
+			toReturn = { x, y };
+		}
+		return false;
+	};
+
+	auto innerFunc = [&] ()
+	{
+		for (size_t x = 0; x < model.mCommonParams.mOutsideCommonParams._width; ++x) 
+		{
+			for (size_t y = 0; y < model.mCommonParams.mOutsideCommonParams._height; ++y) 
+			{
+				if (func(x, y))
+				{
+					return;
+				}
+			}
+		}
+	};
+
+	innerFunc();
+
+	if (result)
+	{
+		return *result;
 	}
 
 	if (min == std::numeric_limits<double>::infinity()) 

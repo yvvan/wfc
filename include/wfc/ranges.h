@@ -35,7 +35,7 @@ namespace BreakRange
 			{
 				for (size_t x = 0; x < dimension.width; ++x) 
 				{
-					if (consumingFcn(Index2D{x, y}));
+					if (consumingFcn(Index2D{x, y}))
 					{
 						return true;
 					}
