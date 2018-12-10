@@ -104,20 +104,8 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& to
 		return false;
 	};
 
-	auto innerFunc = [&] (auto consumingFcn)
-	{
-		for (size_t x = 0; x < model.mCommonParams.mOutsideCommonParams._width; ++x) 
-		{
-			for (size_t y = 0; y < model.mCommonParams.mOutsideCommonParams._height; ++y) 
-			{
-				if (consumingFcn(Index2D{ x, y }))
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	};
+	Dimension2D dimension{ model.mCommonParams.mOutsideCommonParams._width, model.mCommonParams.mOutsideCommonParams._height };
+	auto innerFunc = BreakRange::range2D(dimension);
 
 	innerFunc(func);
 
