@@ -58,9 +58,9 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& to
 
 	std::experimental::optional<Result> result;
 
-	auto func = [&] (auto x, auto y)
+	auto func = [&] (auto index2D)
 	{
-		if (model.on_boundary(x, y))
+		if (model.on_boundary(index2D.x, index2D.y))
 		{
 			return false;
 		}
@@ -70,7 +70,7 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& to
 
 		for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 		{
-			Index3D index{ x, y, t };
+			Index3D index = append(index2D, t);
 			if (output._wave[index]) 
 			{
 				num_superimposed += 1;
@@ -99,7 +99,7 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& to
 		if (entropy < min) 
 		{
 			min = entropy;
-			toReturn = { x, y };
+			toReturn = index2D;
 		}
 		return false;
 	};
@@ -110,7 +110,7 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& to
 		{
 			for (size_t y = 0; y < model.mCommonParams.mOutsideCommonParams._height; ++y) 
 			{
-				if (func(x, y))
+				if (func(Index2D{ x, y }))
 				{
 					return;
 				}
