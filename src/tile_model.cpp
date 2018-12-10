@@ -79,24 +79,24 @@ bool TileModel::propagate(Output& output) const
 					}
 				}
 
-				if (!output._changes.ref(x1, y1)) { continue; }
+				if (!output._changes[ {x1, y1 } ]) { continue; }
 
 				for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
 				{
-					if (output._wave.ref(x2, y2, t2)) 
+					if (output._wave[ { x2, y2, t2} ]) 
 					{
 						bool b = false;
 						for (int t1 = 0; t1 < mCommonParams._num_patterns && !b; ++t1) 
 						{
-							if (output._wave.ref(x1, y1, t1)) 
+							if (output._wave[ { x1, y1, t1 } ]) 
 							{
-								b = mInternal._propagator.ref(d, t1, t2);
+								b = mInternal._propagator[ { d, t1, t2 } ];
 							}
 						}
 						if (!b) 
 						{
-							output._wave.ref(x2, y2, t2) = false;
-							output._changes.ref(x2, y2) = true;
+							output._wave[ { x2, y2, t2 } ] = false;
+							output._changes[ { x2, y2 } ] = true;
 							did_change = true;
 						}
 					}
@@ -119,7 +119,7 @@ Image TileModel::image(const Output& output) const
 			double sum = 0;
 			for (const auto t : irange(mCommonParams._num_patterns)) 
 			{
-				if (output._wave.ref(x, y, t)) 
+				if (output._wave[ { x, y, t } ] ) 
 				{
 					sum += mCommonParams._pattern_weight[t];
 				}
@@ -131,14 +131,14 @@ Image TileModel::image(const Output& output) const
 				{
 					if (sum == 0) 
 					{
-						result.ref(x * mInternal._tile_size + xt, y * mInternal._tile_size + yt) = RGBA{0, 0, 0, 255};
+						result[ { x * mInternal._tile_size + xt, y * mInternal._tile_size + yt } ]  = RGBA{0, 0, 0, 255};
 					} 
 					else 
 					{
 						double r = 0, g = 0, b = 0, a = 0;
 						for (int t = 0; t < mCommonParams._num_patterns; ++t) 
 						{
-							if (output._wave.ref(x, y, t)) 
+							if (output._wave[ { x, y, t } ]) 
 							{
 								RGBA c = mInternal._tiles[t][xt + yt * mInternal._tile_size];
 								r += (double)c.r * mCommonParams._pattern_weight[t] / sum;
@@ -148,7 +148,7 @@ Image TileModel::image(const Output& output) const
 							}
 						}
 
-						result.ref(x * mInternal._tile_size + xt, y * mInternal._tile_size + yt) =
+						result[ { x * mInternal._tile_size + xt, y * mInternal._tile_size + yt } ] =
 						           RGBA{(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
 					}
 				}
