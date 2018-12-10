@@ -47,16 +47,6 @@ class Array2D
 			return mData[index(index2D.x, index2D.y)];
 		}
 
-		typename std::vector<T>::reference ref(size_t x, size_t y)
-		{
-			return mData[index(x, y)];
-		}
-
-		typename std::vector<T>::const_reference ref(size_t x, size_t y) const
-		{
-			return mData[index(x, y)];
-		}
-
 		Dimension2D size() const
 		{
 			return mDimensions;
@@ -125,16 +115,6 @@ class Array3D
 		typename std::vector<T>::const_reference operator[](const Index3D& index3D) const
 		{
 			return mData[index(index3D.x, index3D.y, index3D.z)];
-		}
-
-		typename std::vector<T>::reference ref(size_t x, size_t y, size_t z)
-		{
-			return mData[index(x, y, z)];
-		}
-
-		typename std::vector<T>::const_reference ref(size_t x, size_t y, size_t z) const
-		{
-			return mData[index(x, y, z)];
 		}
 
 		size_t volume() const 
