@@ -374,7 +374,7 @@ Pattern rotate(const Pattern& p, int n)
 {
 	auto functor = [&](size_t x, size_t y)
 	{ 
-		return p.data()[n - 1 - y + x * n]; 
+		return p[{ (n - 1 - y), x }]; 
 	};
 	return make_pattern(n, functor);
 }
@@ -383,7 +383,7 @@ Pattern reflect(const Pattern& p, int n)
 {
 	auto functor = [&](size_t x, size_t y)
 	{ 
-		return p.data()[n - 1 - x + y * n];
+		return p[{ (n - 1 - x), y }];
 	};
 	return make_pattern(n, functor);
 }
