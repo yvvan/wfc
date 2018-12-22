@@ -265,8 +265,11 @@ OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, co
 		.n = config.get_or("n", 3),
 		.commonParam =
 		{
-			._width = (size_t)config.get_or("width",        48),
-			._height = (size_t)config.get_or("height",       48),
+			.dimension =
+			{
+				.width = (size_t)config.get_or("width",        48),
+				.height = (size_t)config.get_or("height",       48)
+			},
 			._periodic_out = config.get_or("periodic_out", true)
 		}
 	};
@@ -297,8 +300,11 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 		.subset_name = topConfig.get_or("subset",   std::string()),
 		.commonParam =
 		{
-			._width = (size_t)topConfig.get_or("width",    48),
-			._height = (size_t)topConfig.get_or("height",   48),
+			.dimension =
+			{
+				.width = (size_t)topConfig.get_or("width",    48),
+				.height = (size_t)topConfig.get_or("height",   48)
+			},
 			._periodic_out = topConfig.get_or("periodic", false)
 		},
 		.tile_loader = [image_dir, subdir] (const std::string& tile_name)

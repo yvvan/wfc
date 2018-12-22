@@ -54,7 +54,7 @@ public:
 
 	bool on_boundary(int x, int y) const override
 	{
-		return !mCommonParams.mOutsideCommonParams._periodic_out && (x + _n > mCommonParams.mOutsideCommonParams._width || y + _n > mCommonParams.mOutsideCommonParams._height);
+		return !mCommonParams.mOutsideCommonParams._periodic_out && (x + _n > mCommonParams.mOutsideCommonParams.dimension.width || y + _n > mCommonParams.mOutsideCommonParams.dimension.height);
 	}
 
 	Image image(const Output& output) const override;

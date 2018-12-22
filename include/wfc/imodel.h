@@ -22,8 +22,7 @@ struct Output
 
 struct OutsideCommonParams
 {
-	size_t _width;      // Of output image.
-	size_t _height;     // Of output image.
+	Dimension2D dimension; // Of output image.
 	bool _periodic_out;
 };
 
