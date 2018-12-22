@@ -59,7 +59,7 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 
 	double min = std::numeric_limits<double>::infinity();
 
-	Index2D toReturn;
+	Index2D minIndex;
 
 	bool fail = false;
 
@@ -104,7 +104,7 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 		if (entropy < min) 
 		{
 			min = entropy;
-			toReturn = index2D;
+			minIndex = index2D;
 		}
 		return false;
 	};
@@ -129,7 +129,7 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 	return EntropyResult
 	{
 		.code = result,
-		.minIndex = toReturn
+		.minIndex = minIndex
 	};
 }
 
