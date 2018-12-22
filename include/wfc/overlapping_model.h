@@ -19,6 +19,8 @@ using PatternHash       = uint64_t; // Another representation of a Pattern.
 
 using PatternPrevalence = std::unordered_map<PatternHash, size_t>;
 
+Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension);
+
 struct PalettedImage
 {
 	Array2D<ColorIndex> data; // width * height
@@ -27,7 +29,7 @@ struct PalettedImage
 	inline ColorIndex at_wrapped(const Index2D& index) const
 	{
 		Dimension2D dimension = data.size();
-		return data[{ (index.x % dimension.width), (index.y % dimension.height) }];
+		return data[wrapAroundIndex(index, dimension)];
 	}
 };
 

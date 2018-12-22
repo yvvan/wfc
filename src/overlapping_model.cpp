@@ -417,3 +417,8 @@ PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
 	}
 	return result;
 }
+
+Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension)
+{
+	return { (index.x % dimension.width), (index.y % dimension.height) };
+}
