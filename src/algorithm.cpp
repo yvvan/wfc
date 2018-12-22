@@ -59,9 +59,9 @@ EntropyResult find_lowest_entropy(const Model& model, const Output& output)
 
 	double min = std::numeric_limits<double>::infinity();
 
-	std::experimental::optional<Result> result;
-
 	Index2D toReturn;
+
+	bool fail = false;
 
 	auto func = [&] (auto index2D)
 	{
@@ -85,7 +85,7 @@ EntropyResult find_lowest_entropy(const Model& model, const Output& output)
 
 		if (entropy == 0 || num_superimposed == 0) 
 		{
-			result = Result::kFail;
+			fail = true;
 			return true;
 		}
 
@@ -112,21 +112,23 @@ EntropyResult find_lowest_entropy(const Model& model, const Output& output)
 	Dimension2D dimension = model.mCommonParams.mOutsideCommonParams.dimension;
 	BreakRange::runForDimension(dimension, func);
 
-	if (!result)
+	Result result;
+	if (fail)
 	{
-		if (min == std::numeric_limits<double>::infinity()) 
-		{
-			result = Result::kSuccess;
-		}
-		else 
-		{
-			result = Result::kUnfinished;
-		}
+		result = Result::kFail;
+	}
+	else if (min == std::numeric_limits<double>::infinity()) 
+	{
+		result = Result::kSuccess;
+	}
+	else 
+	{
+		result = Result::kUnfinished;
 	}
 
 	return EntropyResult
 	{
-		.code = *result,
+		.code = result,
 		.minIndex = toReturn
 	};
 }
