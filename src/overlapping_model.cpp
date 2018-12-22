@@ -11,12 +11,12 @@ using namespace emilib;
 template <class Functor>
 Pattern make_pattern(int n, Functor fun)
 {
-	Pattern result(n * n);
+	Pattern result({ n, n });
 	for (auto dy : irange(n)) 
 	{
 		for (auto dx : irange(n)) 
 		{
-			result[dy * n + dx] = fun(dx, dy);
+			result.data()[dy * n + dx] = fun(dx, dy);
 		}
 	}
 	return result;
@@ -80,9 +80,9 @@ Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size)
 {
 	size_t residue = hash;
 	size_t power = std::pow(palette_size, n * n);
-	Pattern result(n * n);
+	Pattern result({ n, n });
 
-	for (size_t i = 0; i < result.size(); ++i)
+	for (size_t i = 0; i < area(result.size()); ++i)
 	{
 		power /= palette_size;
 		size_t count = 0;
@@ -93,7 +93,7 @@ Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size)
 			count++;
 		}
 
-		result[i] = static_cast<ColorIndex>(count);
+		result.data()[i] = static_cast<ColorIndex>(count);
 	}
 
 	return result;
@@ -132,7 +132,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 		{
 			for (int x = xmin; x < xmax; ++x) 
 			{
-				if (p1[x + config.n * y] != p2[x - dx + config.n * (y - dy)]) 
+				if (p1.data()[x + config.n * y] != p2.data()[x - dx + config.n * (y - dy)]) 
 				{
 					return false;
 				}
@@ -282,7 +282,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 					Index3D index3D{ sx, sy, t };
 					if (output._wave[index3D]) 
 					{
-						tile_contributors.push_back(_patterns[t][dx + dy * _n]);
+						tile_contributors.push_back(_patterns[t].data()[dx + dy * _n]);
 					}
 				}
 			}
@@ -374,7 +374,7 @@ Pattern rotate(const Pattern& p, int n)
 {
 	auto functor = [&](size_t x, size_t y)
 	{ 
-		return p[n - 1 - y + x * n]; 
+		return p.data()[n - 1 - y + x * n]; 
 	};
 	return make_pattern(n, functor);
 }
@@ -383,23 +383,23 @@ Pattern reflect(const Pattern& p, int n)
 {
 	auto functor = [&](size_t x, size_t y)
 	{ 
-		return p[n - 1 - x + y * n];
+		return p.data()[n - 1 - x + y * n];
 	};
 	return make_pattern(n, functor);
 }
 
 PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
 {
-	CHECK_LT_F(std::pow((double)palette_size, (double)pattern.size()),
+	CHECK_LT_F(std::pow((double)palette_size, (double)area(pattern.size())),
 	           std::pow(2.0, sizeof(PatternHash) * 8),
 	           "Too large palette (it is %lu) or too large pattern size (it's %.0f)",
-	           palette_size, std::sqrt(pattern.size()));
+	           palette_size, std::sqrt(area(pattern.size())));
 
 	PatternHash result = 0;
 	size_t power = 1;
-	for (const auto i : irange(pattern.size()))
+	for (const auto i : irange(area(pattern.size())))
 	{
-		result += pattern[pattern.size() - 1 - i] * power;
+		result += pattern.data()[area(pattern.size()) - 1 - i] * power;
 		power *= palette_size;
 	}
 	return result;

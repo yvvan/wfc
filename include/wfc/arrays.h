@@ -57,6 +57,11 @@ class Array2D
 			return mData.data();
 		}
 
+		T* data()
+		{
+			return mData.data();
+		}
+
 	private:
 
 		size_t index(size_t x, size_t y) const
@@ -143,6 +148,11 @@ inline Index3D append(const Index2D& index2D, size_t z)
 inline Dimension3D append(const Dimension2D& dimension2D, size_t depth)
 {
 	return { dimension2D.width, dimension2D.height, depth };
+}
+
+inline size_t area(const Dimension2D& dimension2D)
+{
+	return dimension2D.width * dimension2D.height;
 }
 
 #endif

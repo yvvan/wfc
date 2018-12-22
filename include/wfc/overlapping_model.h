@@ -9,7 +9,7 @@
 
 using ColorIndex        = uint8_t; // tile index or color index. If you have more than 255, don't.
 using Palette           = std::vector<RGBA>;
-using Pattern           = std::vector<ColorIndex>;
+using Pattern           = Array2D<ColorIndex>;
 
 using Graphics = Array2D<std::vector<ColorIndex>>;
 using PatternIndex      = uint16_t;
