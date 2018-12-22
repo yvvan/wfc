@@ -12,7 +12,7 @@ TileModel::TileModel(const TileModelInternal& internal) :
 	mCommonParams = mInternal.mCommonParams;
 }
 
-bool TileModel::on_boundary(int x, int y) const
+bool TileModel::on_boundary(const Index2D& index) const
 {
 	return false;
 }

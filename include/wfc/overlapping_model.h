@@ -52,9 +52,9 @@ public:
 
 	bool propagate(Output& output) const override;
 
-	bool on_boundary(int x, int y) const override
+	bool on_boundary(const Index2D& index) const override
 	{
-		return !mCommonParams.mOutsideCommonParams._periodic_out && (x + _n > mCommonParams.mOutsideCommonParams.dimension.width || y + _n > mCommonParams.mOutsideCommonParams.dimension.height);
+		return !mCommonParams.mOutsideCommonParams._periodic_out && (index.x + _n > mCommonParams.mOutsideCommonParams.dimension.width || index.y + _n > mCommonParams.mOutsideCommonParams.dimension.height);
 	}
 
 	Image image(const Output& output) const override;

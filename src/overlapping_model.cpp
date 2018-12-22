@@ -279,7 +279,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 				int sy = index.y - dy;
 				if (sy < 0) sy += dimension.height;
 
-				if (on_boundary(sx, sy)) { continue; }
+				if (on_boundary({ sx, sy })) { continue; }
 
 				for (int t = 0; t < mCommonParams._num_patterns; ++t) 
 				{

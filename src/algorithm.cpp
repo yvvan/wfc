@@ -63,7 +63,7 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& to
 
 	auto func = [&] (auto index2D)
 	{
-		if (model.on_boundary(index2D.x, index2D.y))
+		if (model.on_boundary(index2D))
 		{
 			return false;
 		}

@@ -52,7 +52,7 @@ class Model
 
 		virtual bool propagate(Output& output) const = 0;
 
-		virtual bool on_boundary(int x, int y) const = 0;
+		virtual bool on_boundary(const Index2D& index) const = 0;
 
 		virtual Image image(const Output& output) const = 0;
 

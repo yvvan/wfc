@@ -30,7 +30,7 @@ class TileModel : public Model
 
 		bool propagate(Output& output) const override;
 
-		bool on_boundary(int x, int y) const override;
+		bool on_boundary(const Index2D& index) const override;
 
 		Image image(const Output& output) const override;
 
