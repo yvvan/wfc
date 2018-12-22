@@ -21,7 +21,7 @@ Pattern make_pattern(int n, Functor fun)
 		}
 	}
 	return result;
-};
+}
 
 RGBA collapsePixel(const std::vector<ColorIndex>& tile_contributors, const Palette& palette)
 {
