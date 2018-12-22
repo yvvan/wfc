@@ -82,18 +82,21 @@ Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size)
 	size_t power = std::pow(palette_size, n * n);
 	Pattern result({ n, n });
 
-	for (size_t i = 0; i < area(result.size()); ++i)
+	for (auto y : irange(n)) 
 	{
-		power /= palette_size;
-		size_t count = 0;
-
-		while (residue >= power)
+		for (auto x : irange(n)) 
 		{
-			residue -= power;
-			count++;
-		}
+			power /= palette_size;
+			size_t count = 0;
 
-		result.data()[i] = static_cast<ColorIndex>(count);
+			while (residue >= power)
+			{
+				residue -= power;
+				count++;
+			}
+
+			result[{x, y}] = static_cast<ColorIndex>(count);
+		}
 	}
 
 	return result;
