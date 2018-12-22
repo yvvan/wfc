@@ -25,9 +25,9 @@ struct PalettedImage
 	std::vector<ColorIndex> data; // width * height
 	Palette                 palette;
 
-	inline ColorIndex at_wrapped(size_t x, size_t y) const
+	inline ColorIndex at_wrapped(const Index2D& index) const
 	{
-		return data[width * (y % height) + (x % width)];
+		return data[width * (index.y % height) + (index.x % width)];
 	}
 };
 
