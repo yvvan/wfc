@@ -57,11 +57,6 @@ class Array2D
 			return mData.data();
 		}
 
-		T* data()
-		{
-			return mData.data();
-		}
-
 	private:
 
 		size_t index(size_t x, size_t y) const
