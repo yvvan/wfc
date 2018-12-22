@@ -91,7 +91,8 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 
 		if (num_superimposed == 1) 
 		{
-			return false; // Already frozen
+			// Already frozen
+			return false;
 		}
 
 		// TODO: Add this back in, or remove?
