@@ -53,13 +53,15 @@ size_t weightedIndexSelect(const std::vector<double>& a, double randFraction)
 	return 0;
 }
 
-Result find_lowest_entropy(const Model& model, const Output& output, Index2D& toReturn)
+EntropyResult find_lowest_entropy(const Model& model, const Output& output)
 {
 	// We actually calculate exp(entropy), i.e. the sum of the weights of the possible patterns
 
 	double min = std::numeric_limits<double>::infinity();
 
 	std::experimental::optional<Result> result;
+
+	Index2D toReturn;
 
 	auto func = [&] (auto index2D)
 	{
@@ -110,27 +112,34 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& to
 	Dimension2D dimension = model.mCommonParams.mOutsideCommonParams.dimension;
 	BreakRange::runForDimension(dimension, func);
 
-	if (result)
+	if (!result)
 	{
-		return *result;
+		if (min == std::numeric_limits<double>::infinity()) 
+		{
+			result = Result::kSuccess;
+		}
+		else 
+		{
+			result = Result::kUnfinished;
+		}
 	}
 
-	if (min == std::numeric_limits<double>::infinity()) 
+	return EntropyResult
 	{
-		return Result::kSuccess;
-	}
-	else 
-	{
-		return Result::kUnfinished;
-	}
+		.code = *result,
+		.minIndex = toReturn
+	};
 }
 
 Result observe(const Model& model, Output& output, RandomDouble& random_double)
 {
-	Index2D index2D;
-	const auto result = find_lowest_entropy(model, output, index2D);
-	if (result != Result::kUnfinished) { return result; }
+	const auto result = find_lowest_entropy(model, output);
+	if (result.code != Result::kUnfinished)
+	{
+		return result.code;
+	}
 
+	Index2D index2D = result.minIndex;
 
 	std::vector<double> distribution(model.mCommonParams._num_patterns);
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 

@@ -17,6 +17,16 @@ enum class Result
 	kUnfinished,
 };
 
+struct EntropyResult
+{
+
+	Result code;
+
+	// Only initialized if result is ResultCode::kUnfinished
+	Index2D minIndex;
+
+};
+
 const char* result2str(const Result result);
 
 double calc_sum(const std::vector<double>& a);
@@ -24,7 +34,7 @@ double calc_sum(const std::vector<double>& a);
 // Pick a random index weighted by a
 size_t weightedIndexSelect(const std::vector<double>& a, double randFraction);
 
-Result find_lowest_entropy(const Model& model, const Output& output, Index2D& index2D);
+EntropyResult find_lowest_entropy(const Model& model, const Output& output);
 
 Result observe(const Model& model, Output* output, RandomDouble& random_double);
 
