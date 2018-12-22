@@ -34,7 +34,7 @@ Result run(Output& output, const Model& model, size_t seed, std::experimental::o
 
 std::experimental::optional<Image> createImage(const Model& model, size_t seed, std::experimental::optional<size_t> limit);
 
-Output basicOutput(const Model& model);
+Output initialOutput(const Model& model);
 
 void modifyOutputForFoundation(const Model& model, Output& output);
 

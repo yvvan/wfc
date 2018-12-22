@@ -182,7 +182,7 @@ void modifyOutputForFoundation(const Model& model, Output& output)
 	}
 }
 
-Output basicOutput(const Model& model)
+Output initialOutput(const Model& model)
 {
 	Dimension2D dimension = model.mCommonParams.mOutsideCommonParams.dimension;
 	Dimension3D waveDimension = append(dimension, model.mCommonParams._num_patterns);
@@ -195,7 +195,7 @@ Output basicOutput(const Model& model)
 
 Output create_output(const Model& model)
 {
-	Output output = basicOutput(model);
+	Output output = initialOutput(model);
 	if (model.mCommonParams._foundation) 
 	{
 		// Tile has a clearly-defined "ground"/"foundation"
