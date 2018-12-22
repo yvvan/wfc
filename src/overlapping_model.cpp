@@ -16,7 +16,7 @@ Pattern make_pattern(int n, Functor fun)
 	{
 		for (auto dx : irange(n)) 
 		{
-			result.data()[dy * n + dx] = fun(dx, dy);
+			result[{dx, dy}] = fun(dx, dy);
 		}
 	}
 	return result;
