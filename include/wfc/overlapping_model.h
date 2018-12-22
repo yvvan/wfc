@@ -80,7 +80,7 @@ Image image_from_graphics(const Graphics& graphics, const Palette& palette);
 
 Image upsample(const Image& image);
 
-Pattern patternFromSample(const PalettedImage& sample, int n, size_t x, size_t y);
+Pattern patternFromSample(const PalettedImage& sample, int n, const Index2D& index);
 
 Pattern rotate(const Pattern& p, int n);
 

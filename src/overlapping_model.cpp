@@ -17,7 +17,7 @@ Pattern make_pattern(int n, Functor fun)
 	{
 		for (auto dx : irange(n)) 
 		{
-			result[{dx, dy}] = fun(dx, dy);
+			result[{dx, dy}] = fun({ dx, dy });
 		}
 	}
 	return result;
@@ -340,7 +340,7 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 	auto rangeFcn = [&] (const Index2D& index)
 	{
 		std::array<Pattern, 8> ps;
-		ps[0] = patternFromSample(sample, n, index.x, index.y);
+		ps[0] = patternFromSample(sample, n, index);
 		ps[1] = reflect(ps[0], n);
 		ps[2] = rotate(ps[0], n);
 		ps[3] = reflect(ps[2], n);
@@ -365,11 +365,11 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 	return patterns;
 }
 
-Pattern patternFromSample(const PalettedImage& sample, int n, size_t x, size_t y)
+Pattern patternFromSample(const PalettedImage& sample, int n, const Index2D& index)
 {
 	auto functor = [&] (size_t dx, size_t dy)
 	{
-		return sample.at_wrapped(x + dx, y + dy);
+		return sample.at_wrapped(index.x + dx, index.y + dy);
 	};
 	return make_pattern(n, functor);
 }
