@@ -34,7 +34,7 @@ double calc_sum(const std::vector<double>& a);
 // Pick a random index weighted by a
 size_t weightedIndexSelect(const std::vector<double>& a, double randFraction);
 
-EntropyResult find_lowest_entropy(const Model& model, const Output& output);
+EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave);
 
 Result observe(const Model& model, Output* output, RandomDouble& random_double);
 

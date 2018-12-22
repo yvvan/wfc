@@ -53,7 +53,7 @@ size_t weightedIndexSelect(const std::vector<double>& a, double randFraction)
 	return 0;
 }
 
-EntropyResult find_lowest_entropy(const Model& model, const Output& output)
+EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 {
 	// We actually calculate exp(entropy), i.e. the sum of the weights of the possible patterns
 
@@ -76,7 +76,7 @@ EntropyResult find_lowest_entropy(const Model& model, const Output& output)
 		for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 		{
 			Index3D index = append(index2D, t);
-			if (output._wave[index]) 
+			if (wave[index]) 
 			{
 				num_superimposed += 1;
 				entropy += model.mCommonParams._pattern_weight[t];
@@ -135,7 +135,7 @@ EntropyResult find_lowest_entropy(const Model& model, const Output& output)
 
 Result observe(const Model& model, Output& output, RandomDouble& random_double)
 {
-	const auto result = find_lowest_entropy(model, output);
+	const auto result = find_lowest_entropy(model, output._wave);
 	if (result.code != Result::kUnfinished)
 	{
 		return result.code;
