@@ -365,29 +365,30 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 	return patterns;
 }
 
-Pattern patternFromSample(const PalettedImage& sample, int n, const Index2D& index)
+Pattern patternFromSample(const PalettedImage& sample, int n, const Index2D& imageIndex)
 {
-	auto functor = [&] (size_t dx, size_t dy)
+	auto functor = [&] (const Index2D& patternIndex)
 	{
-		return sample.at_wrapped(index.x + dx, index.y + dy);
+		Index2D shiftedIndex = patternIndex + imageIndex;
+		return sample.at_wrapped(shiftedIndex.x, shiftedIndex.y);
 	};
 	return make_pattern(n, functor);
 }
 
 Pattern rotate(const Pattern& p, int n)
 {
-	auto functor = [&](size_t x, size_t y)
+	auto functor = [&] (const Index2D& patternIndex)
 	{ 
-		return p[{ (n - 1 - y), x }]; 
+		return p[{ (n - 1 - patternIndex.y), patternIndex.x }]; 
 	};
 	return make_pattern(n, functor);
 }
 
 Pattern reflect(const Pattern& p, int n)
 {
-	auto functor = [&](size_t x, size_t y)
+	auto functor = [&] (const Index2D& patternIndex)
 	{ 
-		return p[{ (n - 1 - x), y }];
+		return p[{ (n - 1 - patternIndex.x), patternIndex.y }];
 	};
 	return make_pattern(n, functor);
 }

@@ -150,4 +150,9 @@ inline size_t area(const Dimension2D& dimension2D)
 	return dimension2D.width * dimension2D.height;
 }
 
+inline Index2D operator+(const Index2D& left, const Index2D& right)
+{
+	return { left.x + right.x, left.y + right.y };
+}
+
 #endif
