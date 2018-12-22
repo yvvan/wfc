@@ -282,7 +282,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 					Index3D index3D{ sx, sy, t };
 					if (output._wave[index3D]) 
 					{
-						tile_contributors.push_back(_patterns[t].data()[dx + dy * _n]);
+						tile_contributors.push_back(_patterns[t][{ dx, dy }]);
 					}
 				}
 			}
