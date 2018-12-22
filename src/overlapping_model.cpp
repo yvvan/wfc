@@ -1,6 +1,7 @@
 #include <wfc/overlapping_model.h>
 
 #include <cmath>
+#include <iostream>
 
 #include <emilib/irange.hpp>
 
@@ -400,10 +401,16 @@ PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
 
 	PatternHash result = 0;
 	size_t power = 1;
-	for (const auto i : irange(area(pattern.size())))
+
+	Dimension2D dim = pattern.size();
+
+	for (int y = dim.height - 1; y >= 0; --y)
 	{
-		result += pattern.data()[area(pattern.size()) - 1 - i] * power;
-		power *= palette_size;
+		for (int x = dim.width - 1; x >= 0; --x) 
+		{
+			result += pattern[{ x, y }] * power;
+			power *= palette_size;
+		}
 	}
 	return result;
 }
