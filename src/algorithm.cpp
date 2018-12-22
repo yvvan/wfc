@@ -150,17 +150,9 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 	return Result::kUnfinished;
 }
 
-Output foundationOutput(const Model& model, size_t foundation)
+void modifyOutputForFoundation(const Model& model, Output& output)
 {
-	Dimension2D dimension = model.mCommonParams.mOutsideCommonParams.dimension;
-	Dimension3D waveDimension = append(dimension, model.mCommonParams._num_patterns);
-
-	Output output
-	{
-		._wave = Array3D<Bool>(waveDimension, true),
-		._changes = Array2D<Bool>(dimension, false)
-	};
-
+	Dimension2D dimension = output._changes.size();
 	for (const auto x : irange(dimension.width)) 
 	{
 		// Setting the foundation section of the output wave only true for foundation
@@ -188,7 +180,6 @@ Output foundationOutput(const Model& model, size_t foundation)
 
 		while (model.propagate(output));
 	}
-	return output;
 }
 
 Output basicOutput(const Model& model)
@@ -204,16 +195,14 @@ Output basicOutput(const Model& model)
 
 Output create_output(const Model& model)
 {
+	Output output = basicOutput(model);
 	if (model.mCommonParams._foundation) 
 	{
 		// Tile has a clearly-defined "ground"/"foundation"
-		return foundationOutput(model, *(model.mCommonParams._foundation)); 
+		modifyOutputForFoundation(model, output);
 	}
-	else
-	{
-		// More general scenario
-		return basicOutput(model);
-	}
+
+	return output;
 }
 
 Result run(Output& output, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
