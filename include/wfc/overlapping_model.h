@@ -21,13 +21,13 @@ using PatternPrevalence = std::unordered_map<PatternHash, size_t>;
 
 struct PalettedImage
 {
-	size_t                  width, height;
-	std::vector<ColorIndex> data; // width * height
+	Array2D<ColorIndex> data; // width * height
 	Palette                 palette;
 
 	inline ColorIndex at_wrapped(const Index2D& index) const
 	{
-		return data[width * (index.y % height) + (index.x % width)];
+		Dimension2D dimension = data.size();
+		return data[{ (index.x % dimension.width), (index.y % dimension.height) }];
 	}
 };
 

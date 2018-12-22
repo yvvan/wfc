@@ -326,15 +326,17 @@ Image upsample(const Image& image)
 // n = side of the pattern, e.g. 3.
 PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern)
 {
-	CHECK_LE_F(n, sample.width);
-	CHECK_LE_F(n, sample.height);
+	Dimension2D imageDimension = sample.data.size();
+
+	CHECK_LE_F(n, imageDimension.width);
+	CHECK_LE_F(n, imageDimension.height);
 
 	PatternPrevalence patterns;
 
 	Dimension2D dimension
 	{
-		.width = periodic_in ? sample.width : sample.width - n + 1,
-		.height = periodic_in ? sample.height : sample.height - n + 1
+		.width = periodic_in ? imageDimension.width : imageDimension.width - n + 1,
+		.height = periodic_in ? imageDimension.height : imageDimension.height - n + 1
 	};
 
 	auto rangeFcn = [&] (const Index2D& index)
@@ -353,7 +355,7 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 		{
 			auto hash = hash_from_pattern(ps[k], sample.palette.size());
 			patterns[hash] += 1;
-			if (out_lowest_pattern && index.y == sample.height - 1) 
+			if (out_lowest_pattern && index.y == imageDimension.height - 1) 
 			{
 				*out_lowest_pattern = hash;
 			}

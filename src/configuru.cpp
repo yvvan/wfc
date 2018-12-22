@@ -222,25 +222,30 @@ PalettedImage load_paletted_image(const std::string& path)
 	}
 
 	std::vector<RGBA> palette;
-	std::vector<ColorIndex> data;
 
-	for (const auto pixel_idx : irange(num_pixels)) 
+	Array2D<ColorIndex> data({ width, height });
+
+	auto pixel_idx = 0;
+	for (auto dy : irange(height)) 
 	{
-		const RGBA color = rgba[pixel_idx];
-		const auto color_idx = std::find(palette.begin(), palette.end(), color) - palette.begin();
-		if (color_idx == palette.size()) 
+		for (auto dx : irange(width)) 
 		{
-			CHECK_LT_F(palette.size(), MAX_COLORS, "Too many colors in image");
-			palette.push_back(color);
+			const RGBA color = rgba[pixel_idx];
+			const auto color_idx = std::find(palette.begin(), palette.end(), color) - palette.begin();
+			if (color_idx == palette.size()) 
+			{
+				CHECK_LT_F(palette.size(), MAX_COLORS, "Too many colors in image");
+				palette.push_back(color);
+			}
+			data[{ dx, dy }] = color_idx;
+
+			++pixel_idx;
 		}
-		data.push_back(color_idx);
 	}
 
 	stbi_image_free(rgba);
 
 	return PalettedImage{
-		static_cast<size_t>(width),
-		static_cast<size_t>(height),
 		data, palette
 	};
 }
