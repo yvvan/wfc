@@ -7,15 +7,15 @@
 #include <unordered_map>
 
 
-using ColorIndex        = uint8_t; // tile index or color index. If you have more than 255, don't.
-using Palette           = std::vector<RGBA>;
-using Pattern           = Array2D<ColorIndex>;
+using ColorIndex = uint8_t; // tile index or color index. If you have more than 255, don't.
+using Palette = std::vector<RGBA>;
+using Pattern = Array2D<ColorIndex>;
 
 using Graphics = Array2D<std::vector<ColorIndex>>;
-using PatternIndex      = uint16_t;
-const size_t kUpscale             =   4; // Upscale images before saving
+using PatternIndex = uint16_t;
+const size_t kUpscale = 4; // Upscale images before saving
 
-using PatternHash       = uint64_t; // Another representation of a Pattern.
+using PatternHash = uint64_t; // Another representation of a Pattern.
 
 using PatternPrevalence = std::unordered_map<PatternHash, size_t>;
 
@@ -23,14 +23,8 @@ Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension);
 
 struct PalettedImage
 {
-	Array2D<ColorIndex> data; // width * height
-	Palette                 palette;
-
-	inline ColorIndex at_wrapped(const Index2D& index) const
-	{
-		Dimension2D dimension = data.size();
-		return data[wrapAroundIndex(index, dimension)];
-	}
+	Array2D<ColorIndex> data; 
+	Palette palette;
 };
 
 const PatternHash kInvalidHash = -1;
@@ -42,7 +36,7 @@ struct OverlappingModelConfig
 	bool periodic_in;
 	size_t symmetry;
 	bool has_foundation;
-	int                      n;
+	int n;
 	OutsideCommonParams commonParam;
 };
 

@@ -372,7 +372,8 @@ Pattern patternFromSample(const PalettedImage& sample, int n, const Index2D& ima
 	auto functor = [&] (const Index2D& patternIndex)
 	{
 		Index2D shiftedIndex = patternIndex + imageIndex;
-		return sample.at_wrapped(shiftedIndex);
+		Dimension2D dimension = sample.data.size();
+		return sample.data[wrapAroundIndex(shiftedIndex, dimension)];
 	};
 	return make_pattern(n, functor);
 }
