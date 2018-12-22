@@ -62,12 +62,12 @@ public:
 	Graphics graphics(const Output& output) const;
 
 private:
-	int                       _n;
+	int _n;
 	// num_patterns X (2 * n - 1) X (2 * n - 1) X ???
 	// list of other pattern indices that agree on this x/y offset (?)
 	Array3D<std::vector<PatternIndex>> _propagator;
-	std::vector<Pattern>               _patterns;
-	Palette                            _palette;
+	std::vector<Pattern> _patterns;
+	Palette _palette;
 };
 
 Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size);
