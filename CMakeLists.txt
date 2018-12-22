@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required (VERSION 3.2.2)
 project (wfc-sebastian)
 
 set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -O2 -g -DNDEBUG ${CMAKE_CXX_FLAGS}")

@@ -4,6 +4,9 @@
 #include <wfc/tile_model.h>
 #include <wfc/ranges.h>
 
+#include <random>
+#include <cmath>
+#include <numeric>
 #include <algorithm>
 #include <iostream>
 
