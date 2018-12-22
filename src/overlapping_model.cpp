@@ -132,7 +132,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 		{
 			for (int x = xmin; x < xmax; ++x) 
 			{
-				if (p1.data()[x + config.n * y] != p2.data()[x - dx + config.n * (y - dy)]) 
+				if (p1[{ x, y }] != p2[{ (x - dx), (y - dy) }]) 
 				{
 					return false;
 				}
