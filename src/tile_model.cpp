@@ -21,9 +21,11 @@ bool TileModel::propagate(Output& output) const
 {
 	bool did_change = false;
 
-	for (int x2 = 0; x2 < mCommonParams.mOutsideCommonParams.dimension.width; ++x2) 
+	Dimension2D dimension = mCommonParams.mOutsideCommonParams.dimension;
+
+	for (int x2 = 0; x2 < dimension.width; ++x2) 
 	{
-		for (int y2 = 0; y2 < mCommonParams.mOutsideCommonParams.dimension.height; ++y2) 
+		for (int y2 = 0; y2 < dimension.height; ++y2) 
 		{
 			for (int d = 0; d < 4; ++d) 
 			{
@@ -35,7 +37,7 @@ bool TileModel::propagate(Output& output) const
 					if (x2 == 0) 
 					{
 						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
-						x1 = mCommonParams.mOutsideCommonParams.dimension.width - 1;
+						x1 = dimension.width - 1;
 					} 
 					else 
 					{
@@ -44,7 +46,7 @@ bool TileModel::propagate(Output& output) const
 				} 
 				else if (d == 1) 
 				{
-					if (y2 == mCommonParams.mOutsideCommonParams.dimension.height - 1) 
+					if (y2 == dimension.height - 1) 
 					{
 						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
 						y1 = 0;
@@ -56,7 +58,7 @@ bool TileModel::propagate(Output& output) const
 				} 
 				else if (d == 2) 
 				{
-					if (x2 == mCommonParams.mOutsideCommonParams.dimension.width - 1) 
+					if (x2 == dimension.width - 1) 
 					{
 						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
 						x1 = 0;
@@ -71,7 +73,7 @@ bool TileModel::propagate(Output& output) const
 					if (y2 == 0) 
 					{
 						if (!mCommonParams.mOutsideCommonParams._periodic_out) { continue; }
-						y1 = mCommonParams.mOutsideCommonParams.dimension.height - 1;
+						y1 = dimension.height - 1;
 					} 
 					else 
 					{
@@ -110,11 +112,12 @@ bool TileModel::propagate(Output& output) const
 
 Image TileModel::image(const Output& output) const
 {
-	Image result({ mCommonParams.mOutsideCommonParams.dimension.width * mInternal._tile_size, mCommonParams.mOutsideCommonParams.dimension.height * mInternal._tile_size } , {});
+	Dimension2D dimension = mCommonParams.mOutsideCommonParams.dimension;
+	Image result({ dimension.width * mInternal._tile_size, dimension.height * mInternal._tile_size } , {});
 
-	for (int x = 0; x < mCommonParams.mOutsideCommonParams.dimension.width; ++x) 
+	for (int x = 0; x < dimension.width; ++x) 
 	{
-		for (int y = 0; y < mCommonParams.mOutsideCommonParams.dimension.height; ++y) 
+		for (int y = 0; y < dimension.height; ++y) 
 		{
 			double sum = 0;
 			for (const auto t : irange(mCommonParams._num_patterns)) 

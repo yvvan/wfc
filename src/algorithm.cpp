@@ -107,7 +107,7 @@ Result find_lowest_entropy(const Model& model, const Output& output, Index2D& to
 		return false;
 	};
 
-	Dimension2D dimension{ model.mCommonParams.mOutsideCommonParams.dimension.width, model.mCommonParams.mOutsideCommonParams.dimension.height };
+	Dimension2D dimension = model.mCommonParams.mOutsideCommonParams.dimension;
 	BreakRange::runForDimension(dimension, func);
 
 	if (result)
@@ -152,7 +152,7 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 
 Output foundationOutput(const Model& model, size_t foundation)
 {
-	Dimension2D dimension{ model.mCommonParams.mOutsideCommonParams.dimension.width, model.mCommonParams.mOutsideCommonParams.dimension.height };
+	Dimension2D dimension = model.mCommonParams.mOutsideCommonParams.dimension;
 	Dimension3D waveDimension = append(dimension, model.mCommonParams._num_patterns);
 
 	Output output
@@ -168,7 +168,7 @@ Output foundationOutput(const Model& model, size_t foundation)
 		{
 			if (t != *(model.mCommonParams._foundation)) 
 			{
-				Index3D index{ x, model.mCommonParams.mOutsideCommonParams.dimension.height - 1, t };
+				Index3D index{ x, dimension.height - 1, t };
 				output._wave[index] = false;
 			}
 		}
@@ -193,7 +193,7 @@ Output foundationOutput(const Model& model, size_t foundation)
 
 Output basicOutput(const Model& model)
 {
-	Dimension2D dimension{ model.mCommonParams.mOutsideCommonParams.dimension.width, model.mCommonParams.mOutsideCommonParams.dimension.height };
+	Dimension2D dimension = model.mCommonParams.mOutsideCommonParams.dimension;
 	Dimension3D waveDimension = append(dimension, model.mCommonParams._num_patterns);
 	return
 	{
