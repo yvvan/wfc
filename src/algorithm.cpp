@@ -150,7 +150,7 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 	return Result::kUnfinished;
 }
 
-void modifyOutputForFoundation(const Model& model, Output& output)
+void modifyOutputForFoundation(const Model& model, size_t foundation, Output& output)
 {
 	Dimension2D dimension = output._changes.size();
 	for (const auto x : irange(dimension.width)) 
@@ -158,7 +158,7 @@ void modifyOutputForFoundation(const Model& model, Output& output)
 		// Setting the foundation section of the output wave only true for foundation
 		for (const auto t : irange(model.mCommonParams._num_patterns)) 
 		{
-			if (t != *(model.mCommonParams._foundation)) 
+			if (t != foundation) 
 			{
 				Index3D index{ x, dimension.height - 1, t };
 				output._wave[index] = false;
@@ -168,7 +168,7 @@ void modifyOutputForFoundation(const Model& model, Output& output)
 		// Setting the rest of the output wave only true for not foundation
 		for (const auto y : irange(dimension.height - 1)) 
 		{
-			Index3D index{ x, y, *(model.mCommonParams._foundation) };
+			Index3D index{ x, y, foundation };
 			output._wave[index] = false;
 		}
 
@@ -199,7 +199,7 @@ Output create_output(const Model& model)
 	if (model.mCommonParams._foundation) 
 	{
 		// Tile has a clearly-defined "ground"/"foundation"
-		modifyOutputForFoundation(model, output);
+		modifyOutputForFoundation(model, *(model.mCommonParams._foundation), output);
 	}
 
 	return output;

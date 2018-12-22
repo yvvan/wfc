@@ -36,7 +36,7 @@ std::experimental::optional<Image> createImage(const Model& model, size_t seed, 
 
 Output initialOutput(const Model& model);
 
-void modifyOutputForFoundation(const Model& model, Output& output);
+void modifyOutputForFoundation(const Model& model, size_t foundation, Output& output);
 
 class OverlappingModelConfig;
 class TileModelInternal;
