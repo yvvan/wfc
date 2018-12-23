@@ -12,9 +12,13 @@ using RandomDouble      = std::function<double()>;
 
 enum class Result
 {
+
 	kSuccess,
+
 	kFail,
+
 	kUnfinished,
+
 };
 
 struct EntropyResult
@@ -54,5 +58,9 @@ class TileModelInternal;
 ImageGenerator overlappingGenerator(const OverlappingModelConfig& config, std::experimental::optional<size_t> limit);
 
 ImageGenerator tileGenerator(const TileModelInternal& config, std::experimental::optional<size_t> limit);
+
+std::vector<double> createDistribution(const Index2D& index2D, int numberPatterns, const std::vector<double>& weights, const Array3D<Bool>& wave);
+
+Index3D waveIndex(const Index2D& imageIndex, int patternIndex);
 
 #endif

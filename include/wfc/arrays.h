@@ -117,6 +117,11 @@ class Array3D
 			return mData[index(index3D.x, index3D.y, index3D.z)];
 		}
 
+		Dimension3D size() const
+		{
+			return mDimensions;
+		}
+
 		size_t volume() const 
 		{
 			return mData.size();
