@@ -65,4 +65,6 @@ Index3D waveIndex(const Index2D& imageIndex, int patternIndex);
 
 size_t selectPattern(const Index2D& index2D, int numPatterns, const std::vector<double>& weights, const Array3D<Bool>& wave, const RandomDouble& randomDouble);
 
+void updateSelectedPattern(Output& output, const Index2D& index2D, int numPatterns, size_t pattern);
+
 #endif

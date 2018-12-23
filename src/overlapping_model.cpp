@@ -202,7 +202,7 @@ bool OverlappingModel::propagate(Output& output) const
 				auto x2 = x1 + dx;
 				auto y2 = y1 + dy;
 
-				// Do wrap around
+				// Do wrap around (always-positive modulus)
 				auto sx = x2;
 				if      (sx <  0)      { sx += dimension.width; }
 				else if (sx >= dimension.width) { sx -= dimension.width; }
@@ -211,13 +211,12 @@ bool OverlappingModel::propagate(Output& output) const
 				if      (sy <  0)       { sy += dimension.height; }
 				else if (sy >= dimension.height) { sy -= dimension.height; }
 
-				// Same as on_boundary?
-				if (!mCommonParams.mOutsideCommonParams._periodic_out && (sx + _n > dimension.width || sy + _n > dimension.height)) 
+				Index2D sIndex{ sx, sy };
+
+				if (on_boundary(sIndex)) 
 				{
 					continue;
 				}
-
-				Index2D sIndex{ sx, sy };
 
 				for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
 				{

@@ -158,9 +158,23 @@ size_t selectPattern(const Index2D& index2D, int numPatterns, const std::vector<
 	return weightedIndexSelect(distribution, randomDouble());
 }
 
+void updateSelectedPattern(Output& output, const Index2D& index2D, int numPatterns, size_t pattern)
+{
+	for (int t = 0; t < numPatterns; ++t) 
+	{
+		Index3D index3D = waveIndex(index2D, t);
+
+		// Set pattern to true, everything else false
+		output._wave[index3D] = (t == pattern);
+	}
+	output._changes[index2D] = true;
+}
+
 Result observe(const Model& model, Output& output, RandomDouble& random_double)
 {
+	// Find the index in the image with the lowest entropy
 	const auto result = find_lowest_entropy(model, output._wave);
+
 	if (result.code != Result::kUnfinished)
 	{
 		return result.code;
@@ -170,12 +184,7 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 
 	size_t r = selectPattern(index2D, model.mCommonParams._num_patterns, model.mCommonParams._pattern_weight, output._wave, random_double);
 
-	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
-	{
-		Index3D index3D = append(index2D, t);
-		output._wave[index3D] = (t == r);
-	}
-	output._changes[index2D] = true;
+	updateSelectedPattern(output, index2D, model.mCommonParams._num_patterns, r);
 
 	return Result::kUnfinished;
 }
