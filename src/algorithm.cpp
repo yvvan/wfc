@@ -151,6 +151,13 @@ std::vector<double> createDistribution(const Index2D& index2D, int numPatterns, 
 	return distribution;
 }
 
+size_t selectPattern(const Index2D& index2D, int numPatterns, const std::vector<double>& weights, const Array3D<Bool>& wave, const RandomDouble& randomDouble)
+{
+	std::vector<double> distribution = createDistribution(index2D, numPatterns, weights, wave);
+
+	return weightedIndexSelect(distribution, randomDouble());
+}
+
 Result observe(const Model& model, Output& output, RandomDouble& random_double)
 {
 	const auto result = find_lowest_entropy(model, output._wave);
@@ -161,9 +168,8 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 
 	Index2D index2D = result.minIndex;
 
-	std::vector<double> distribution = createDistribution(index2D, model.mCommonParams._num_patterns, model.mCommonParams._pattern_weight, output._wave);
+	size_t r = selectPattern(index2D, model.mCommonParams._num_patterns, model.mCommonParams._pattern_weight, output._wave, random_double);
 
-	size_t r = weightedIndexSelect(distribution, random_double());
 	for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
 	{
 		Index3D index3D = append(index2D, t);

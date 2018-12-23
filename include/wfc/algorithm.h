@@ -63,4 +63,6 @@ std::vector<double> createDistribution(const Index2D& index2D, int numberPattern
 
 Index3D waveIndex(const Index2D& imageIndex, int patternIndex);
 
+size_t selectPattern(const Index2D& index2D, int numPatterns, const std::vector<double>& weights, const Array3D<Bool>& wave, const RandomDouble& randomDouble);
+
 #endif
