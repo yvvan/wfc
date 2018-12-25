@@ -195,59 +195,68 @@ bool OverlappingModel::propagate(Output& output) const
 
 		output._changes[index] = false;
 
-		for (int dx = -_n + 1; dx < _n; ++dx) 
+		int rangeLimit = _n - 1;
+
+		SquareRange range
 		{
-			for (int dy = -_n + 1; dy < _n; ++dy) 
+			.bottomLeft = { -rangeLimit, -rangeLimit },
+			.upperRight = { rangeLimit, rangeLimit }
+		};
+
+		auto rangeIterator = range2D(range);
+
+		auto rangeFcn = [&] (const Offset2D& offset)
+		{
+			auto sx = (int)index.x + (int)offset.x;
+			auto sy = (int)index.y + (int)offset.y;
+
+			// Do wrap around (always-positive modulus)
+			if      (sx <  0)      { sx += dimension.width; }
+			else if (sx >= dimension.width) { sx -= dimension.width; }
+
+			if      (sy <  0)       { sy += dimension.height; }
+			else if (sy >= dimension.height) { sy -= dimension.height; }
+
+			Index2D sIndex{ sx, sy };
+
+			if (on_boundary(sIndex)) 
 			{
-				auto sx = (int)index.x + dx;
-				auto sy = (int)index.y + dy;
+				return;
+			}
 
-				// Do wrap around (always-positive modulus)
-				if      (sx <  0)      { sx += dimension.width; }
-				else if (sx >= dimension.width) { sx -= dimension.width; }
-
-				if      (sy <  0)       { sy += dimension.height; }
-				else if (sy >= dimension.height) { sy -= dimension.height; }
-
-				Index2D sIndex{ sx, sy };
-
-				if (on_boundary(sIndex)) 
+			for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
+			{
+				Index3D sPatternIndex = append(sIndex, t2);
+				if (!output._wave[sPatternIndex])
 				{
 					continue;
 				}
 
-				for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
+				// This part below seems to be the only thing fundamentally diff from graphics() algorithm:
+
+				bool can_pattern_fit = false;
+
+				Index3D shiftedIndex { t2, _n - 1 - offset.x, _n - 1 - offset.y };
+				const auto& prop = _propagator[shiftedIndex];
+				for (const auto& t3 : prop) 
 				{
-					Index3D sPatternIndex = append(sIndex, t2);
-					if (!output._wave[sPatternIndex])
+					if (output._wave[append(index, t3)]) 
 					{
-						continue;
-					}
-
-					// This part below seems to be the only thing fundamentally diff from graphics() algorithm:
-
-					bool can_pattern_fit = false;
-
-					Index3D shiftedIndex { t2, _n - 1 - dx, _n - 1 - dy };
-					const auto& prop = _propagator[shiftedIndex];
-					for (const auto& t3 : prop) 
-					{
-						if (output._wave[append(index, t3)]) 
-						{
-							can_pattern_fit = true;
-							break;
-						}
-					}
-
-					if (!can_pattern_fit) 
-					{
-						output._changes[sIndex] = true;
-						output._wave[sPatternIndex] = false;
-						did_change = true;
+						can_pattern_fit = true;
+						break;
 					}
 				}
+
+				if (!can_pattern_fit) 
+				{
+					output._changes[sIndex] = true;
+					output._wave[sPatternIndex] = false;
+					did_change = true;
+				}
 			}
-		}
+		};
+
+		rangeIterator(rangeFcn);
 	};
 
 	runForDimension(dimension, rangeFcn);

@@ -3,14 +3,24 @@
 
 #include <wfc/arrays.h>
 
+// Had to add because offset can be negative
+struct Offset2D
+{
+
+	int x;
+
+	int y;
+
+};
+
 //! \brief Defines a square range. The bottomLeft and upperRight
 //! are included in the range.
 struct SquareRange
 {
 
-	Index2D bottomLeft;
+	Offset2D bottomLeft;
 
-	Index2D upperRight;
+	Offset2D upperRight;
 
 };
 
@@ -23,7 +33,7 @@ inline auto range2D(const SquareRange& range)
 		{
 			for (int y = range.bottomLeft.y; y <= range.upperRight.y; ++y) 
 			{
-				consumingFcn(Index2D{ x, y });
+				consumingFcn(Offset2D{ x, y });
 			}
 		}
 	};
