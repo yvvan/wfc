@@ -43,25 +43,30 @@ RGBA collapsePixel(const std::vector<ColorIndex>& tile_contributors, const Palet
 	else 
 	{
 		// Multiple contributors, so average them
-		size_t r = 0;
-		size_t g = 0;
-		size_t b = 0;
-		size_t a = 0;
-		for (const auto tile : tile_contributors) 
-		{
-			r += palette[tile].r;
-			g += palette[tile].g;
-			b += palette[tile].b;
-			a += palette[tile].a;
-		}
-		r /= tile_contributors.size();
-		g /= tile_contributors.size();
-		b /= tile_contributors.size();
-		a /= tile_contributors.size();
-		toReturn = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
+		toReturn = averageContributors(tile_contributors, palette);
 	}
 
 	return toReturn;
+}
+
+RGBA averageContributors(const std::vector<ColorIndex>& contributors, const Palette& palette)
+{
+	size_t r = 0;
+	size_t g = 0;
+	size_t b = 0;
+	size_t a = 0;
+	for (const auto tile : contributors) 
+	{
+		r += palette[tile].r;
+		g += palette[tile].g;
+		b += palette[tile].b;
+		a += palette[tile].a;
+	}
+	r /= contributors.size();
+	g /= contributors.size();
+	b /= contributors.size();
+	a /= contributors.size();
+	return {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
 }
 
 Image image_from_graphics(const Graphics& graphics, const Palette& palette)

@@ -88,4 +88,6 @@ RGBA collapsePixel(const std::vector<ColorIndex>& tile_contributors, const Palet
 
 std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index);
 
+RGBA averageContributors(const std::vector<ColorIndex>& contributors, const Palette& palette);
+
 #endif
