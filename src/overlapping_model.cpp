@@ -161,6 +161,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 			for (auto y : irange<int>(2 * config.n - 1)) 
 			{
 				Index3D index3D{ t, x, y };
+
 				auto& list = _propagator[index3D];
 				for (auto t2 : irange(mCommonParams._num_patterns)) 
 				{
@@ -236,7 +237,7 @@ bool OverlappingModel::propagate(Output& output) const
 
 				bool can_pattern_fit = false;
 
-				Index3D shiftedIndex { t2, _n - 1 - offset.x, _n - 1 - offset.y };
+				Index3D shiftedIndex{ t2, rangeLimit - offset.x, rangeLimit - offset.y };
 				const auto& prop = _propagator[shiftedIndex];
 				for (const auto& t3 : prop) 
 				{
