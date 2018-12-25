@@ -188,9 +188,6 @@ bool OverlappingModel::propagate(Output& output) const
 	// This whole set of nested loops looks very similar to the one in graphics()
 	auto rangeFcn = [&] (const Index2D& index)
 	{
-		int x1 = index.x;
-		int y1 = index.y;
-
 		if (!output._changes[index])
 		{
 			return; 
@@ -202,15 +199,13 @@ bool OverlappingModel::propagate(Output& output) const
 		{
 			for (int dy = -_n + 1; dy < _n; ++dy) 
 			{
-				auto x2 = x1 + dx;
-				auto y2 = y1 + dy;
+				auto sx = (int)index.x + dx;
+				auto sy = (int)index.y + dy;
 
 				// Do wrap around (always-positive modulus)
-				auto sx = x2;
 				if      (sx <  0)      { sx += dimension.width; }
 				else if (sx >= dimension.width) { sx -= dimension.width; }
 
-				auto sy = y2;
 				if      (sy <  0)       { sy += dimension.height; }
 				else if (sy >= dimension.height) { sy -= dimension.height; }
 
