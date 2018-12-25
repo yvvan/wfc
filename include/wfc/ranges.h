@@ -18,6 +18,7 @@ inline auto range2D(const SquareRange& range)
 {
 	return [=] (auto consumingFcn)
 	{
+		// Order is weird, but can/should be changed.
 		for (int x = range.bottomLeft.x; x <= range.upperRight.x; ++x) 
 		{
 			for (int y = range.bottomLeft.y; y <= range.upperRight.y; ++y) 
@@ -30,6 +31,8 @@ inline auto range2D(const SquareRange& range)
 
 inline auto range2D(const Dimension2D& dimension)
 {
+	// TODO: Implement in terms of SquareRange
+
 	return [=] (auto consumingFcn)
 	{
 		for (size_t y = 0; y < dimension.height; ++y)
