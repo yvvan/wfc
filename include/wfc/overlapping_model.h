@@ -86,4 +86,6 @@ PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size);
 
 RGBA collapsePixel(const std::vector<ColorIndex>& tile_contributors, const Palette& palette);
 
+std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index);
+
 #endif

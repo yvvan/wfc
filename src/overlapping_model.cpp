@@ -348,15 +348,7 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 
 	auto rangeFcn = [&] (const Index2D& index)
 	{
-		std::array<Pattern, 8> ps;
-		ps[0] = patternFromSample(sample, n, index);
-		ps[1] = reflect(ps[0], n);
-		ps[2] = rotate(ps[0], n);
-		ps[3] = reflect(ps[2], n);
-		ps[4] = rotate(ps[2], n);
-		ps[5] = reflect(ps[4], n);
-		ps[6] = rotate(ps[4], n);
-		ps[7] = reflect(ps[6], n);
+		std::array<Pattern, 8> ps = generatePatterns(sample, n, index);
 
 		for (int k = 0; k < symmetry; ++k) 
 		{
@@ -372,6 +364,20 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 	runForDimension(dimension, rangeFcn);
 
 	return patterns;
+}
+
+std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index)
+{
+	std::array<Pattern, 8> toReturn;
+	toReturn[0] = patternFromSample(sample, n, index);
+	toReturn[1] = reflect(toReturn[0], n);
+	toReturn[2] = rotate(toReturn[0], n);
+	toReturn[3] = reflect(toReturn[2], n);
+	toReturn[4] = rotate(toReturn[2], n);
+	toReturn[5] = reflect(toReturn[4], n);
+	toReturn[6] = rotate(toReturn[4], n);
+	toReturn[7] = reflect(toReturn[6], n);
+	return toReturn;
 }
 
 Pattern patternFromSample(const PalettedImage& sample, int n, const Index2D& imageIndex)
