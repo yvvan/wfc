@@ -340,11 +340,19 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 
 	PatternPrevalence patterns;
 
-	Dimension2D dimension
+	Dimension2D dimension;
+	if (periodic_in)
 	{
-		.width = periodic_in ? imageDimension.width : imageDimension.width - n + 1,
-		.height = periodic_in ? imageDimension.height : imageDimension.height - n + 1
-	};
+		dimension = 
+		{
+			.width = imageDimension.width - n + 1,
+			.height = imageDimension.height - n + 1
+		};
+	}
+	else
+	{
+		dimension = imageDimension;
+	}
 
 	auto rangeFcn = [&] (const Index2D& index)
 	{
