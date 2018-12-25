@@ -12,14 +12,17 @@ using namespace emilib;
 template <class Functor>
 Pattern make_pattern(int n, Functor fun)
 {
-	Pattern result({ n, n });
-	for (auto dy : irange(n)) 
+	Dimension2D dimension{ n, n };
+
+	Pattern result(dimension);
+
+	auto rangeFcn = [&] (const Index2D& index)
 	{
-		for (auto dx : irange(n)) 
-		{
-			result[{dx, dy}] = fun({ dx, dy });
-		}
-	}
+		result[index] = fun(index);
+	};
+
+	runForDimension(dimension, rangeFcn);
+
 	return result;
 }
 
