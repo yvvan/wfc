@@ -3,6 +3,31 @@
 
 #include <wfc/arrays.h>
 
+//! \brief Defines a square range. The bottomLeft and upperRight
+//! are included in the range.
+struct SquareRange
+{
+
+	Index2D bottomLeft;
+
+	Index2D upperRight;
+
+};
+
+inline auto range2D(const SquareRange& range)
+{
+	return [=] (auto consumingFcn)
+	{
+		for (int x = range.bottomLeft.x; x <= range.upperRight.x; ++x) 
+		{
+			for (int y = range.bottomLeft.y; y <= range.upperRight.y; ++y) 
+			{
+				consumingFcn(Index2D{ x, y });
+			}
+		}
+	};
+}
+
 inline auto range2D(const Dimension2D& dimension)
 {
 	return [=] (auto consumingFcn)
@@ -15,14 +40,14 @@ inline auto range2D(const Dimension2D& dimension)
 			}
 		}
 	};
-};
+}
 
 template <class Functor>
 void runForDimension(const Dimension2D& dimension, Functor functor)
 {
 	auto range = range2D(dimension);
 	range(functor);
-};
+}
 
 namespace BreakRange
 {
@@ -43,14 +68,14 @@ namespace BreakRange
 			}
 			return false;
 		};
-	};
+	}
 
 	template <class Functor>
 	void runForDimension(const Dimension2D& dimension, Functor functor)
 	{
 		auto range = BreakRange::range2D(dimension);
 		range(functor);
-	};
+	}
 
 }
 
