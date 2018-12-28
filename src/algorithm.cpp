@@ -75,6 +75,9 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 
 	double min = std::numeric_limits<double>::infinity();
 
+	// TODO: This is almost always (0, 0) for the initial iteration. Perhaps an explicit seeding
+	// should be used? Note: it is not (0, 0) when the pattern has foundation, as this modifies the
+	// wave, resulting in a value besides (0, 0)
 	Index2D minIndex;
 
 	bool fail = false;
