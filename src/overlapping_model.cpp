@@ -28,25 +28,21 @@ Pattern make_pattern(int n, Functor fun)
 
 RGBA collapsePixel(const std::vector<ColorIndex>& tile_contributors, const Palette& palette)
 {
-	RGBA toReturn;
-
 	if (tile_contributors.empty()) 
 	{
 		// No contributors, so set to 0
-		toReturn = {0, 0, 0, 255};
+		return {0, 0, 0, 255};
 	} 
 	else if (tile_contributors.size() == 1) 
 	{
 		// One contributor, so use that
-		toReturn = palette[tile_contributors[0]];
+		return palette[tile_contributors[0]];
 	} 
 	else 
 	{
 		// Multiple contributors, so average them
-		toReturn = averageContributors(tile_contributors, palette);
+		return averageContributors(tile_contributors, palette);
 	}
-
-	return toReturn;
 }
 
 RGBA averageContributors(const std::vector<ColorIndex>& contributors, const Palette& palette)
