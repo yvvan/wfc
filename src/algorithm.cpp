@@ -182,8 +182,12 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 
 	Index2D index2D = result.minIndex;
 
+	// Select a pattern (with some randomness)
 	size_t r = selectPattern(index2D, model.mCommonParams._num_patterns, model.mCommonParams._pattern_weight, output._wave, random_double);
 
+	// The index is modified in the following way:
+	// - Wave set to true at pattern index, false everywhere else
+	// - The index is marked in changes 
 	updateSelectedPattern(output, index2D, model.mCommonParams._num_patterns, r);
 
 	return Result::kUnfinished;
