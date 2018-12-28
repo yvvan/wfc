@@ -53,6 +53,22 @@ size_t weightedIndexSelect(const std::vector<double>& a, double randFraction)
 	return 0;
 }
 
+EntropyValue calculateEntropy(const Array3D<Bool>& wave, const Index2D& index2D, size_t numPatterns, const std::vector<double>& patternWeights)
+{
+	EntropyValue entropyResult = { 0, 0 };
+
+	for (int t = 0; t < numPatterns; ++t) 
+	{
+		Index3D index = append(index2D, t);
+		if (wave[index]) 
+		{
+			entropyResult.num_superimposed += 1;
+			entropyResult.entropy += patternWeights[t];
+		}
+	}
+	return entropyResult;
+}
+
 EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 {
 	// We actually calculate exp(entropy), i.e. the sum of the weights of the possible patterns
@@ -70,26 +86,15 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 			return false;
 		}
 
-		size_t num_superimposed = 0;
-		double entropy = 0;
+		EntropyValue entropyResult = calculateEntropy(wave, index2D, model.mCommonParams._num_patterns, model.mCommonParams._pattern_weight);
 
-		for (int t = 0; t < model.mCommonParams._num_patterns; ++t) 
-		{
-			Index3D index = append(index2D, t);
-			if (wave[index]) 
-			{
-				num_superimposed += 1;
-				entropy += model.mCommonParams._pattern_weight[t];
-			}
-		}
-
-		if (entropy == 0 || num_superimposed == 0) 
+		if (entropyResult.entropy == 0 || entropyResult.num_superimposed == 0) 
 		{
 			fail = true;
 			return true;
 		}
 
-		if (num_superimposed == 1) 
+		if (entropyResult.num_superimposed == 1) 
 		{
 			// Already frozen
 			return false;
@@ -102,9 +107,9 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 		entropy += noise;
 		*/
 
-		if (entropy < min) 
+		if (entropyResult.entropy < min) 
 		{
-			min = entropy;
+			min = entropyResult.entropy;
 			minIndex = index2D;
 		}
 		return false;

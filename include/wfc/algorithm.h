@@ -31,6 +31,15 @@ struct EntropyResult
 
 };
 
+struct EntropyValue
+{
+
+	size_t num_superimposed;
+
+	double entropy;
+
+};
+
 const char* result2str(const Result result);
 
 double calc_sum(const std::vector<double>& a);
@@ -66,5 +75,7 @@ Index3D waveIndex(const Index2D& imageIndex, int patternIndex);
 size_t selectPattern(const Index2D& index2D, int numPatterns, const std::vector<double>& weights, const Array3D<Bool>& wave, const RandomDouble& randomDouble);
 
 void updateSelectedPattern(Output& output, const Index2D& index2D, int numPatterns, size_t pattern);
+
+EntropyValue calculateEntropy(const Array3D<Bool>& wave, const Index2D& index2D, size_t numPatterns, const std::vector<double>& patternWeights);
 
 #endif
