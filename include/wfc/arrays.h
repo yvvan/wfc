@@ -160,4 +160,14 @@ inline Index2D operator+(const Index2D& left, const Index2D& right)
 	return { left.x + right.x, left.y + right.y };
 }
 
+inline bool operator==(const Index2D& left, const Index2D& right)
+{
+	return (left.x == right.x) && (left.y == right.y);
+}
+
+inline bool operator!=(const Index2D& left, const Index2D& right)
+{
+	return (left.x != right.x) || (left.y != right.y);
+}
+
 #endif

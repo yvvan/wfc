@@ -170,6 +170,12 @@ void updateSelectedPattern(Output& output, const Index2D& index2D, int numPatter
 	output._changes[index2D] = true;
 }
 
+inline std::ostream& operator<<(std::ostream& stream, const Index2D& index)
+{
+	stream << "(" << index.x << ", " << index.y << ")";
+	return stream;
+}
+
 Result observe(const Model& model, Output& output, RandomDouble& random_double)
 {
 	// Find the index in the image with the lowest entropy
