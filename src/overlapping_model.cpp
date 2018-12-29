@@ -109,8 +109,30 @@ Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size)
 
 bool agrees(const Pattern& p1, const Pattern& p2, int dx, int dy, int n) 
 {
-	int xmin = dx < 0 ? 0 : dx, xmax = dx < 0 ? dx + n : n;
-	int ymin = dy < 0 ? 0 : dy, ymax = dy < 0 ? dy + n : n;
+	int xmin, xmax, ymin, ymax;
+	
+	if (dx < 0)
+	{
+		xmin = 0;
+		xmax = dx + n;
+	}
+	else
+	{
+		xmin = dx;
+		xmax = n;
+	}
+
+	if (dy < 0)
+	{
+		ymin = 0;
+		ymax = dy + n;
+	}
+	else
+	{
+		ymin = dy;
+		ymax = n;
+	}
+
 	for (int y = ymin; y < ymax; ++y) 
 	{
 		for (int x = xmin; x < xmax; ++x) 
