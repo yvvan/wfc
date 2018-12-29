@@ -107,12 +107,31 @@ Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size)
 	return result;
 }
 
+bool agrees(const Pattern& p1, const Pattern& p2, int dx, int dy, int n) 
+{
+	int xmin = dx < 0 ? 0 : dx, xmax = dx < 0 ? dx + n : n;
+	int ymin = dy < 0 ? 0 : dy, ymax = dy < 0 ? dy + n : n;
+	for (int y = ymin; y < ymax; ++y) 
+	{
+		for (int x = xmin; x < xmax; ++x) 
+		{
+			if (p1[{ x, y }] != p2[{ (x - dx), (y - dy) }]) 
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+};
+
 OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 {
 	LOG_F(INFO, "palette size: %lu", config.sample_image.palette.size());
 
 	PatternHash foundation = kInvalidHash;
-	const auto hashed_patterns = extract_patterns(config.sample_image, config.n, config.periodic_in, config.symmetry, config.has_foundation ? &foundation : nullptr);
+	PatternHash* foundationPtr = (config.has_foundation) ? &foundation : nullptr;
+	const auto hashed_patterns = extract_patterns(config.sample_image, config.n, config.periodic_in, config.symmetry, foundationPtr);
+
 	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
 
 	mCommonParams.mOutsideCommonParams = config.commonParam;
@@ -132,23 +151,6 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 		mCommonParams._pattern_weight.push_back(it.second);
 	}
 
-	const auto agrees = [&](const Pattern& p1, const Pattern& p2, int dx, int dy) 
-	{
-		int xmin = dx < 0 ? 0 : dx, xmax = dx < 0 ? dx + config.n : config.n;
-		int ymin = dy < 0 ? 0 : dy, ymax = dy < 0 ? dy + config.n : config.n;
-		for (int y = ymin; y < ymax; ++y) 
-		{
-			for (int x = xmin; x < xmax; ++x) 
-			{
-				if (p1[{ x, y }] != p2[{ (x - dx), (y - dy) }]) 
-				{
-					return false;
-				}
-			}
-		}
-		return true;
-	};
-
 	_propagator = Array3D<std::vector<PatternIndex>>({ mCommonParams._num_patterns, 2 * config.n - 1, 2 * config.n - 1}, {});
 
 	// These are just used for printouts
@@ -166,7 +168,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 				auto& list = _propagator[index3D];
 				for (auto t2 : irange(mCommonParams._num_patterns)) 
 				{
-					if (agrees(_patterns[t], _patterns[t2], x - config.n + 1, y - config.n + 1)) 
+					if (agrees(_patterns[t], _patterns[t2], x - config.n + 1, y - config.n + 1, config.n)) 
 					{
 						list.push_back(t2);
 					}

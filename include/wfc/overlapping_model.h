@@ -90,4 +90,6 @@ std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, cons
 
 RGBA averageContributors(const std::vector<ColorIndex>& contributors, const Palette& palette);
 
+bool agrees(const Pattern& p1, const Pattern& p2, int dx, int dy, int n);
+
 #endif
