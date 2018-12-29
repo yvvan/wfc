@@ -136,14 +136,16 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 
 	mCommonParams.mOutsideCommonParams = config.commonParam;
 	mCommonParams._num_patterns = hashed_patterns.size();
-	_n            = config.n;
-	_palette      = config.sample_image.palette;
+	_n = config.n;
+	_palette = config.sample_image.palette;
 
 	mCommonParams._foundation = std::experimental::optional<size_t>();
 	for (const auto& it : hashed_patterns) 
 	{
 		if (it.first == foundation) 
 		{
+			// size() = the current index. This should be more explicit.
+			// This is also a really roundabout way of setting the foundation
 			mCommonParams._foundation = _patterns.size();
 		}
 
