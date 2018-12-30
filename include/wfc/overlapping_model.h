@@ -49,9 +49,11 @@ struct PropagatorStatistics
 
 	size_t sum_propagator;
 
+	double average;
+
 };
 
-PropagatorStatistics analyze(const Array3D<std::vector<PatternIndex>>& propagator);
+PropagatorStatistics analyze(const Propagator& propagator);
 
 // n = side of the pattern, e.g. 3.
 PatternPrevalence extract_patterns(

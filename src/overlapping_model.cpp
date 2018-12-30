@@ -199,11 +199,10 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	}
 
 	PropagatorStatistics statistics = analyze(_propagator);
-	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu",
-	    (double)statistics.sum_propagator / _propagator.volume(), statistics.longest_propagator, statistics.sum_propagator);
+	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu", statistics.average, statistics.longest_propagator, statistics.sum_propagator);
 }
 
-PropagatorStatistics analyze(const Array3D<std::vector<PatternIndex>>& propagator)
+PropagatorStatistics analyze(const Propagator& propagator)
 {
 	// These are just used for printouts
 	PropagatorStatistics statistics = {};
@@ -224,6 +223,9 @@ PropagatorStatistics analyze(const Array3D<std::vector<PatternIndex>>& propagato
 			}
 		}
 	}
+
+	statistics.average = (double)statistics.sum_propagator / propagator.volume();
+
 	return statistics;
 }
 
