@@ -55,6 +55,8 @@ struct PropagatorStatistics
 
 PropagatorStatistics analyze(const Propagator& propagator);
 
+Propagator createPropagator(size_t numPatterns, int n, const std::vector<Pattern>& patterns);
+
 // n = side of the pattern, e.g. 3.
 PatternPrevalence extract_patterns(
 	const PalettedImage& sample, int n, bool periodic_in, size_t symmetry,

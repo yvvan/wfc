@@ -175,8 +175,16 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 		mCommonParams._pattern_weight.push_back(it.second);
 	}
 
-	Dimension3D propagatorSize{ mCommonParams._num_patterns, 2 * config.n - 1, 2 * config.n - 1};
-	_propagator = Propagator(propagatorSize, {});
+	_propagator = createPropagator(mCommonParams._num_patterns, config.n, _patterns);
+
+	PropagatorStatistics statistics = analyze(_propagator);
+	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu", statistics.average, statistics.longest_propagator, statistics.sum_propagator);
+}
+
+Propagator createPropagator(size_t numPatterns, int n, const std::vector<Pattern>& patterns)
+{
+	Dimension3D propagatorSize{ numPatterns, 2 * n - 1, 2 * n - 1};
+	Propagator toReturn(propagatorSize, {});
 
 	for (auto t : irange(propagatorSize.width)) 
 	{
@@ -186,10 +194,10 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 			{
 				Index3D index3D{ t, x, y };
 
-				auto& list = _propagator[index3D];
-				for (auto t2 : irange(mCommonParams._num_patterns)) 
+				auto& list = toReturn[index3D];
+				for (auto t2 : irange(numPatterns)) 
 				{
-					if (agrees(_patterns[t], _patterns[t2], x - config.n + 1, y - config.n + 1, config.n)) 
+					if (agrees(patterns[t], patterns[t2], x - n + 1, y - n + 1, n)) 
 					{
 						list.push_back(t2);
 					}
@@ -197,10 +205,9 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 			}
 		}
 	}
-
-	PropagatorStatistics statistics = analyze(_propagator);
-	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu", statistics.average, statistics.longest_propagator, statistics.sum_propagator);
+	return toReturn;
 }
+
 
 PropagatorStatistics analyze(const Propagator& propagator)
 {
