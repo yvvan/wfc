@@ -19,6 +19,8 @@ using PatternHash = uint64_t; // Another representation of a Pattern.
 
 using PatternPrevalence = std::unordered_map<PatternHash, size_t>;
 
+using Propagator = Array3D<std::vector<PatternIndex>>;
+
 Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension);
 
 struct PalettedImage
@@ -76,7 +78,7 @@ private:
 	int _n;
 	// num_patterns X (2 * n - 1) X (2 * n - 1) X ???
 	// list of other pattern indices that agree on this x/y offset (?)
-	Array3D<std::vector<PatternIndex>> _propagator;
+	Propagator _propagator;
 	std::vector<Pattern> _patterns;
 	Palette _palette;
 };

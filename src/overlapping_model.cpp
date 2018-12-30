@@ -176,7 +176,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	}
 
 	Dimension3D propagatorSize{ mCommonParams._num_patterns, 2 * config.n - 1, 2 * config.n - 1};
-	_propagator = Array3D<std::vector<PatternIndex>>(propagatorSize, {});
+	_propagator = Propagator(propagatorSize, {});
 
 	for (auto t : irange(propagatorSize.width)) 
 	{
