@@ -155,23 +155,11 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	_n = config.n;
 	_palette = config.sample_image.palette;
 
-	PatternHash foundation = kInvalidHash;
-	PatternHash* foundationPtr = (config.has_foundation) ? &foundation : nullptr;
-	const auto hashed_patterns = extract_patterns(config.sample_image, config.n, config.periodic_in, config.symmetry, foundationPtr);
+	PatternInfo patternInfo = calculatePatternInfo(config.sample_image, config.has_foundation, config.periodic_in, config.symmetry, config.n);
 
-	mCommonParams._foundation = std::experimental::optional<size_t>();
-	for (const auto& it : hashed_patterns) 
-	{
-		if (it.first == foundation) 
-		{
-			// size() = the current index. This should be more explicit.
-			// This is also a really roundabout way of setting the foundation
-			mCommonParams._foundation = _patterns.size();
-		}
-
-		_patterns.push_back(pattern_from_hash(it.first, config.n, _palette.size()));
-		mCommonParams._pattern_weight.push_back(it.second);
-	}
+	mCommonParams._foundation = patternInfo.foundation;
+	_patterns = patternInfo.patterns;
+	mCommonParams._pattern_weight = patternInfo.patternWeight;
 
 	mCommonParams._num_patterns = _patterns.size();
 	LOG_F(INFO, "Found %lu unique patterns in sample image", mCommonParams._num_patterns);
