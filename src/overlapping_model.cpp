@@ -178,8 +178,7 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	_propagator = Array3D<std::vector<PatternIndex>>({ mCommonParams._num_patterns, 2 * config.n - 1, 2 * config.n - 1}, {});
 
 	// These are just used for printouts
-	size_t longest_propagator = 0;
-	size_t sum_propagator = 0;
+	PropagatorStatistics statistics = {};
 
 	for (auto t : irange(mCommonParams._num_patterns)) 
 	{
@@ -198,14 +197,14 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 					}
 				}
 
-				longest_propagator = std::max(longest_propagator, list.size());
-				sum_propagator += list.size();
+				statistics.longest_propagator = std::max(statistics.longest_propagator, list.size());
+				statistics.sum_propagator += list.size();
 			}
 		}
 	}
 
 	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu",
-	    (double)sum_propagator / _propagator.volume(), longest_propagator, sum_propagator);
+	    (double)statistics.sum_propagator / _propagator.volume(), statistics.longest_propagator, statistics.sum_propagator);
 }
 
 bool OverlappingModel::propagate(Output& output) const

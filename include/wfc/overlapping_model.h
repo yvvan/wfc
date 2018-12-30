@@ -40,6 +40,14 @@ struct OverlappingModelConfig
 	OutsideCommonParams commonParam;
 };
 
+struct PropagatorStatistics
+{
+	size_t longest_propagator;
+	size_t sum_propagator;
+};
+
+
+
 // n = side of the pattern, e.g. 3.
 PatternPrevalence extract_patterns(
 	const PalettedImage& sample, int n, bool periodic_in, size_t symmetry,
