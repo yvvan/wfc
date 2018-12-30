@@ -150,16 +150,14 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 {
 	LOG_F(INFO, "palette size: %lu", config.sample_image.palette.size());
 
+	mCommonParams.mOutsideCommonParams = config.commonParam;
+
+	_n = config.n;
+	_palette = config.sample_image.palette;
+
 	PatternHash foundation = kInvalidHash;
 	PatternHash* foundationPtr = (config.has_foundation) ? &foundation : nullptr;
 	const auto hashed_patterns = extract_patterns(config.sample_image, config.n, config.periodic_in, config.symmetry, foundationPtr);
-
-	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
-
-	mCommonParams.mOutsideCommonParams = config.commonParam;
-	mCommonParams._num_patterns = hashed_patterns.size();
-	_n = config.n;
-	_palette = config.sample_image.palette;
 
 	mCommonParams._foundation = std::experimental::optional<size_t>();
 	for (const auto& it : hashed_patterns) 
@@ -175,32 +173,22 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 		mCommonParams._pattern_weight.push_back(it.second);
 	}
 
+	mCommonParams._num_patterns = _patterns.size();
+	LOG_F(INFO, "Found %lu unique patterns in sample image", mCommonParams._num_patterns);
+
 	_propagator = createPropagator(mCommonParams._num_patterns, config.n, _patterns);
 
 	PropagatorStatistics statistics = analyze(_propagator);
 	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu", statistics.average, statistics.longest_propagator, statistics.sum_propagator);
 }
 
-struct PatternInfo
-{
-
-	std::vector<Pattern> patterns;
-
-	std::vector<double> patternWeight;
-
-	std::experimental::optional<size_t> foundation;
-
-};
-
-PatternInfo calculatePatternInfo(const PalettedImage& image, const Palette& palette, bool hasFoundation, bool periodicIn, bool symmetry, int n)
+PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, bool symmetry, int n)
 {
 	PatternInfo toReturn = {};
 
 	PatternHash foundation = kInvalidHash;
 	PatternHash* foundationPtr = (hasFoundation) ? &foundation : nullptr;
 	const auto hashed_patterns = extract_patterns(image, n, periodicIn, symmetry, foundationPtr);
-
-	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
 
 	for (const auto& it : hashed_patterns) 
 	{
@@ -211,7 +199,7 @@ PatternInfo calculatePatternInfo(const PalettedImage& image, const Palette& pale
 			toReturn.foundation = toReturn.patterns.size();
 		}
 
-		toReturn.patterns.push_back(pattern_from_hash(it.first, n, palette.size()));
+		toReturn.patterns.push_back(pattern_from_hash(it.first, n, image.palette.size()));
 		toReturn.patternWeight.push_back(it.second);
 	}
 	return toReturn;

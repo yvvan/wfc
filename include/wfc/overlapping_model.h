@@ -109,4 +109,17 @@ RGBA averageContributors(const std::vector<ColorIndex>& contributors, const Pale
 
 bool agrees(const Pattern& p1, const Pattern& p2, int dx, int dy, int n);
 
+struct PatternInfo
+{
+
+	std::vector<Pattern> patterns;
+
+	std::vector<double> patternWeight;
+
+	std::experimental::optional<size_t> foundation;
+
+};
+
+PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, bool symmetry, int n);
+
 #endif
