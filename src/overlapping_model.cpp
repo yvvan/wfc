@@ -181,6 +181,42 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu", statistics.average, statistics.longest_propagator, statistics.sum_propagator);
 }
 
+struct PatternInfo
+{
+
+	std::vector<Pattern> patterns;
+
+	std::vector<double> patternWeight;
+
+	std::experimental::optional<size_t> foundation;
+
+};
+
+PatternInfo calculatePatternInfo(const PalettedImage& image, const Palette& palette, bool hasFoundation, bool periodicIn, bool symmetry, int n)
+{
+	PatternInfo toReturn = {};
+
+	PatternHash foundation = kInvalidHash;
+	PatternHash* foundationPtr = (hasFoundation) ? &foundation : nullptr;
+	const auto hashed_patterns = extract_patterns(image, n, periodicIn, symmetry, foundationPtr);
+
+	LOG_F(INFO, "Found %lu unique patterns in sample image", hashed_patterns.size());
+
+	for (const auto& it : hashed_patterns) 
+	{
+		if (it.first == foundation) 
+		{
+			// size() = the current index. This should be more explicit.
+			// This is also a really roundabout way of setting the foundation
+			toReturn.foundation = toReturn.patterns.size();
+		}
+
+		toReturn.patterns.push_back(pattern_from_hash(it.first, n, palette.size()));
+		toReturn.patternWeight.push_back(it.second);
+	}
+	return toReturn;
+}
+
 Propagator createPropagator(size_t numPatterns, int n, const std::vector<Pattern>& patterns)
 {
 	Dimension3D propagatorSize{ numPatterns, 2 * n - 1, 2 * n - 1};
@@ -207,7 +243,6 @@ Propagator createPropagator(size_t numPatterns, int n, const std::vector<Pattern
 	}
 	return toReturn;
 }
-
 
 PropagatorStatistics analyze(const Propagator& propagator)
 {
