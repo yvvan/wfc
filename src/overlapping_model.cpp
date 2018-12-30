@@ -207,6 +207,30 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	    (double)statistics.sum_propagator / _propagator.volume(), statistics.longest_propagator, statistics.sum_propagator);
 }
 
+PropagatorStatistics analyze(const Array3D<std::vector<PatternIndex>>& propagator)
+{
+	// These are just used for printouts
+	PropagatorStatistics statistics = {};
+	
+	Dimension3D dimensions = propagator.size();
+
+	for (auto t : irange(dimensions.width)) 
+	{
+		for (auto x : irange<int>(dimensions.height)) 
+		{
+			for (auto y : irange<int>(dimensions.height)) 
+			{
+				Index3D index3D{ t, x, y };
+
+				auto& list = propagator[index3D];
+				statistics.longest_propagator = std::max(statistics.longest_propagator, list.size());
+				statistics.sum_propagator += list.size();
+			}
+		}
+	}
+	return statistics;
+}
+
 bool OverlappingModel::propagate(Output& output) const
 {
 	bool did_change = false;

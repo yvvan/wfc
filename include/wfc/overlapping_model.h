@@ -42,11 +42,14 @@ struct OverlappingModelConfig
 
 struct PropagatorStatistics
 {
+
 	size_t longest_propagator;
+
 	size_t sum_propagator;
+
 };
 
-
+PropagatorStatistics analyze(const Array3D<std::vector<PatternIndex>>& propagator);
 
 // n = side of the pattern, e.g. 3.
 PatternPrevalence extract_patterns(
