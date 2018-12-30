@@ -175,13 +175,14 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 		mCommonParams._pattern_weight.push_back(it.second);
 	}
 
-	_propagator = Array3D<std::vector<PatternIndex>>({ mCommonParams._num_patterns, 2 * config.n - 1, 2 * config.n - 1}, {});
+	Dimension3D propagatorSize{ mCommonParams._num_patterns, 2 * config.n - 1, 2 * config.n - 1};
+	_propagator = Array3D<std::vector<PatternIndex>>(propagatorSize, {});
 
-	for (auto t : irange(mCommonParams._num_patterns)) 
+	for (auto t : irange(propagatorSize.width)) 
 	{
-		for (auto x : irange<int>(2 * config.n - 1)) 
+		for (auto x : irange<int>(propagatorSize.height)) 
 		{
-			for (auto y : irange<int>(2 * config.n - 1)) 
+			for (auto y : irange<int>(propagatorSize.depth)) 
 			{
 				Index3D index3D{ t, x, y };
 
@@ -213,7 +214,7 @@ PropagatorStatistics analyze(const Array3D<std::vector<PatternIndex>>& propagato
 	{
 		for (auto x : irange<int>(dimensions.height)) 
 		{
-			for (auto y : irange<int>(dimensions.height)) 
+			for (auto y : irange<int>(dimensions.depth)) 
 			{
 				Index3D index3D{ t, x, y };
 
