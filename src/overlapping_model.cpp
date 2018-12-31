@@ -144,7 +144,7 @@ bool agrees(const Pattern& p1, const Pattern& p2, int dx, int dy, int n)
 		}
 	}
 	return true;
-};
+}
 
 OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 {
