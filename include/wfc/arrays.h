@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdlib>
+#include <iostream>
 
 struct Dimension2D
 {
@@ -168,6 +169,12 @@ inline bool operator==(const Index2D& left, const Index2D& right)
 inline bool operator!=(const Index2D& left, const Index2D& right)
 {
 	return (left.x != right.x) || (left.y != right.y);
+}
+
+inline std::ostream& operator<<(std::ostream& stream, const Index2D& index)
+{
+	stream << "(" << index.x << ", " << index.y << ")";
+	return stream;
 }
 
 #endif

@@ -113,13 +113,15 @@ bool agrees(const Pattern& p1, const Pattern& p2, int dx, int dy, int n)
 	
 	if (dx < 0)
 	{
-		xmin = 0;
-		xmax = dx + n;
+		xmin = 0; 
+		xmax = dx + n; // 1 to n-1
 	}
 	else
 	{
-		xmin = dx;
-		xmax = n;
+		// dx: 0 -> 0 to n 
+		// Otherwise: (1 - n-1) to n
+		xmin = dx; // 0 to n-1
+		xmax = n; // n
 	}
 
 	if (dy < 0)
