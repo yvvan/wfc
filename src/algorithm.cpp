@@ -281,7 +281,10 @@ Result run(Output& output, const Model& model, size_t seed, std::experimental::o
 		while (model.propagate(output));
 	}
 
-	LOG_F(INFO, "Unfinished after %lu iterations", limit);
+	if (limit)
+	{
+		LOG_F(INFO, "Unfinished after %lu iterations", *limit);
+	}
 	return Result::kUnfinished;
 }
 
