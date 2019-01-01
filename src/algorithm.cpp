@@ -99,7 +99,7 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 
 		if (entropyResult.num_superimposed == 1) 
 		{
-			// Already frozen
+			// Cell pattern is finalized
 			return false;
 		}
 
@@ -124,10 +124,12 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 	Result result;
 	if (fail)
 	{
+		// Fail because a cell in the wave had no possible patterns that will fit
 		result = Result::kFail;
 	}
 	else if (min == std::numeric_limits<double>::infinity()) 
 	{
+		// All cells were finalized "num_superimposed == 1"
 		result = Result::kSuccess;
 	}
 	else 
