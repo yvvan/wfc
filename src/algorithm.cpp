@@ -230,9 +230,9 @@ void modifyOutputForFoundation(const Model& model, size_t foundation, Output& ou
 			Index2D index{ x, y };
 			output._changes[index] = true;
 		}
-
-		while (model.propagate(output));
 	}
+
+	while (model.propagate(output));
 }
 
 Output initialOutput(const Model& model)
