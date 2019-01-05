@@ -21,6 +21,35 @@ Tile rotate(const Tile& in_tile, const size_t tile_size)
 	return out_tile;
 }
 
+std::experimental::optional<Symmetry> symmetry(const auto& tile)
+{
+	std::string sym = tile.get_or("symmetry", "X");
+	if (sym == "L") 
+	{
+		return Symmetry::L;
+	} 
+	else if (sym == "T") 
+	{
+		return Symmetry::T;
+	}
+	else if (sym == "I") 
+	{
+		return Symmetry::I;
+	} 
+	else if (sym == "\\") 
+	{
+		return Symmetry::S;
+	}
+	else if (sym == "X") 
+	{
+		return Symmetry::X;
+	}
+	else 
+	{
+		return {};
+	}
+}
+
 // TODO: Seems like part of the algorithm is here - should be moved to algorithm-specific files. This file is just meant
 // for loading config with configuru.
 TileModelInternal fromConfig(const TileModelConfig& config)
@@ -44,7 +73,7 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		}
 	}
 
-	std::vector<std::array<int,     8>>  action;
+	std::vector<std::array<int, 8>> action;
 	std::unordered_map<std::string, size_t> first_occurrence;
 
 	for (const auto& tile : config.config["tiles"].as_array()) 

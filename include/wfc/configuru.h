@@ -21,6 +21,21 @@ const size_t MAX_COLORS = 1 << (sizeof(ColorIndex) * 8);
 
 Tile rotate(const Tile& in_tile, const size_t tile_size);
 
+enum class Symmetry
+{
+
+	X,
+
+	L,
+
+	T,
+	
+	I,
+
+	S
+
+};
+
 struct TileModelConfig
 {
 
