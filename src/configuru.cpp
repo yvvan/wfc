@@ -104,12 +104,58 @@ SymmetryInfo convert(Symmetry symmetry)
 	return toReturn;
 }
 
-std::unordered_set<std::string> loadSubsets(const auto& config, const std::string& subset_name)
+std::unordered_set<std::string> loadSubsets(const configuru::Config& config, const std::string& subset_name)
 {
 	std::unordered_set<std::string> toReturn;
 	for (const auto& tile_name : config["subsets"][subset_name].as_array()) 
 	{
 		toReturn.insert(tile_name.as_string());
+	}
+	return toReturn;
+}
+
+struct Neighbor
+{
+	
+	std::string name;
+
+	int value;
+
+};
+
+struct Neighbors
+{
+
+	Neighbor left;
+
+	Neighbor right;
+
+};
+
+std::vector<Neighbors> loadNeighbors(const configuru::Config& config)
+{
+	std::vector<Neighbors> toReturn;
+	for (const auto& neighbor : config["neighbors"].as_array()) 
+	{
+		const auto left  = neighbor["left"];
+		const auto right = neighbor["right"];
+		CHECK_EQ_F(left.array_size(),  2u);
+		CHECK_EQ_F(right.array_size(), 2u);
+
+		Neighbors newNeighbors = 
+		{
+			.left =
+			{
+				.name = left[0].as_string(),
+				.value = left[1].get<int>(),
+			},
+			.right =
+			{
+				.name = right[0].as_string(),
+				.value = right[1].get<int>(),
+			}
+		};
+		toReturn.push_back(newNeighbors);
 	}
 	return toReturn;
 }
@@ -221,6 +267,8 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 
 	toReturn._propagator = Array3D<Bool>({4, toReturn.mCommonParams._num_patterns, toReturn.mCommonParams._num_patterns}, false);
 
+	auto neighbors = loadNeighbors(config.config);
+
 	for (const auto& neighbor : config.config["neighbors"].as_array()) 
 	{
 		const auto left  = neighbor["left"];
@@ -262,7 +310,6 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 	}
 	return toReturn;
 }
-
 
 PalettedImage load_paletted_image(const std::string& path)
 {
