@@ -21,7 +21,7 @@ Tile rotate(const Tile& in_tile, const size_t tile_size)
 	return out_tile;
 }
 
-std::experimental::optional<Symmetry> symmetry(const auto& tile)
+std::experimental::optional<Symmetry> readSymmetry(const auto& tile)
 {
 	std::string sym = tile.get_or("symmetry", "X");
 	if (sym == "L") 
@@ -130,44 +130,11 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		const std::string tile_name = tile["name"].as_string();
 		if (!subset.empty() && subset.count(tile_name) == 0) { continue; }
 
-		std::function<int(int)> a, b;
-		int cardinality;
-
-		std::string sym = tile.get_or("symmetry", "X");
-		if (sym == "L") 
-		{
-			cardinality = 4;
-			a = [](int i){ return (i + 1) % 4; };
-			b = [](int i){ return i % 2 == 0 ? i + 1 : i - 1; };
-		} 
-		else if (sym == "T") 
-		{
-			cardinality = 4;
-			a = [](int i){ return (i + 1) % 4; };
-			b = [](int i){ return i % 2 == 0 ? i : 4 - i; };
-		}
-		else if (sym == "I") 
-		{
-			cardinality = 2;
-			a = [](int i){ return 1 - i; };
-			b = [](int i){ return i; };
-		} 
-		else if (sym == "\\") 
-		{
-			cardinality = 2;
-			a = [](int i){ return 1 - i; };
-			b = [](int i){ return 1 - i; };
-		}
-		else if (sym == "X") 
-		{
-			cardinality = 1;
-			a = [](int i){ return i; };
-			b = [](int i){ return i; };
-		}
-		else 
-		{
-			ABORT_F("Unknown symmetry '%s'", sym.c_str());
-		}
+		std::experimental::optional<Symmetry> symmetry = readSymmetry(tile);
+		SymmetryInfo symmetryInfo = convert(*symmetry);
+		const auto& a = symmetryInfo.a;
+		const auto& b = symmetryInfo.b;
+		int cardinality = symmetryInfo.cardinality;
 
 		const size_t num_patterns_so_far = action.size();
 		first_occurrence[tile_name] = num_patterns_so_far;
