@@ -63,6 +63,7 @@ SymmetryInfo convert(Symmetry symmetry)
 				.a = [](int i){ return (i + 1) % 4; },
 				.b = [](int i){ return i % 2 == 0 ? i + 1 : i - 1; }
 			};
+			break;
 
 		case Symmetry::T:
 			toReturn = 
@@ -71,6 +72,7 @@ SymmetryInfo convert(Symmetry symmetry)
 				.a = [](int i){ return (i + 1) % 4; },
 				.b = [](int i){ return i % 2 == 0 ? i : 4 - i; }
 			};
+			break;
 
 		case Symmetry::I:
 			toReturn = 
@@ -79,6 +81,7 @@ SymmetryInfo convert(Symmetry symmetry)
 				.a = [](int i){ return 1 - i; },
 				.b = [](int i){ return i; }
 			};
+			break;
 
 		case Symmetry::S:
 			toReturn = 
@@ -87,6 +90,7 @@ SymmetryInfo convert(Symmetry symmetry)
 				.a = [](int i){ return 1 - i; },
 				.b = [](int i){ return 1 - i; }
 			};
+			break;
 
 		case Symmetry::X:
 			toReturn = 
@@ -95,6 +99,7 @@ SymmetryInfo convert(Symmetry symmetry)
 				.a = [](int i){ return i; },
 				.b = [](int i){ return i; }
 			};
+			break;
 	}
 	return toReturn;
 }
