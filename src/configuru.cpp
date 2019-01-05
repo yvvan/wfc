@@ -50,6 +50,55 @@ std::experimental::optional<Symmetry> symmetry(const auto& tile)
 	}
 }
 
+SymmetryInfo convert(Symmetry symmetry)
+{
+	SymmetryInfo toReturn;
+	switch (symmetry)
+	{
+
+		case Symmetry::L:
+			toReturn =
+			{
+				.cardinality = 4,
+				.a = [](int i){ return (i + 1) % 4; },
+				.b = [](int i){ return i % 2 == 0 ? i + 1 : i - 1; }
+			};
+
+		case Symmetry::T:
+			toReturn = 
+			{
+				.cardinality = 4,
+				.a = [](int i){ return (i + 1) % 4; },
+				.b = [](int i){ return i % 2 == 0 ? i : 4 - i; }
+			};
+
+		case Symmetry::I:
+			toReturn = 
+			{
+				.cardinality = 2,
+				.a = [](int i){ return 1 - i; },
+				.b = [](int i){ return i; }
+			};
+
+		case Symmetry::S:
+			toReturn = 
+			{
+				.cardinality = 2,
+				.a = [](int i){ return 1 - i; },
+				.b = [](int i){ return 1 - i; }
+			};
+
+		case Symmetry::X:
+			toReturn = 
+			{
+				.cardinality = 1,
+				.a = [](int i){ return i; },
+				.b = [](int i){ return i; }
+			};
+	}
+	return toReturn;
+}
+
 // TODO: Seems like part of the algorithm is here - should be moved to algorithm-specific files. This file is just meant
 // for loading config with configuru.
 TileModelInternal fromConfig(const TileModelConfig& config)

@@ -36,6 +36,17 @@ enum class Symmetry
 
 };
 
+struct SymmetryInfo
+{
+
+	int cardinality;
+
+	std::function<int(int)> a, b;
+	
+};
+
+SymmetryInfo convert(Symmetry symmetry);
+
 struct TileModelConfig
 {
 
