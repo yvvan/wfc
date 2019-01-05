@@ -104,6 +104,16 @@ SymmetryInfo convert(Symmetry symmetry)
 	return toReturn;
 }
 
+std::unordered_set<std::string> loadSubsets(const auto& config, const std::string& subset_name)
+{
+	std::unordered_set<std::string> toReturn;
+	for (const auto& tile_name : config["subsets"][subset_name].as_array()) 
+	{
+		toReturn.insert(tile_name.as_string());
+	}
+	return toReturn;
+}
+
 // TODO: Seems like part of the algorithm is here - should be moved to algorithm-specific files. This file is just meant
 // for loading config with configuru.
 TileModelInternal fromConfig(const TileModelConfig& config)
@@ -116,15 +126,14 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 	toReturn.mCommonParams._foundation = std::experimental::optional<size_t>();
 
 	toReturn._tile_size        = config.config.get_or("tile_size", 16);
+	
+	// This is usually not specified (therefore, false)
 	const bool unique = config.config.get_or("unique",    false);
 
 	std::unordered_set<std::string> subset;
 	if (config.subset_name != "") 
 	{
-		for (const auto& tile_name : config.config["subsets"][config.subset_name].as_array()) 
-		{
-			subset.insert(tile_name.as_string());
-		}
+		subset = loadSubsets(config.config, config.subset_name);
 	}
 
 	std::vector<std::array<int, 8>> action;
