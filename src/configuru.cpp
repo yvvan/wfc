@@ -142,9 +142,13 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 	for (const auto& tile : config.config["tiles"].as_array()) 
 	{
 		const std::string tile_name = tile["name"].as_string();
+
 		if (!subset.empty() && subset.count(tile_name) == 0) { continue; }
 
+		// Seems symmetry can be deduced based on tile and need to be explicitly specified
+		// in a .cfg file
 		std::experimental::optional<Symmetry> symmetry = readSymmetry(tile);
+
 		SymmetryInfo symmetryInfo = convert(*symmetry);
 		const auto& a = symmetryInfo.a;
 		const auto& b = symmetryInfo.b;
@@ -176,6 +180,9 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 
 		if (unique) 
 		{
+			// This is only used for summer group.
+			// In that case, all the rotations are unique and are given using enumerated images:
+			// cliff 1.bmp, cliff 2.bmp, cliff 3.bmp, etc.
 			for (int t = 0; t < cardinality; ++t) 
 			{
 				const Tile bitmap = config.tile_loader(emilib::strprintf("%s %d", tile_name.c_str(), t));
@@ -185,13 +192,16 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		}
 		else 
 		{
+			// Load once, then rotate the reqd number of times
 			const Tile bitmap = config.tile_loader(emilib::strprintf("%s", tile_name.c_str()));
 			CHECK_EQ_F(bitmap.size(), toReturn._tile_size * toReturn._tile_size);
 			
 			toReturn._tiles.push_back(bitmap);
 			for (int t = 1; t < cardinality; ++t) 
 			{
-				toReturn._tiles.push_back(rotate(toReturn._tiles[num_patterns_so_far + t - 1], toReturn._tile_size));
+				// That's an ugly hack...:
+				const auto& prevTile = toReturn._tiles[num_patterns_so_far + t - 1];
+				toReturn._tiles.push_back(rotate(prevTile, toReturn._tile_size));
 			}
 		}
 
@@ -233,6 +243,7 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		toReturn._propagator[ { 1, action[U][2], action[D][2] } ] = true;
 	}
 
+	// Accounts for some inherent symmetry(?)
 	for (int t1 = 0; t1 < toReturn.mCommonParams._num_patterns; ++t1) 
 	{
 		for (int t2 = 0; t2 < toReturn.mCommonParams._num_patterns; ++t2) 

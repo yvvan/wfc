@@ -12,7 +12,9 @@
 #include <wfc/tile_model.h>
 #include <wfc/imodel.h>
 
+// Should be Array2D<RGBA>?
 using Tile = std::vector<RGBA>;
+
 using TileLoader = std::function<Tile(const std::string& tile_name)>;
 
 using namespace emilib;
