@@ -269,22 +269,15 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 
 	auto neighbors = loadNeighbors(config.config);
 
-	for (const auto& neighbor : config.config["neighbors"].as_array()) 
+	for (const auto& neighbor : neighbors) 
 	{
-		const auto left  = neighbor["left"];
-		const auto right = neighbor["right"];
-		CHECK_EQ_F(left.array_size(),  2u);
-		CHECK_EQ_F(right.array_size(), 2u);
+		const auto& left  = neighbor.left;
+		const auto& right = neighbor.right;
 
-		const auto leftName = left[0].as_string();
-		const auto rightName = right[0].as_string();
-		int leftInt = left[1].get<int>();
-		int rightInt = right[1].get<int>();
+		if (!subset.empty() && (subset.count(left.name) == 0 || subset.count(right.name) == 0)) { continue; }
 
-		if (!subset.empty() && (subset.count(leftName) == 0 || subset.count(rightName) == 0)) { continue; }
-
-		int L = action[first_occurrence[leftName]][leftInt];
-		int R = action[first_occurrence[rightName]][rightInt];
+		int L = action[first_occurrence[left.name]][left.value];
+		int R = action[first_occurrence[right.name]][right.value];
 		int D = action[L][1];
 		int U = action[R][1];
 
