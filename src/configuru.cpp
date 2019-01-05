@@ -149,6 +149,11 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		// in a .cfg file
 		std::experimental::optional<Symmetry> symmetry = readSymmetry(tile);
 
+		if (!symmetry)
+		{
+			continue;
+		}
+
 		SymmetryInfo symmetryInfo = convert(*symmetry);
 		const auto& a = symmetryInfo.a;
 		const auto& b = symmetryInfo.b;
@@ -205,9 +210,10 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 			}
 		}
 
+		double weight = tile.get_or("weight", 1.0);
 		for (int t = 0; t < cardinality; ++t) 
 		{
-			toReturn.mCommonParams._pattern_weight.push_back(tile.get_or("weight", 1.0));
+			toReturn.mCommonParams._pattern_weight.push_back(weight);
 		}
 	}
 
@@ -222,13 +228,15 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		CHECK_EQ_F(left.array_size(),  2u);
 		CHECK_EQ_F(right.array_size(), 2u);
 
-		const auto left_tile_name = left[0].as_string();
-		const auto right_tile_name = right[0].as_string();
+		const auto leftName = left[0].as_string();
+		const auto rightName = right[0].as_string();
+		int leftInt = left[1].get<int>();
+		int rightInt = right[1].get<int>();
 
-		if (!subset.empty() && (subset.count(left_tile_name) == 0 || subset.count(right_tile_name) == 0)) { continue; }
+		if (!subset.empty() && (subset.count(leftName) == 0 || subset.count(rightName) == 0)) { continue; }
 
-		int L = action[first_occurrence[left_tile_name]][left[1].get<int>()];
-		int R = action[first_occurrence[right_tile_name]][right[1].get<int>()];
+		int L = action[first_occurrence[leftName]][leftInt];
+		int R = action[first_occurrence[rightName]][rightInt];
 		int D = action[L][1];
 		int U = action[R][1];
 
