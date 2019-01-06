@@ -211,27 +211,6 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		const size_t num_patterns_so_far = action.size();
 		first_occurrence[tile_name] = num_patterns_so_far;
 
-		for (int t = 0; t < cardinality; ++t) 
-		{
-			std::array<int, 8> map;
-
-			map[0] = t;
-			map[1] = a(t);
-			map[2] = a(a(t));
-			map[3] = a(a(a(t)));
-			map[4] = b(t);
-			map[5] = b(a(t));
-			map[6] = b(a(a(t)));
-			map[7] = b(a(a(a(t))));
-
-			for (int s = 0; s < 8; ++s) 
-			{
-				map[s] += num_patterns_so_far;
-			}
-
-			action.push_back(map);
-		}
-
 		if (unique) 
 		{
 			// This is only used for summer group.
@@ -257,6 +236,27 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 				const auto& prevTile = toReturn._tiles[num_patterns_so_far + t - 1];
 				toReturn._tiles.push_back(rotate(prevTile, toReturn._tile_size));
 			}
+		}
+
+		for (int t = 0; t < cardinality; ++t) 
+		{
+			std::array<int, 8> map;
+
+			map[0] = t;
+			map[1] = a(t);
+			map[2] = a(a(t));
+			map[3] = a(a(a(t)));
+			map[4] = b(t);
+			map[5] = b(a(t));
+			map[6] = b(a(a(t)));
+			map[7] = b(a(a(a(t))));
+
+			for (int s = 0; s < 8; ++s) 
+			{
+				map[s] += num_patterns_so_far;
+			}
+
+			action.push_back(map);
 		}
 
 		double weight = tile.get_or("weight", 1.0);
