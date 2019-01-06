@@ -193,6 +193,11 @@ std::vector<Neighbors> loadNeighbors(const configuru::Config& config)
 	return toReturn;
 }
 
+std::vector<CopiedTile> loadCopied(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize)
+{
+//...
+}
+
 std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize)
 {
 	std::vector<UniqueTile> toReturn;
@@ -214,6 +219,7 @@ std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLo
 			continue;
 		}
 
+		// -- Functor extract starts here
 		int cardinality = cardinalityForSymmetry(*symmetry);
 
 		UniqueTile nextTile;
@@ -231,6 +237,7 @@ std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLo
 		}
 
 		toReturn.push_back(nextTile);
+		// -- Functor extract ends here
 
 		/*
 		// Load once, then rotate the reqd number of times
