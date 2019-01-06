@@ -59,8 +59,10 @@ struct SymmetryInfo
 	
 };
 
-struct UniqueTiles
+struct UniqueTile
 {
+	
+	std::string name;
 
 	Symmetry symmetry;
 
@@ -68,8 +70,10 @@ struct UniqueTiles
 
 };
 
-struct CopiedTiles
+struct CopiedTile
 {
+
+	std::string name;
 
 	Symmetry symmetry;
 
