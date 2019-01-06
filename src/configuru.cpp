@@ -60,8 +60,11 @@ SymmetryInfo convert(Symmetry symmetry)
 			toReturn =
 			{
 				.cardinality = 4,
-				.a = [](int i){ return (i + 1) % 4; },
-				.b = [](int i){ return i % 2 == 0 ? i + 1 : i - 1; }
+				.mapFunctions =
+				{
+					.a = [](int i){ return (i + 1) % 4; },
+					.b = [](int i){ return i % 2 == 0 ? i + 1 : i - 1; }
+				}
 			};
 			break;
 
@@ -69,8 +72,11 @@ SymmetryInfo convert(Symmetry symmetry)
 			toReturn = 
 			{
 				.cardinality = 4,
-				.a = [](int i){ return (i + 1) % 4; },
-				.b = [](int i){ return i % 2 == 0 ? i : 4 - i; }
+				.mapFunctions =
+				{
+					.a = [](int i){ return (i + 1) % 4; },
+					.b = [](int i){ return i % 2 == 0 ? i : 4 - i; }
+				}
 			};
 			break;
 
@@ -78,8 +84,11 @@ SymmetryInfo convert(Symmetry symmetry)
 			toReturn = 
 			{
 				.cardinality = 2,
-				.a = [](int i){ return 1 - i; },
-				.b = [](int i){ return i; }
+				.mapFunctions =
+				{
+					.a = [](int i){ return 1 - i; },
+					.b = [](int i){ return i; }
+				}
 			};
 			break;
 
@@ -87,8 +96,11 @@ SymmetryInfo convert(Symmetry symmetry)
 			toReturn = 
 			{
 				.cardinality = 2,
-				.a = [](int i){ return 1 - i; },
-				.b = [](int i){ return 1 - i; }
+				.mapFunctions =
+				{
+					.a = [](int i){ return 1 - i; },
+					.b = [](int i){ return 1 - i; }
+				}
 			};
 			break;
 
@@ -96,8 +108,11 @@ SymmetryInfo convert(Symmetry symmetry)
 			toReturn = 
 			{
 				.cardinality = 1,
-				.a = [](int i){ return i; },
-				.b = [](int i){ return i; }
+				.mapFunctions =
+				{
+					.a = [](int i){ return i; },
+					.b = [](int i){ return i; }
+				}
 			};
 			break;
 	}
@@ -204,8 +219,8 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		}
 
 		SymmetryInfo symmetryInfo = convert(*symmetry);
-		const auto& a = symmetryInfo.a;
-		const auto& b = symmetryInfo.b;
+		const auto& a = symmetryInfo.mapFunctions.a;
+		const auto& b = symmetryInfo.mapFunctions.b;
 		int cardinality = symmetryInfo.cardinality;
 
 		const size_t num_patterns_so_far = action.size();

@@ -38,12 +38,23 @@ enum class Symmetry
 
 };
 
+using MapFunction = std::function<int(int)>;
+
+struct MapFunctions
+{
+
+	MapFunction a;
+
+	MapFunction b;
+
+};
+
 struct SymmetryInfo
 {
 
 	int cardinality;
 
-	std::function<int(int)> a, b;
+	MapFunctions mapFunctions;
 	
 };
 
