@@ -59,6 +59,24 @@ struct SymmetryInfo
 	
 };
 
+struct UniqueTiles
+{
+
+	Symmetry symmetry;
+
+	std::vector<Tile> tiles;
+
+};
+
+struct CopiedTiles
+{
+
+	Symmetry symmetry;
+
+	Tile tile;
+
+};
+
 SymmetryInfo convert(Symmetry symmetry);
 
 struct TileModelConfig
