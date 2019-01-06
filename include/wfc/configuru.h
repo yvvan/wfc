@@ -34,6 +34,7 @@ enum class Symmetry
 	
 	I,
 
+	// "Slash - /"
 	S
 
 };
