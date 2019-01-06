@@ -50,73 +50,91 @@ std::experimental::optional<Symmetry> readSymmetry(const auto& tile)
 	}
 }
 
-SymmetryInfo convert(Symmetry symmetry)
+int cardinality(Symmetry symmetry)
 {
-	SymmetryInfo toReturn;
+	int toReturn;
+	switch (symmetry)
+	{
+
+		case Symmetry::L:
+			toReturn = 4;
+			break;
+
+		case Symmetry::T:
+			toReturn = 4;
+			break;
+
+		case Symmetry::I:
+			toReturn = 2;
+			break;
+
+		case Symmetry::S:
+			toReturn = 2;
+			break;
+
+		case Symmetry::X:
+			toReturn = 1;
+			break;
+	}
+	return toReturn;
+}
+
+MapFunctions mapFunctions(Symmetry symmetry)
+{
+	MapFunctions toReturn;
 	switch (symmetry)
 	{
 
 		case Symmetry::L:
 			toReturn =
 			{
-				.cardinality = 4,
-				.mapFunctions =
-				{
-					.a = [](int i){ return (i + 1) % 4; },
-					.b = [](int i){ return i % 2 == 0 ? i + 1 : i - 1; }
-				}
+				.a = [](int i){ return (i + 1) % 4; },
+				.b = [](int i){ return i % 2 == 0 ? i + 1 : i - 1; }
 			};
 			break;
 
 		case Symmetry::T:
-			toReturn = 
+			toReturn =
 			{
-				.cardinality = 4,
-				.mapFunctions =
-				{
-					.a = [](int i){ return (i + 1) % 4; },
-					.b = [](int i){ return i % 2 == 0 ? i : 4 - i; }
-				}
+				.a = [](int i){ return (i + 1) % 4; },
+				.b = [](int i){ return i % 2 == 0 ? i : 4 - i; }
 			};
 			break;
 
 		case Symmetry::I:
-			toReturn = 
+			toReturn =
 			{
-				.cardinality = 2,
-				.mapFunctions =
-				{
-					.a = [](int i){ return 1 - i; },
-					.b = [](int i){ return i; }
-				}
+				.a = [](int i){ return 1 - i; },
+				.b = [](int i){ return i; }
 			};
 			break;
 
 		case Symmetry::S:
-			toReturn = 
+			toReturn =
 			{
-				.cardinality = 2,
-				.mapFunctions =
-				{
-					.a = [](int i){ return 1 - i; },
-					.b = [](int i){ return 1 - i; }
-				}
+				.a = [](int i){ return 1 - i; },
+				.b = [](int i){ return 1 - i; }
 			};
 			break;
 
 		case Symmetry::X:
-			toReturn = 
+			toReturn =
 			{
-				.cardinality = 1,
-				.mapFunctions =
-				{
-					.a = [](int i){ return i; },
-					.b = [](int i){ return i; }
-				}
+				.a = [](int i){ return i; },
+				.b = [](int i){ return i; }
 			};
 			break;
 	}
 	return toReturn;
+}
+
+SymmetryInfo convert(Symmetry symmetry)
+{
+	return
+	{
+		.cardinality = cardinality(symmetry),
+		.mapFunctions = mapFunctions(symmetry)
+	};
 }
 
 std::unordered_set<std::string> loadSubsets(const configuru::Config& config, const std::string& subset_name)
