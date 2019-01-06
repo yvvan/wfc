@@ -171,10 +171,10 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 	// Tile model does not support _foundation. Variable should be removed
 	toReturn.mCommonParams._foundation = std::experimental::optional<size_t>();
 
-	toReturn._tile_size        = config.config.get_or("tile_size", 16);
+	toReturn._tile_size = config.config.get_or("tile_size", 16);
 	
 	// This is usually not specified (therefore, false)
-	const bool unique = config.config.get_or("unique",    false);
+	const bool unique = config.config.get_or("unique", false);
 
 	std::unordered_set<std::string> subset;
 	if (config.subset_name != "") 
@@ -185,11 +185,14 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 	std::vector<std::array<int, 8>> action;
 	std::unordered_map<std::string, size_t> first_occurrence;
 
-	for (const auto& tile : config.config["tiles"].as_array()) 
+	for (const auto& tile : config.config["tiles"].as_array())
 	{
 		const std::string tile_name = tile["name"].as_string();
 
-		if (!subset.empty() && subset.count(tile_name) == 0) { continue; }
+		if (!subset.empty() && subset.count(tile_name) == 0)
+		{
+			continue;
+		}
 
 		// Seems symmetry can be deduced based on tile and need to be explicitly specified
 		// in a .cfg file
