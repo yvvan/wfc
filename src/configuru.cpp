@@ -193,14 +193,9 @@ std::vector<Neighbors> loadNeighbors(const configuru::Config& config)
 	return toReturn;
 }
 
-std::vector<CopiedTile> loadCopied(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize)
+template <class Functor> 
+void forTileData(const configuru::Config& config, const std::unordered_set<std::string>& subset, Functor functor)
 {
-//...
-}
-
-std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize)
-{
-	std::vector<UniqueTile> toReturn;
 	for (const auto& tile : config["tiles"].as_array())
 	{
 		const std::string tile_name = tile["name"].as_string();
@@ -219,12 +214,45 @@ std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLo
 			continue;
 		}
 
-		// -- Functor extract starts here
-		int cardinality = cardinalityForSymmetry(*symmetry);
+		functor(tile_name, *symmetry);
+	}
+}
+
+std::vector<CopiedTile> loadCopied(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize)
+{
+	std::vector<CopiedTile> toReturn;
+
+	auto functor = [&] (const std::string& tile_name, Symmetry symmetry)
+	{
+		// Load once, then rotate the reqd number of times
+		const Tile bitmap = tileLoader(emilib::strprintf("%s", tile_name.c_str()));
+		CHECK_EQ_F(bitmap.size(), tileSize * tileSize);
+
+		CopiedTile nextTile =
+		{
+			.name = tile_name,
+			.symmetry = symmetry,
+			.tile = bitmap
+		};
+
+		toReturn.push_back(nextTile);
+	};
+
+	forTileData(config, subset, functor);
+	return toReturn;
+}
+
+std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize)
+{
+	std::vector<UniqueTile> toReturn;
+
+	auto functor = [&] (const std::string& tile_name, Symmetry symmetry)
+	{
+		int cardinality = cardinalityForSymmetry(symmetry);
 
 		UniqueTile nextTile;
 		nextTile.name = tile_name;
-		nextTile.symmetry = *symmetry;
+		nextTile.symmetry = symmetry;
 
 		// This is only used for summer group.
 		// In that case, all the rotations are unique and are given using enumerated images:
@@ -237,22 +265,9 @@ std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLo
 		}
 
 		toReturn.push_back(nextTile);
-		// -- Functor extract ends here
+	};
 
-		/*
-		// Load once, then rotate the reqd number of times
-		const Tile bitmap = config.tile_loader(emilib::strprintf("%s", tile_name.c_str()));
-		CHECK_EQ_F(bitmap.size(), toReturn._tile_size * toReturn._tile_size);
-		
-		toReturn._tiles.push_back(bitmap);
-		for (int t = 1; t < cardinality; ++t) 
-		{
-			// That's an ugly hack...:
-			const auto& prevTile = toReturn._tiles[num_patterns_so_far + t - 1];
-			toReturn._tiles.push_back(rotate(prevTile, toReturn._tile_size));
-		}
-		*/
-	}
+	forTileData(config, subset, functor);
 	return toReturn;
 }
 

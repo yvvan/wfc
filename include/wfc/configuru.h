@@ -2,6 +2,7 @@
 #define _WFC_CONFIGURU_H_
 
 #include <functional>
+#include <unordered_set>
 #include <experimental/optional>
 
 // emilib
@@ -105,6 +106,10 @@ OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, co
 Tile loadTile(const std::string& subdir, const std::string& image_dir, const std::string& tile_name);
 
 TileModelConfig extractConfig(const std::string& image_dir, const configuru::Config& topConfig);
+
+std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize);
+
+std::vector<CopiedTile> loadCopied(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize);
 
 struct GeneralConfig
 {
