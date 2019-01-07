@@ -111,6 +111,8 @@ std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLo
 
 std::vector<CopiedTile> loadCopied(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize);
 
+std::vector<UniqueTile> rotateConvert(const std::vector<CopiedTile>& copiedTiles, size_t tileSize);
+
 struct GeneralConfig
 {
 	std::experimental::optional<size_t> limit;

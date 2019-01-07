@@ -271,6 +271,32 @@ std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLo
 	return toReturn;
 }
 
+std::vector<UniqueTile> rotateConvert(const std::vector<CopiedTile>& copiedTiles, size_t tileSize)
+{
+	std::vector<UniqueTile> toReturn;
+	for (const auto& copiedTile : copiedTiles)
+	{
+		UniqueTile nextTile =
+		{
+			.name = copiedTile.name,
+			.symmetry = copiedTile.symmetry,
+			.tiles = {}
+		};
+
+		Tile currentTile = copiedTile.tile;
+		nextTile.tiles.push_back(currentTile);
+
+		for (int t = 0; t < 3; ++t) 
+		{
+			currentTile = rotate(currentTile, tileSize);
+			nextTile.tiles.push_back(currentTile);
+		}
+
+		toReturn.push_back(nextTile);
+	}
+	return toReturn;
+}
+
 // TODO: Seems like part of the algorithm is here - should be moved to algorithm-specific files. This file is just meant
 // for loading config with configuru.
 TileModelInternal fromConfig(const TileModelConfig& config)
