@@ -214,7 +214,9 @@ void forTileData(const configuru::Config& config, const std::unordered_set<std::
 			continue;
 		}
 
-		functor(tile_name, *symmetry);
+		double weight = tile.get_or("weight", 1.0);
+
+		functor(tile_name, *symmetry, weight);
 	}
 }
 
@@ -222,7 +224,7 @@ std::vector<CopiedTile> loadCopied(const configuru::Config& config, const TileLo
 {
 	std::vector<CopiedTile> toReturn;
 
-	auto functor = [&] (const std::string& tile_name, Symmetry symmetry)
+	auto functor = [&] (const std::string& tile_name, Symmetry symmetry, double weight)
 	{
 		// Load once, then rotate the reqd number of times
 		const Tile bitmap = tileLoader(emilib::strprintf("%s", tile_name.c_str()));
@@ -232,7 +234,8 @@ std::vector<CopiedTile> loadCopied(const configuru::Config& config, const TileLo
 		{
 			.name = tile_name,
 			.symmetry = symmetry,
-			.tile = bitmap
+			.tile = bitmap,
+			.weight = weight
 		};
 
 		toReturn.push_back(nextTile);
@@ -246,13 +249,17 @@ std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLo
 {
 	std::vector<UniqueTile> toReturn;
 
-	auto functor = [&] (const std::string& tile_name, Symmetry symmetry)
+	auto functor = [&] (const std::string& tile_name, Symmetry symmetry, double weight)
 	{
 		int cardinality = cardinalityForSymmetry(symmetry);
 
-		UniqueTile nextTile;
-		nextTile.name = tile_name;
-		nextTile.symmetry = symmetry;
+		UniqueTile nextTile = 
+		{
+			.name = tile_name,
+			.symmetry = symmetry,
+			.tiles = {},
+			.weight = weight
+		};
 
 		// This is only used for summer group.
 		// In that case, all the rotations are unique and are given using enumerated images:
@@ -321,6 +328,17 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 
 	std::vector<std::array<int, 8>> action;
 	std::unordered_map<std::string, size_t> first_occurrence;
+
+	std::vector<UniqueTile> loadedTiles;
+	if (unique)
+	{
+		loadedTiles = loadUnique(config.config, config.tile_loader, subset, toReturn._tile_size);
+	}
+	else
+	{
+		auto loadedCopiedTiles = loadCopied(config.config, config.tile_loader, subset, toReturn._tile_size);
+		loadedTiles = rotateConvert(loadedCopiedTiles, toReturn._tile_size);
+	}
 
 	for (const auto& tile : config.config["tiles"].as_array())
 	{

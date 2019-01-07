@@ -69,6 +69,8 @@ struct UniqueTile
 
 	std::vector<Tile> tiles;
 
+	double weight;
+
 };
 
 struct CopiedTile
@@ -79,6 +81,8 @@ struct CopiedTile
 	Symmetry symmetry;
 
 	Tile tile;
+
+	double weight;
 
 };
 
