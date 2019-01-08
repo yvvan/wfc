@@ -242,6 +242,7 @@ std::vector<CopiedTile> loadCopied(const configuru::Config& config, const TileLo
 	};
 
 	forTileData(config, subset, functor);
+
 	return toReturn;
 }
 
@@ -287,13 +288,16 @@ std::vector<UniqueTile> rotateConvert(const std::vector<CopiedTile>& copiedTiles
 		{
 			.name = copiedTile.name,
 			.symmetry = copiedTile.symmetry,
-			.tiles = {}
+			.tiles = {},
+			.weight = copiedTile.weight
 		};
 
 		Tile currentTile = copiedTile.tile;
 		nextTile.tiles.push_back(currentTile);
 
-		for (int t = 0; t < 3; ++t) 
+		int cardinality = cardinalityForSymmetry(copiedTile.symmetry);
+
+		for (int t = 0; t < cardinality - 1; ++t) 
 		{
 			currentTile = rotate(currentTile, tileSize);
 			nextTile.tiles.push_back(currentTile);
@@ -340,57 +344,19 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		loadedTiles = rotateConvert(loadedCopiedTiles, toReturn._tile_size);
 	}
 
-	for (const auto& tile : config.config["tiles"].as_array())
+	for (const auto& tile : loadedTiles)
 	{
-		const std::string tile_name = tile["name"].as_string();
-
-		if (!subset.empty() && subset.count(tile_name) == 0)
-		{
-			continue;
-		}
-
-		// Seems symmetry can be deduced based on tile and need to be explicitly specified
-		// in a .cfg file
-		std::experimental::optional<Symmetry> symmetry = readSymmetry(tile);
-
-		if (!symmetry)
-		{
-			continue;
-		}
-
-		SymmetryInfo symmetryInfo = convert(*symmetry);
+		SymmetryInfo symmetryInfo = convert(tile.symmetry);
 		const auto& a = symmetryInfo.mapFunctions.a;
 		const auto& b = symmetryInfo.mapFunctions.b;
 		int cardinality = symmetryInfo.cardinality;
 
 		const size_t num_patterns_so_far = action.size();
-		first_occurrence[tile_name] = num_patterns_so_far;
+		first_occurrence[tile.name] = num_patterns_so_far;
 
-		if (unique) 
+		for (const auto& tileImage : tile.tiles)
 		{
-			// This is only used for summer group.
-			// In that case, all the rotations are unique and are given using enumerated images:
-			// cliff 1.bmp, cliff 2.bmp, cliff 3.bmp, etc.
-			for (int t = 0; t < cardinality; ++t) 
-			{
-				const Tile bitmap = config.tile_loader(emilib::strprintf("%s %d", tile_name.c_str(), t));
-				CHECK_EQ_F(bitmap.size(), toReturn._tile_size * toReturn._tile_size);
-				toReturn._tiles.push_back(bitmap);
-			}
-		}
-		else 
-		{
-			// Load once, then rotate the reqd number of times
-			const Tile bitmap = config.tile_loader(emilib::strprintf("%s", tile_name.c_str()));
-			CHECK_EQ_F(bitmap.size(), toReturn._tile_size * toReturn._tile_size);
-			
-			toReturn._tiles.push_back(bitmap);
-			for (int t = 1; t < cardinality; ++t) 
-			{
-				// That's an ugly hack...:
-				const auto& prevTile = toReturn._tiles[num_patterns_so_far + t - 1];
-				toReturn._tiles.push_back(rotate(prevTile, toReturn._tile_size));
-			}
+			toReturn._tiles.push_back(tileImage);
 		}
 
 		for (int t = 0; t < cardinality; ++t) 
@@ -414,7 +380,7 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 			action.push_back(map);
 		}
 
-		double weight = tile.get_or("weight", 1.0);
+		double weight = tile.weight;
 		for (int t = 0; t < cardinality; ++t) 
 		{
 			toReturn.mCommonParams._pattern_weight.push_back(weight);
