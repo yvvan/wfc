@@ -344,6 +344,8 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		loadedTiles = rotateConvert(loadedCopiedTiles, toReturn._tile_size);
 	}
 
+	auto neighbors = loadNeighbors(config.config);
+
 	for (const auto& tile : loadedTiles)
 	{
 		SymmetryInfo symmetryInfo = convert(tile.symmetry);
@@ -390,8 +392,6 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 	toReturn.mCommonParams._num_patterns = action.size();
 
 	toReturn._propagator = Array3D<Bool>({4, toReturn.mCommonParams._num_patterns, toReturn.mCommonParams._num_patterns}, false);
-
-	auto neighbors = loadNeighbors(config.config);
 
 	for (const auto& neighbor : neighbors) 
 	{
