@@ -147,24 +147,6 @@ std::unordered_set<std::string> loadSubsets(const configuru::Config& config, con
 	return toReturn;
 }
 
-struct Neighbor
-{
-	
-	std::string name;
-
-	int value;
-
-};
-
-struct Neighbors
-{
-
-	Neighbor left;
-
-	Neighbor right;
-
-};
-
 std::vector<Neighbors> loadNeighbors(const configuru::Config& config)
 {
 	std::vector<Neighbors> toReturn;
@@ -319,16 +301,11 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 	// Tile model does not support _foundation. Variable should be removed
 	toReturn.mCommonParams._foundation = std::experimental::optional<size_t>();
 
-	toReturn._tile_size = config.config.get_or("tile_size", 16);
+	toReturn._tile_size = config.tileSize;
 	
-	// This is usually not specified (therefore, false)
-	const bool unique = config.config.get_or("unique", false);
+	const bool unique = config.unique;
 
-	std::unordered_set<std::string> subset;
-	if (config.subset_name != "") 
-	{
-		subset = loadSubsets(config.config, config.subset_name);
-	}
+	const std::unordered_set<std::string>& subset = config.subset;
 
 	std::vector<std::array<int, 8>> action;
 	std::unordered_map<std::string, size_t> first_occurrence;
@@ -336,15 +313,15 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 	std::vector<UniqueTile> loadedTiles;
 	if (unique)
 	{
-		loadedTiles = loadUnique(config.config, config.tile_loader, subset, toReturn._tile_size);
+		loadedTiles = config.uniqueTiles;
 	}
 	else
 	{
-		auto loadedCopiedTiles = loadCopied(config.config, config.tile_loader, subset, toReturn._tile_size);
+		const auto& loadedCopiedTiles = config.copiedTiles;
 		loadedTiles = rotateConvert(loadedCopiedTiles, toReturn._tile_size);
 	}
 
-	auto neighbors = loadNeighbors(config.config);
+	const auto& neighbors = config.neighbors;
 
 	for (const auto& tile : loadedTiles)
 	{
@@ -536,10 +513,47 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 
 	const auto root_dir = image_dir + subdir + "/";
 
+	auto config = configuru::parse_file(root_dir + "data.cfg", configuru::CFG);
+	
+	// This is usually not specified (therefore, false)
+	const bool uniqueFlag = config.get_or("unique", false);
+
+	std::string subset_name = topConfig.get_or("subset", std::string());
+
+	std::unordered_set<std::string> subset;
+	if (subset_name != "") 
+	{
+		subset = loadSubsets(config, subset_name);
+	}
+
+	TileLoader tile_loader = [image_dir, subdir] (const std::string& tile_name)
+	{
+		return loadTile(subdir, image_dir, tile_name);
+	};
+
+	size_t tileSize = config.get_or("tile_size", 16);
+
+	std::vector<UniqueTile> unique;
+	std::vector<CopiedTile> copied;
+	if (uniqueFlag)
+	{
+		unique = loadUnique(config, tile_loader, subset, tileSize);
+	}
+	else
+	{
+		copied = loadCopied(config, tile_loader, subset, tileSize);
+	}
+
+	auto neighbors = loadNeighbors(config);
+
 	return
 	{
-		.config = configuru::parse_file(root_dir + "data.cfg", configuru::CFG),
-		.subset_name = topConfig.get_or("subset",   std::string()),
+		.tileSize = tileSize,
+		.subset = subset,
+		.unique = uniqueFlag,
+		.uniqueTiles = unique,
+		.copiedTiles = copied,
+		.neighbors = neighbors,
 		.commonParam =
 		{
 			.dimension =
@@ -549,10 +563,6 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 			},
 			._periodic_out = topConfig.get_or("periodic", false)
 		},
-		.tile_loader = [image_dir, subdir] (const std::string& tile_name)
-		{
-			return loadTile(subdir, image_dir, tile_name);
-		}
 	};
 }
 

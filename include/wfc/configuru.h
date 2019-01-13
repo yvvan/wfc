@@ -88,16 +88,40 @@ struct CopiedTile
 
 SymmetryInfo convert(Symmetry symmetry);
 
+struct Neighbor
+{
+	
+	std::string name;
+
+	int value;
+
+};
+
+struct Neighbors
+{
+
+	Neighbor left;
+
+	Neighbor right;
+
+};
+
 struct TileModelConfig
 {
 
-	const configuru::Config config; 
+	size_t tileSize;
 	
-	std::string subset_name;
+	std::unordered_set<std::string> subset;
+
+	bool unique;
 	
+	std::vector<UniqueTile> uniqueTiles;
+
+	std::vector<CopiedTile> copiedTiles;
+
+	std::vector<Neighbors> neighbors;
+
 	OutsideCommonParams commonParam;
-	
-	const TileLoader tile_loader;
 
 };
 
