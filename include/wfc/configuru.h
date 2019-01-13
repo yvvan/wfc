@@ -44,7 +44,7 @@ struct ConfigActions
 
 	std::function<void(const GeneralConfig&, const OverlappingModelConfig&)> overlappingAction;
 
-	std::function<void(const GeneralConfig&, const TileModelInternal&)> tileAction;
+	std::function<void(const GeneralConfig&, const TileModelConfig&)> tileAction;
 
 };
 

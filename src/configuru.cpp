@@ -370,9 +370,8 @@ void run_config_file(const std::string& path, ConfigActions actions)
 			GeneralConfig generalConfig = importGeneralConfig(p.key(), config);
 
 			TileModelConfig tileModelConfig = extractConfig(image_dir, config);
-			auto internal = fromConfig(tileModelConfig);
 
-			actions.tileAction(generalConfig, internal);
+			actions.tileAction(generalConfig, tileModelConfig);
 
 		}
 	}
