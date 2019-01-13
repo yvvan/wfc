@@ -2,6 +2,8 @@
 
 #include <emilib/irange.hpp>
 
+#include <unordered_map>
+
 using namespace emilib;
 
 TileModel::TileModel(const TileModelInternal& internal) :
@@ -161,3 +163,249 @@ Image TileModel::image(const Output& output) const
 
 	return result;
 }
+
+Tile rotate(const Tile& in_tile, const size_t tile_size)
+{
+	CHECK_EQ_F(in_tile.size(), tile_size * tile_size);
+	Tile out_tile;
+	for (size_t y : irange(tile_size)) 
+	{
+		for (size_t x : irange(tile_size)) 
+		{
+			out_tile.push_back(in_tile[tile_size - 1 - y + x * tile_size]);
+		}
+	}
+	return out_tile;
+}
+
+int cardinalityForSymmetry(Symmetry symmetry)
+{
+	int toReturn;
+	switch (symmetry)
+	{
+
+		case Symmetry::L:
+			toReturn = 4;
+			break;
+
+		case Symmetry::T:
+			toReturn = 4;
+			break;
+
+		case Symmetry::I:
+			toReturn = 2;
+			break;
+
+		case Symmetry::S:
+			toReturn = 2;
+			break;
+
+		case Symmetry::X:
+			toReturn = 1;
+			break;
+	}
+	return toReturn;
+}
+
+MapFunctions mapFunctions(Symmetry symmetry)
+{
+	MapFunctions toReturn;
+	switch (symmetry)
+	{
+
+		case Symmetry::L:
+			toReturn =
+			{
+				.a = [](int i){ return (i + 1) % 4; },
+				.b = [](int i){ return i % 2 == 0 ? i + 1 : i - 1; }
+			};
+			break;
+
+		case Symmetry::T:
+			toReturn =
+			{
+				.a = [](int i){ return (i + 1) % 4; },
+				.b = [](int i){ return i % 2 == 0 ? i : 4 - i; }
+			};
+			break;
+
+		case Symmetry::I:
+			toReturn =
+			{
+				.a = [](int i){ return 1 - i; },
+				.b = [](int i){ return i; }
+			};
+			break;
+
+		case Symmetry::S:
+			toReturn =
+			{
+				.a = [](int i){ return 1 - i; },
+				.b = [](int i){ return 1 - i; }
+			};
+			break;
+
+		case Symmetry::X:
+			toReturn =
+			{
+				.a = [](int i){ return i; },
+				.b = [](int i){ return i; }
+			};
+			break;
+	}
+	return toReturn;
+}
+
+SymmetryInfo convert(Symmetry symmetry)
+{
+	return
+	{
+		.cardinality = cardinalityForSymmetry(symmetry),
+		.mapFunctions = mapFunctions(symmetry)
+	};
+}
+
+std::vector<UniqueTile> rotateConvert(const std::vector<CopiedTile>& copiedTiles, size_t tileSize)
+{
+	std::vector<UniqueTile> toReturn;
+	for (const auto& copiedTile : copiedTiles)
+	{
+		UniqueTile nextTile =
+		{
+			.name = copiedTile.name,
+			.symmetry = copiedTile.symmetry,
+			.tiles = {},
+			.weight = copiedTile.weight
+		};
+
+		Tile currentTile = copiedTile.tile;
+		nextTile.tiles.push_back(currentTile);
+
+		int cardinality = cardinalityForSymmetry(copiedTile.symmetry);
+
+		for (int t = 0; t < cardinality - 1; ++t) 
+		{
+			currentTile = rotate(currentTile, tileSize);
+			nextTile.tiles.push_back(currentTile);
+		}
+
+		toReturn.push_back(nextTile);
+	}
+	return toReturn;
+}
+
+// TODO: Seems like part of the algorithm is here - should be moved to algorithm-specific files. This file is just meant
+// for loading config with configuru.
+TileModelInternal fromConfig(const TileModelConfig& config)
+{
+	TileModelInternal toReturn;
+
+	toReturn.mCommonParams.mOutsideCommonParams = config.commonParam;
+
+	// Tile model does not support _foundation. Variable should be removed
+	toReturn.mCommonParams._foundation = std::experimental::optional<size_t>();
+
+	toReturn._tile_size = config.tileSize;
+	
+	const bool unique = config.unique;
+
+	const std::unordered_set<std::string>& subset = config.subset;
+
+	std::vector<std::array<int, 8>> action;
+	std::unordered_map<std::string, size_t> first_occurrence;
+
+	std::vector<UniqueTile> loadedTiles;
+	if (unique)
+	{
+		loadedTiles = config.uniqueTiles;
+	}
+	else
+	{
+		const auto& loadedCopiedTiles = config.copiedTiles;
+		loadedTiles = rotateConvert(loadedCopiedTiles, toReturn._tile_size);
+	}
+
+	const auto& neighbors = config.neighbors;
+
+	for (const auto& tile : loadedTiles)
+	{
+		SymmetryInfo symmetryInfo = convert(tile.symmetry);
+		const auto& a = symmetryInfo.mapFunctions.a;
+		const auto& b = symmetryInfo.mapFunctions.b;
+		int cardinality = symmetryInfo.cardinality;
+
+		const size_t num_patterns_so_far = action.size();
+		first_occurrence[tile.name] = num_patterns_so_far;
+
+		for (const auto& tileImage : tile.tiles)
+		{
+			toReturn._tiles.push_back(tileImage);
+		}
+
+		for (int t = 0; t < cardinality; ++t) 
+		{
+			std::array<int, 8> map;
+
+			map[0] = t;
+			map[1] = a(t);
+			map[2] = a(a(t));
+			map[3] = a(a(a(t)));
+			map[4] = b(t);
+			map[5] = b(a(t));
+			map[6] = b(a(a(t)));
+			map[7] = b(a(a(a(t))));
+
+			for (int s = 0; s < 8; ++s) 
+			{
+				map[s] += num_patterns_so_far;
+			}
+
+			action.push_back(map);
+		}
+
+		double weight = tile.weight;
+		for (int t = 0; t < cardinality; ++t) 
+		{
+			toReturn.mCommonParams._pattern_weight.push_back(weight);
+		}
+	}
+
+	toReturn.mCommonParams._num_patterns = action.size();
+
+	toReturn._propagator = Array3D<Bool>({4, toReturn.mCommonParams._num_patterns, toReturn.mCommonParams._num_patterns}, false);
+
+	for (const auto& neighbor : neighbors) 
+	{
+		const auto& left  = neighbor.left;
+		const auto& right = neighbor.right;
+
+		if (!subset.empty() && (subset.count(left.name) == 0 || subset.count(right.name) == 0)) { continue; }
+
+		int L = action[first_occurrence[left.name]][left.value];
+		int R = action[first_occurrence[right.name]][right.value];
+		int D = action[L][1];
+		int U = action[R][1];
+
+		toReturn._propagator[ { 0, L,            R            } ] = true;
+		toReturn._propagator[ { 0, action[L][6], action[R][6] } ] = true;
+		toReturn._propagator[ { 0, action[R][4], action[L][4] } ] = true;
+		toReturn._propagator[ { 0, action[R][2], action[L][2] } ] = true;
+
+		toReturn._propagator[ { 2, D,            U            } ] = true;
+		toReturn._propagator[ { 1, action[U][6], action[D][6] } ] = true;
+		toReturn._propagator[ { 1, action[D][4], action[U][4] } ] = true;
+		toReturn._propagator[ { 1, action[U][2], action[D][2] } ] = true;
+	}
+
+	// Accounts for some inherent symmetry(?)
+	for (int t1 = 0; t1 < toReturn.mCommonParams._num_patterns; ++t1) 
+	{
+		for (int t2 = 0; t2 < toReturn.mCommonParams._num_patterns; ++t2) 
+		{
+			toReturn._propagator[ { 2, t1, t2 } ] = toReturn._propagator[ { 0, t2, t1 } ];
+			toReturn._propagator[ { 3, t1, t2 } ] = toReturn._propagator[ { 1, t2, t1 } ];
+		}
+	}
+	return toReturn;
+}
+

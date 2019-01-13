@@ -13,119 +13,11 @@
 #include <wfc/tile_model.h>
 #include <wfc/imodel.h>
 
-// Should be Array2D<RGBA>?
-using Tile = std::vector<RGBA>;
-
 using TileLoader = std::function<Tile(const std::string& tile_name)>;
 
 using namespace emilib;
 
 const size_t MAX_COLORS = 1 << (sizeof(ColorIndex) * 8);
-
-Tile rotate(const Tile& in_tile, const size_t tile_size);
-
-enum class Symmetry
-{
-
-	X,
-
-	L,
-
-	T,
-	
-	I,
-
-	// "Slash - /"
-	S
-
-};
-
-using MapFunction = std::function<int(int)>;
-
-struct MapFunctions
-{
-
-	MapFunction a;
-
-	MapFunction b;
-
-};
-
-struct SymmetryInfo
-{
-
-	int cardinality;
-
-	MapFunctions mapFunctions;
-	
-};
-
-struct UniqueTile
-{
-	
-	std::string name;
-
-	Symmetry symmetry;
-
-	std::vector<Tile> tiles;
-
-	double weight;
-
-};
-
-struct CopiedTile
-{
-
-	std::string name;
-
-	Symmetry symmetry;
-
-	Tile tile;
-
-	double weight;
-
-};
-
-SymmetryInfo convert(Symmetry symmetry);
-
-struct Neighbor
-{
-	
-	std::string name;
-
-	int value;
-
-};
-
-struct Neighbors
-{
-
-	Neighbor left;
-
-	Neighbor right;
-
-};
-
-struct TileModelConfig
-{
-
-	size_t tileSize;
-	
-	std::unordered_set<std::string> subset;
-
-	bool unique;
-	
-	std::vector<UniqueTile> uniqueTiles;
-
-	std::vector<CopiedTile> copiedTiles;
-
-	std::vector<Neighbors> neighbors;
-
-	OutsideCommonParams commonParam;
-
-};
-
-TileModelInternal fromConfig(const TileModelConfig& config);
 
 PalettedImage load_paletted_image(const std::string& path);
 
@@ -138,8 +30,6 @@ TileModelConfig extractConfig(const std::string& image_dir, const configuru::Con
 std::vector<UniqueTile> loadUnique(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize);
 
 std::vector<CopiedTile> loadCopied(const configuru::Config& config, const TileLoader& tileLoader, const std::unordered_set<std::string>& subset, size_t tileSize);
-
-std::vector<UniqueTile> rotateConvert(const std::vector<CopiedTile>& copiedTiles, size_t tileSize);
 
 struct GeneralConfig
 {
