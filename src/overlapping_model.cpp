@@ -445,14 +445,17 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index)
 {
 	std::array<Pattern, 8> toReturn;
-	toReturn[0] = patternFromSample(sample, n, index);
-	toReturn[1] = reflect(toReturn[0], n);
-	toReturn[2] = rotate(toReturn[0], n);
-	toReturn[3] = reflect(toReturn[2], n);
-	toReturn[4] = rotate(toReturn[2], n);
-	toReturn[5] = reflect(toReturn[4], n);
-	toReturn[6] = rotate(toReturn[4], n);
-	toReturn[7] = reflect(toReturn[6], n);
+
+	auto currentPattern = patternFromSample(sample, n, index);
+
+	for (int i = 0; i < 4; ++i)
+	{
+		toReturn[i] = currentPattern;
+		toReturn[i + 1] = reflect(currentPattern, n);
+
+		currentPattern = rotate(currentPattern, n);
+	}
+
 	return toReturn;
 }
 
