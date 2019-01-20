@@ -150,31 +150,16 @@ bool agrees(const Pattern& p1, const Pattern& p2, int dx, int dy, int n)
 
 OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 {
-	LOG_F(INFO, "palette size: %lu", config.sample_image.palette.size());
-
-	mCommonParams.mOutsideCommonParams = config.commonParam;
-
-	_n = config.n;
-	_palette = config.sample_image.palette;
-
-	PatternInfo patternInfo = calculatePatternInfo(config.sample_image, config.has_foundation, config.periodic_in, config.symmetry, config.n);
-
-	mCommonParams._foundation = patternInfo.foundation;
-	_patterns = patternInfo.patterns;
-	mCommonParams._pattern_weight = patternInfo.patternWeight;
-
-	mCommonParams._num_patterns = _patterns.size();
-	LOG_F(INFO, "Found %lu unique patterns in sample image", mCommonParams._num_patterns);
-
-	_propagator = createPropagator(mCommonParams._num_patterns, config.n, _patterns);
-
-	PropagatorStatistics statistics = analyze(_propagator);
-	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu", statistics.average, statistics.longest_propagator, statistics.sum_propagator);
+	OverlappingComputedInfo computedInfo;
+	mCommonParams = computedInfo.commonParams;
+	mInternal = computedInfo.internal;
 }
 
 OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config)
 {
 	OverlappingComputedInfo toReturn;
+
+	toReturn.commonParams.mOutsideCommonParams = config.commonParam;
 
 	toReturn.internal._n = config.n;
 	toReturn.internal._palette = config.sample_image.palette;
@@ -286,7 +271,7 @@ bool OverlappingModel::propagate(Output& output) const
 
 		output._changes[index] = false;
 
-		int rangeLimit = _n - 1;
+		int rangeLimit = mInternal._n - 1;
 
 		SquareRange range
 		{
@@ -328,7 +313,7 @@ bool OverlappingModel::propagate(Output& output) const
 				bool can_pattern_fit = false;
 
 				Index3D shiftedIndex{ t2, rangeLimit - offset.x, rangeLimit - offset.y };
-				const auto& prop = _propagator[shiftedIndex];
+				const auto& prop = mInternal._propagator[shiftedIndex];
 				for (const auto& t3 : prop) 
 				{
 					if (output._wave[append(index, t3)]) 
@@ -366,9 +351,9 @@ Graphics OverlappingModel::graphics(const Output& output) const
 	{
 		auto& tile_contributors = result[index];
 
-		for (int dy = 0; dy < _n; ++dy) 
+		for (int dy = 0; dy < mInternal._n; ++dy) 
 		{
-			for (int dx = 0; dx < _n; ++dx) 
+			for (int dx = 0; dx < mInternal._n; ++dx) 
 			{
 				int sx = index.x - dx;
 				if (sx < 0) sx += dimension.width;
@@ -383,7 +368,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 					Index3D index3D{ sx, sy, t };
 					if (output._wave[index3D]) 
 					{
-						tile_contributors.push_back(_patterns[t][{ dx, dy }]);
+						tile_contributors.push_back(mInternal._patterns[t][{ dx, dy }]);
 					}
 				}
 			}
@@ -397,7 +382,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 
 Image OverlappingModel::image(const Output& output) const
 {
-	return upsample(image_from_graphics(graphics(output), _palette));
+	return upsample(image_from_graphics(graphics(output), mInternal._palette));
 }
 
 Image upsample(const Image& image)

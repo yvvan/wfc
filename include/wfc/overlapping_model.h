@@ -112,7 +112,7 @@ public:
 
 	bool on_boundary(const Index2D& index) const override
 	{
-		return !mCommonParams.mOutsideCommonParams._periodic_out && (index.x + _n > mCommonParams.mOutsideCommonParams.dimension.width || index.y + _n > mCommonParams.mOutsideCommonParams.dimension.height);
+		return !mCommonParams.mOutsideCommonParams._periodic_out && (index.x + mInternal._n > mCommonParams.mOutsideCommonParams.dimension.width || index.y + mInternal._n > mCommonParams.mOutsideCommonParams.dimension.height);
 	}
 
 	Image image(const Output& output) const override;
@@ -120,13 +120,7 @@ public:
 	Graphics graphics(const Output& output) const;
 
 private:
-	//OverlappingModelInternal mInternal;
-	int _n;
-	// num_patterns X (2 * n - 1) X (2 * n - 1) X ???
-	// list of other pattern indices that agree on this x/y offset (?)
-	Propagator _propagator;
-	std::vector<Pattern> _patterns;
-	Palette _palette;
+	OverlappingModelInternal mInternal;
 };
 
 OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config);
