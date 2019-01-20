@@ -176,6 +176,7 @@ OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config)
 
 	PropagatorStatistics statistics = analyze(toReturn.internal._propagator);
 	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu", statistics.average, statistics.longest_propagator, statistics.sum_propagator);
+	return toReturn;
 }
 
 PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, bool symmetry, int n)
