@@ -106,7 +106,7 @@ struct OverlappingComputedInfo
 class OverlappingModel : public Model
 {
 public:
-	OverlappingModel(OverlappingModelConfig config);
+	OverlappingModel(const OverlappingComputedInfo& config);
 
 	bool propagate(Output& output) const override;
 
@@ -120,7 +120,7 @@ public:
 	Graphics graphics(const Output& output) const;
 
 private:
-	OverlappingModelInternal mInternal;
+	const OverlappingModelInternal& mInternal;
 };
 
 OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config);

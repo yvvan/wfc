@@ -63,8 +63,9 @@ void modifyOutputForFoundation(const Model& model, size_t foundation, Output& ou
 
 class OverlappingModelConfig;
 class TileModelInternal;
+class OverlappingComputedInfo;
 
-ImageGenerator overlappingGenerator(const OverlappingModelConfig& config, std::experimental::optional<size_t> limit);
+ImageGenerator overlappingGenerator(const OverlappingComputedInfo& config, std::experimental::optional<size_t> limit);
 
 ImageGenerator tileGenerator(const TileModelInternal& config, std::experimental::optional<size_t> limit);
 

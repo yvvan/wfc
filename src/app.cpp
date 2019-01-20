@@ -14,7 +14,8 @@ void runConfiguruFile(const std::string& fileName)
 	{
 		.overlappingAction = [] (const GeneralConfig& generalConfig, const OverlappingModelConfig& overlappingModelConfig)
 		{
-			auto imageGenerator = overlappingGenerator(overlappingModelConfig, generalConfig.limit);
+			auto computedInfo = fromConfig(overlappingModelConfig);
+			auto imageGenerator = overlappingGenerator(computedInfo, generalConfig.limit);
 			seedLoop(generalConfig.name, generalConfig.numOutput, imageGenerator);
 		},
 		.tileAction = [] (const GeneralConfig& generalConfig, const TileModelConfig& tileModelConfig)

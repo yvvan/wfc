@@ -148,11 +148,10 @@ bool agrees(const Pattern& p1, const Pattern& p2, int dx, int dy, int n)
 	return true;
 }
 
-OverlappingModel::OverlappingModel(OverlappingModelConfig config)
+OverlappingModel::OverlappingModel(const OverlappingComputedInfo& config) :
+	mInternal(config.internal)
 {
-	OverlappingComputedInfo computedInfo;
-	mCommonParams = computedInfo.commonParams;
-	mInternal = computedInfo.internal;
+	mCommonParams = config.commonParams;
 }
 
 OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config)

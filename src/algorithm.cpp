@@ -300,7 +300,7 @@ std::experimental::optional<Image> createImage(const Model& model, size_t seed, 
 	}
 }
 
-ImageGenerator overlappingGenerator(const OverlappingModelConfig& config, std::experimental::optional<size_t> limit)
+ImageGenerator overlappingGenerator(const OverlappingComputedInfo& config, std::experimental::optional<size_t> limit)
 {
 	OverlappingModel model(config);
 	return [=] (size_t seed)
