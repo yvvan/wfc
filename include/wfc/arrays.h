@@ -58,6 +58,11 @@ class Array2D
 			return mData.data();
 		}
 
+		bool operator==(const Array2D<T>& other) const
+		{
+			return (mDimensions == other.mDimensions) && (mData == other.mData);
+		}
+
 	private:
 
 		size_t index(size_t x, size_t y) const
@@ -166,6 +171,11 @@ inline bool operator==(const Index2D& left, const Index2D& right)
 	return (left.x == right.x) && (left.y == right.y);
 }
 
+inline bool operator==(const Dimension2D& left, const Dimension2D& right)
+{
+	return (left.width == right.width) && (left.height == right.height);
+}
+
 inline bool operator!=(const Index2D& left, const Index2D& right)
 {
 	return (left.x != right.x) || (left.y != right.y);
@@ -176,5 +186,7 @@ inline std::ostream& operator<<(std::ostream& stream, const Index2D& index)
 	stream << "(" << index.x << ", " << index.y << ")";
 	return stream;
 }
+
+
 
 #endif

@@ -172,6 +172,28 @@ OverlappingModel::OverlappingModel(OverlappingModelConfig config)
 	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu", statistics.average, statistics.longest_propagator, statistics.sum_propagator);
 }
 
+OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config)
+{
+	OverlappingComputedInfo toReturn;
+
+	toReturn.internal._n = config.n;
+	toReturn.internal._palette = config.sample_image.palette;
+
+	PatternInfo patternInfo = calculatePatternInfo(config.sample_image, config.has_foundation, config.periodic_in, config.symmetry, config.n);
+
+	toReturn.commonParams._foundation = patternInfo.foundation;
+	toReturn.internal._patterns = patternInfo.patterns;
+	toReturn.commonParams._pattern_weight = patternInfo.patternWeight;
+
+	toReturn.commonParams._num_patterns = toReturn.internal._patterns.size();
+	LOG_F(INFO, "Found %lu unique patterns in sample image", toReturn.commonParams._num_patterns);
+
+	toReturn.internal._propagator = createPropagator(toReturn.commonParams._num_patterns, config.n, toReturn.internal._patterns);
+
+	PropagatorStatistics statistics = analyze(toReturn.internal._propagator);
+	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu", statistics.average, statistics.longest_propagator, statistics.sum_propagator);
+}
+
 PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, bool symmetry, int n)
 {
 	PatternInfo toReturn = {};
@@ -406,6 +428,8 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 	CHECK_LE_F(n, imageDimension.width);
 	CHECK_LE_F(n, imageDimension.height);
 
+	std::unordered_map<HashedPattern, size_t, PatternHasher> newPatterns;
+
 	PatternPrevalence patterns;
 
 	Dimension2D dimension;
@@ -430,6 +454,7 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 		{
 			auto hash = hash_from_pattern(ps[k], sample.palette.size());
 			patterns[hash] += 1;
+
 			if (out_lowest_pattern && index.y == imageDimension.height - 1) 
 			{
 				*out_lowest_pattern = hash;

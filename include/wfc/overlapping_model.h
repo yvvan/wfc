@@ -6,7 +6,6 @@
 
 #include <unordered_map>
 
-
 using ColorIndex = uint8_t; // tile index or color index. If you have more than 255, don't.
 using Palette = std::vector<RGBA>;
 using Pattern = Array2D<ColorIndex>;
@@ -16,6 +15,31 @@ using PatternIndex = uint16_t;
 const size_t kUpscale = 4; // Upscale images before saving
 
 using PatternHash = uint64_t; // Another representation of a Pattern.
+
+struct HashedPattern
+{
+
+	Pattern pattern;
+
+	uint64_t hash;
+
+};
+
+struct PatternHasher
+{
+
+	inline std::size_t operator()(const HashedPattern& hashedPattern) const
+	{
+		return hashedPattern.hash;
+	}
+	
+};
+
+
+inline bool operator==(const HashedPattern& left, const HashedPattern& right)
+{
+	return left.pattern == right.pattern;
+}
 
 using PatternPrevalence = std::unordered_map<PatternHash, size_t>;
 
@@ -58,9 +82,26 @@ PropagatorStatistics analyze(const Propagator& propagator);
 Propagator createPropagator(size_t numPatterns, int n, const std::vector<Pattern>& patterns);
 
 // n = side of the pattern, e.g. 3.
-PatternPrevalence extract_patterns(
-	const PalettedImage& sample, int n, bool periodic_in, size_t symmetry,
-	PatternHash* out_lowest_pattern);
+PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern);
+
+struct OverlappingModelInternal
+{
+	int _n;
+	// num_patterns X (2 * n - 1) X (2 * n - 1) X ???
+	// list of other pattern indices that agree on this x/y offset (?)
+	Propagator _propagator;
+	std::vector<Pattern> _patterns;
+	Palette _palette;
+};
+
+struct OverlappingComputedInfo
+{
+
+	OverlappingModelInternal internal;
+
+	CommonParams commonParams; 
+	
+};
 
 class OverlappingModel : public Model
 {
@@ -79,6 +120,7 @@ public:
 	Graphics graphics(const Output& output) const;
 
 private:
+	//OverlappingModelInternal mInternal;
 	int _n;
 	// num_patterns X (2 * n - 1) X (2 * n - 1) X ???
 	// list of other pattern indices that agree on this x/y offset (?)
@@ -86,6 +128,8 @@ private:
 	std::vector<Pattern> _patterns;
 	Palette _palette;
 };
+
+OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config);
 
 Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size);
 
