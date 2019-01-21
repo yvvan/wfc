@@ -48,8 +48,6 @@ class Model
 
 	public:
 
-		CommonParams mCommonParams;
-
 		virtual bool propagate(Output& output) const = 0;
 
 		virtual bool on_boundary(const Index2D& index) const = 0;

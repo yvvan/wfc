@@ -120,6 +120,9 @@ public:
 	Graphics graphics(const Output& output) const;
 
 private:
+
+	CommonParams mCommonParams;
+	
 	const OverlappingModelInternal& mInternal;
 };
 

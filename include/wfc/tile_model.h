@@ -41,6 +41,8 @@ class TileModel : public Model
 
 	private:
 
+		CommonParams mCommonParams;
+
 		const TileModelInternal& mInternal;
 
 };

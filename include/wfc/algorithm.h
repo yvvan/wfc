@@ -47,19 +47,19 @@ double calc_sum(const std::vector<double>& a);
 // Pick a random index weighted by a
 size_t weightedIndexSelect(const std::vector<double>& a, double randFraction);
 
-EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave);
+EntropyResult find_lowest_entropy(const CommonParams& commonParams, const Model& model, const Array3D<Bool>& wave);
 
-Result observe(const Model& model, Output* output, RandomDouble& random_double);
+Result observe(const CommonParams& commonParams, const Model& model, Output* output, RandomDouble& random_double);
 
-Output create_output(const Model& model);
+Output create_output(const CommonParams& commonParams, const Model& model);
 
-Result run(Output& output, const Model& model, size_t seed, std::experimental::optional<size_t> limit);
+Result run(const CommonParams& commonParams, Output& output, const Model& model, size_t seed, std::experimental::optional<size_t> limit);
 
-std::experimental::optional<Image> createImage(const Model& model, size_t seed, std::experimental::optional<size_t> limit);
+std::experimental::optional<Image> createImage(const CommonParams& commonParams, const Model& model, size_t seed, std::experimental::optional<size_t> limit);
 
-Output initialOutput(const Model& model);
+Output initialOutput(const CommonParams& commonParams, const Model& model);
 
-void modifyOutputForFoundation(const Model& model, size_t foundation, Output& output);
+void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, Output& output);
 
 class OverlappingModelConfig;
 class TileModelInternal;

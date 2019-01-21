@@ -69,7 +69,7 @@ EntropyValue calculateEntropy(const Array3D<Bool>& wave, const Index2D& index2D,
 	return entropyResult;
 }
 
-EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
+EntropyResult find_lowest_entropy(const CommonParams& commonParams, const Model& model, const Array3D<Bool>& wave)
 {
 	// We actually calculate exp(entropy), i.e. the sum of the weights of the possible patterns
 
@@ -89,7 +89,7 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 			return false;
 		}
 
-		EntropyValue entropyResult = calculateEntropy(wave, index2D, model.mCommonParams._num_patterns, model.mCommonParams._pattern_weight);
+		EntropyValue entropyResult = calculateEntropy(wave, index2D, commonParams._num_patterns, commonParams._pattern_weight);
 
 		if (entropyResult.entropy == 0 || entropyResult.num_superimposed == 0) 
 		{
@@ -118,7 +118,7 @@ EntropyResult find_lowest_entropy(const Model& model, const Array3D<Bool>& wave)
 		return false;
 	};
 
-	Dimension2D dimension = model.mCommonParams.mOutsideCommonParams.dimension;
+	Dimension2D dimension = commonParams.mOutsideCommonParams.dimension;
 	BreakRange::runForDimension(dimension, func);
 
 	Result result;
@@ -180,10 +180,10 @@ void updateSelectedPattern(Output& output, const Index2D& index2D, int numPatter
 	output._changes[index2D] = true;
 }
 
-Result observe(const Model& model, Output& output, RandomDouble& random_double)
+Result observe(const CommonParams& commonParams, const Model& model, Output& output, RandomDouble& random_double)
 {
 	// Find the index in the image with the lowest entropy
-	const auto result = find_lowest_entropy(model, output._wave);
+	const auto result = find_lowest_entropy(commonParams, model, output._wave);
 
 	if (result.code != Result::kUnfinished)
 	{
@@ -193,23 +193,23 @@ Result observe(const Model& model, Output& output, RandomDouble& random_double)
 	Index2D index2D = result.minIndex;
 
 	// Select a pattern (with some randomness)
-	size_t r = selectPattern(index2D, model.mCommonParams._num_patterns, model.mCommonParams._pattern_weight, output._wave, random_double);
+	size_t r = selectPattern(index2D, commonParams._num_patterns, commonParams._pattern_weight, output._wave, random_double);
 
 	// The index is modified in the following way:
 	// - Wave set to true at pattern index, false everywhere else
 	// - The index is marked in changes 
-	updateSelectedPattern(output, index2D, model.mCommonParams._num_patterns, r);
+	updateSelectedPattern(output, index2D, commonParams._num_patterns, r);
 
 	return Result::kUnfinished;
 }
 
-void modifyOutputForFoundation(const Model& model, size_t foundation, Output& output)
+void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, Output& output)
 {
 	Dimension2D dimension = output._changes.size();
 	for (const auto x : irange(dimension.width)) 
 	{
 		// Setting the foundation section of the output wave only true for foundation
-		for (const auto t : irange(model.mCommonParams._num_patterns)) 
+		for (const auto t : irange(commonParams._num_patterns)) 
 		{
 			if (t != foundation) 
 			{
@@ -235,10 +235,10 @@ void modifyOutputForFoundation(const Model& model, size_t foundation, Output& ou
 	while (model.propagate(output));
 }
 
-Output initialOutput(const Model& model)
+Output initialOutput(const CommonParams& commonParams, const Model& model)
 {
-	Dimension2D dimension = model.mCommonParams.mOutsideCommonParams.dimension;
-	Dimension3D waveDimension = append(dimension, model.mCommonParams._num_patterns);
+	Dimension2D dimension = commonParams.mOutsideCommonParams.dimension;
+	Dimension3D waveDimension = append(dimension, commonParams._num_patterns);
 	return
 	{
 		._wave = Array3D<Bool>(waveDimension, true),
@@ -246,19 +246,19 @@ Output initialOutput(const Model& model)
 	};
 }
 
-Output create_output(const Model& model)
+Output create_output(const CommonParams& commonParams, const Model& model)
 {
-	Output output = initialOutput(model);
-	if (model.mCommonParams._foundation) 
+	Output output = initialOutput(commonParams, model);
+	if (commonParams._foundation) 
 	{
 		// Tile has a clearly-defined "ground"/"foundation"
-		modifyOutputForFoundation(model, *(model.mCommonParams._foundation), output);
+		modifyOutputForFoundation(commonParams, model, *(commonParams._foundation), output);
 	}
 
 	return output;
 }
 
-Result run(Output& output, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
+Result run(const CommonParams& commonParams, Output& output, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
 {
 	std::mt19937 gen(seed);
 	std::uniform_real_distribution<double> dis(0.0, 1.0);
@@ -266,7 +266,7 @@ Result run(Output& output, const Model& model, size_t seed, std::experimental::o
 
 	for (size_t l = 0; !(limit) || l < *limit; ++l) 
 	{
-		Result result = observe(model, output, random_double);
+		Result result = observe(commonParams, model, output, random_double);
 
 		if (result != Result::kUnfinished) 
 		{
@@ -284,11 +284,11 @@ Result run(Output& output, const Model& model, size_t seed, std::experimental::o
 	return Result::kUnfinished;
 }
 
-std::experimental::optional<Image> createImage(const Model& model, size_t seed, std::experimental::optional<size_t> limit)
+std::experimental::optional<Image> createImage(const CommonParams& commonParams, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
 {
-	Output output = create_output(model);
+	Output output = create_output(commonParams, model);
 
-	const auto result = run(output, model, seed, limit);
+	const auto result = run(commonParams, output, model, seed, limit);
 
 	if (result == Result::kSuccess) 
 	{
@@ -303,17 +303,17 @@ std::experimental::optional<Image> createImage(const Model& model, size_t seed, 
 ImageGenerator overlappingGenerator(const OverlappingComputedInfo& config, std::experimental::optional<size_t> limit)
 {
 	OverlappingModel model(config);
-	return [=] (size_t seed)
+	return [limit, model, &config] (size_t seed)
 	{
-		return createImage(model, seed, limit);
+		return createImage(config.commonParams, model, seed, limit);
 	};
 }
 
 ImageGenerator tileGenerator(const TileModelInternal& config, std::experimental::optional<size_t> limit)
 {
 	TileModel model(config);
-	return [=] (size_t seed)
+	return [limit, model, &config] (size_t seed)
 	{
-		return createImage(model, seed, limit);
+		return createImage(config.mCommonParams, model, seed, limit);
 	};
 }
