@@ -525,3 +525,48 @@ Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension)
 {
 	return { (index.x % dimension.width), (index.y % dimension.height) };
 }
+
+AlgorithmData OverlappingModel::createOutput() const
+{
+	AlgorithmData algorithmData = initialOutput(mCommonParams.mOutputProperties.dimensions, mCommonParams.numPatterns);
+	if (mCommonParams.foundation) 
+	{
+		// Tile has a clearly-defined "ground"/"foundation"
+		modifyOutputForFoundation(mCommonParams, *this, *(mCommonParams.foundation), algorithmData);
+	}
+
+	return algorithmData;
+}
+
+void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, AlgorithmData& algorithmData)
+{
+	Dimension2D dimension = algorithmData._changes.size();
+	for (const auto x : irange(dimension.width)) 
+	{
+		// Setting the foundation section of the algorithmData wave only true for foundation
+		for (const auto t : irange(commonParams.numPatterns)) 
+		{
+			if (t != foundation) 
+			{
+				Index3D index{ x, dimension.height - 1, t };
+				algorithmData._wave[index] = false;
+			}
+		}
+
+		// Setting the rest of the algorithmData wave only true for not foundation
+		for (const auto y : irange(dimension.height - 1)) 
+		{
+			Index3D index{ x, y, foundation };
+			algorithmData._wave[index] = false;
+		}
+
+		for (const auto y : irange(dimension.height)) 
+		{
+			Index2D index{ x, y };
+			algorithmData._changes[index] = true;
+		}
+	}
+
+	while (model.propagate(algorithmData));
+}
+

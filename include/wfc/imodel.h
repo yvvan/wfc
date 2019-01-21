@@ -46,7 +46,7 @@ class Model
 
 		virtual Image image(const AlgorithmData& algorithmData) const = 0;
 
-		//virtual AlgorithmData createOutput() const = 0;
+		virtual AlgorithmData createOutput() const = 0;
 
 };
 

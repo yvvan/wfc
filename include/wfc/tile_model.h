@@ -39,6 +39,8 @@ class TileModel : public Model
 
 		Image image(const AlgorithmData& algorithmData) const override;
 
+		AlgorithmData createOutput() const override;
+
 	private:
 
 		CommonParams mCommonParams;
@@ -155,5 +157,7 @@ TileModelInternal fromConfig(const TileModelConfig& config);
 std::vector<UniqueTile> rotateConvert(const std::vector<CopiedTile>& copiedTiles, size_t tileSize);
 
 int cardinalityForSymmetry(Symmetry symmetry);
+
+void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, AlgorithmData& algorithmData);
 
 #endif

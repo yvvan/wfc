@@ -203,50 +203,6 @@ Result observe(const CommonParams& commonParams, const Model& model, AlgorithmDa
 	return Result::kUnfinished;
 }
 
-void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, AlgorithmData& algorithmData)
-{
-	Dimension2D dimension = algorithmData._changes.size();
-	for (const auto x : irange(dimension.width)) 
-	{
-		// Setting the foundation section of the algorithmData wave only true for foundation
-		for (const auto t : irange(commonParams.numPatterns)) 
-		{
-			if (t != foundation) 
-			{
-				Index3D index{ x, dimension.height - 1, t };
-				algorithmData._wave[index] = false;
-			}
-		}
-
-		// Setting the rest of the algorithmData wave only true for not foundation
-		for (const auto y : irange(dimension.height - 1)) 
-		{
-			Index3D index{ x, y, foundation };
-			algorithmData._wave[index] = false;
-		}
-
-		for (const auto y : irange(dimension.height)) 
-		{
-			Index2D index{ x, y };
-			algorithmData._changes[index] = true;
-		}
-	}
-
-	while (model.propagate(algorithmData));
-}
-
-AlgorithmData create_output(const CommonParams& commonParams, const Model& model)
-{
-	AlgorithmData algorithmData = initialOutput(commonParams.mOutputProperties.dimensions, commonParams.numPatterns);
-	if (commonParams.foundation) 
-	{
-		// Tile has a clearly-defined "ground"/"foundation"
-		modifyOutputForFoundation(commonParams, model, *(commonParams.foundation), algorithmData);
-	}
-
-	return algorithmData;
-}
-
 Result run(const CommonParams& commonParams, AlgorithmData& algorithmData, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
 {
 	std::mt19937 gen(seed);
@@ -275,7 +231,7 @@ Result run(const CommonParams& commonParams, AlgorithmData& algorithmData, const
 
 std::experimental::optional<Image> createImage(const CommonParams& commonParams, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
 {
-	AlgorithmData algorithmData = create_output(commonParams, model);
+	AlgorithmData algorithmData = model.createOutput();
 
 	const auto result = run(commonParams, algorithmData, model, seed, limit);
 

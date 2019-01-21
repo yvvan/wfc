@@ -119,6 +119,7 @@ public:
 
 	Graphics graphics(const AlgorithmData& algorithmData) const;
 
+	AlgorithmData createOutput() const override;
 private:
 
 	CommonParams mCommonParams;
@@ -162,5 +163,7 @@ struct PatternInfo
 };
 
 PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, bool symmetry, int n);
+
+void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, AlgorithmData& algorithmData);
 
 #endif

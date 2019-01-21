@@ -9,4 +9,3 @@ AlgorithmData initialOutput(const Dimension2D& outputDimensions, size_t numPatte
 		._changes = Array2D<Bool>(outputDimensions, false)
 	};
 }
-

@@ -57,8 +57,6 @@ std::experimental::optional<Image> createImage(const CommonParams& commonParams,
 
 AlgorithmData initialOutput(const CommonParams& commonParams, const Model& model);
 
-void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, AlgorithmData& algorithmData);
-
 class OverlappingModelConfig;
 class TileModelInternal;
 class OverlappingComputedInfo;

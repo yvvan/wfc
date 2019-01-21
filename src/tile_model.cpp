@@ -256,6 +256,11 @@ MapFunctions mapFunctions(Symmetry symmetry)
 	return toReturn;
 }
 
+AlgorithmData TileModel::createOutput() const
+{
+	return initialOutput(mCommonParams.mOutputProperties.dimensions, mCommonParams.numPatterns);
+}
+
 SymmetryInfo convert(Symmetry symmetry)
 {
 	return
