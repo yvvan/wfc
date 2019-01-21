@@ -19,7 +19,7 @@ bool TileModel::on_boundary(const Index2D& index) const
 	return false;
 }
 
-bool TileModel::propagate(Output& output) const
+bool TileModel::propagate(AlgorithmData& algorithmData) const
 {
 	bool did_change = false;
 
@@ -83,24 +83,24 @@ bool TileModel::propagate(Output& output) const
 					}
 				}
 
-				if (!output._changes[ {x1, y1 } ]) { continue; }
+				if (!algorithmData._changes[ {x1, y1 } ]) { continue; }
 
 				for (int t2 = 0; t2 < mCommonParams.numPatterns; ++t2) 
 				{
-					if (output._wave[ { x2, y2, t2} ]) 
+					if (algorithmData._wave[ { x2, y2, t2} ]) 
 					{
 						bool b = false;
 						for (int t1 = 0; t1 < mCommonParams.numPatterns && !b; ++t1) 
 						{
-							if (output._wave[ { x1, y1, t1 } ]) 
+							if (algorithmData._wave[ { x1, y1, t1 } ]) 
 							{
 								b = mInternal._propagator[ { d, t1, t2 } ];
 							}
 						}
 						if (!b) 
 						{
-							output._wave[ { x2, y2, t2 } ] = false;
-							output._changes[ { x2, y2 } ] = true;
+							algorithmData._wave[ { x2, y2, t2 } ] = false;
+							algorithmData._changes[ { x2, y2 } ] = true;
 							did_change = true;
 						}
 					}
@@ -112,7 +112,7 @@ bool TileModel::propagate(Output& output) const
 	return did_change;
 }
 
-Image TileModel::image(const Output& output) const
+Image TileModel::image(const AlgorithmData& algorithmData) const
 {
 	Dimension2D dimension = mCommonParams.mOutputProperties.dimensions;
 	Image result({ dimension.width * mInternal._tile_size, dimension.height * mInternal._tile_size } , {});
@@ -124,7 +124,7 @@ Image TileModel::image(const Output& output) const
 			double sum = 0;
 			for (const auto t : irange(mCommonParams.numPatterns)) 
 			{
-				if (output._wave[ { x, y, t } ] ) 
+				if (algorithmData._wave[ { x, y, t } ] ) 
 				{
 					sum += mCommonParams.patternWeights[t];
 				}
@@ -143,7 +143,7 @@ Image TileModel::image(const Output& output) const
 						double r = 0, g = 0, b = 0, a = 0;
 						for (int t = 0; t < mCommonParams.numPatterns; ++t) 
 						{
-							if (output._wave[ { x, y, t } ]) 
+							if (algorithmData._wave[ { x, y, t } ]) 
 							{
 								RGBA c = mInternal._tiles[t][xt + yt * mInternal._tile_size];
 								r += (double)c.r * mCommonParams.patternWeights[t] / sum;

@@ -33,11 +33,11 @@ class TileModel : public Model
 
 		TileModel(const TileModelInternal& internal);
 
-		bool propagate(Output& output) const override;
+		bool propagate(AlgorithmData& algorithmData) const override;
 
 		bool on_boundary(const Index2D& index) const override;
 
-		Image image(const Output& output) const override;
+		Image image(const AlgorithmData& algorithmData) const override;
 
 	private:
 

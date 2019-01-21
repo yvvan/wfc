@@ -256,7 +256,7 @@ PropagatorStatistics analyze(const Propagator& propagator)
 	return statistics;
 }
 
-bool OverlappingModel::propagate(Output& output) const
+bool OverlappingModel::propagate(AlgorithmData& algorithmData) const
 {
 	bool did_change = false;
 	Dimension2D dimension = mCommonParams.mOutputProperties.dimensions;
@@ -264,12 +264,12 @@ bool OverlappingModel::propagate(Output& output) const
 	// This whole set of nested loops looks very similar to the one in graphics()
 	auto rangeFcn = [&] (const Index2D& index)
 	{
-		if (!output._changes[index])
+		if (!algorithmData._changes[index])
 		{
 			return; 
 		}
 
-		output._changes[index] = false;
+		algorithmData._changes[index] = false;
 
 		int rangeLimit = mInternal._n - 1;
 
@@ -303,7 +303,7 @@ bool OverlappingModel::propagate(Output& output) const
 			for (int t2 = 0; t2 < mCommonParams.numPatterns; ++t2) 
 			{
 				Index3D sPatternIndex = append(sIndex, t2);
-				if (!output._wave[sPatternIndex])
+				if (!algorithmData._wave[sPatternIndex])
 				{
 					continue;
 				}
@@ -316,7 +316,7 @@ bool OverlappingModel::propagate(Output& output) const
 				const auto& prop = mInternal._propagator[shiftedIndex];
 				for (const auto& t3 : prop) 
 				{
-					if (output._wave[append(index, t3)]) 
+					if (algorithmData._wave[append(index, t3)]) 
 					{
 						can_pattern_fit = true;
 						break;
@@ -325,8 +325,8 @@ bool OverlappingModel::propagate(Output& output) const
 
 				if (!can_pattern_fit) 
 				{
-					output._changes[sIndex] = true;
-					output._wave[sPatternIndex] = false;
+					algorithmData._changes[sIndex] = true;
+					algorithmData._wave[sPatternIndex] = false;
 					did_change = true;
 				}
 			}
@@ -340,7 +340,7 @@ bool OverlappingModel::propagate(Output& output) const
 	return did_change;
 }
 
-Graphics OverlappingModel::graphics(const Output& output) const
+Graphics OverlappingModel::graphics(const AlgorithmData& algorithmData) const
 {
 	Dimension2D dimension = mCommonParams.mOutputProperties.dimensions;
 
@@ -366,7 +366,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 				for (int t = 0; t < mCommonParams.numPatterns; ++t) 
 				{
 					Index3D index3D{ sx, sy, t };
-					if (output._wave[index3D]) 
+					if (algorithmData._wave[index3D]) 
 					{
 						tile_contributors.push_back(mInternal._patterns[t][{ dx, dy }]);
 					}
@@ -380,9 +380,9 @@ Graphics OverlappingModel::graphics(const Output& output) const
 	return result;
 }
 
-Image OverlappingModel::image(const Output& output) const
+Image OverlappingModel::image(const AlgorithmData& algorithmData) const
 {
-	return upsample(image_from_graphics(graphics(output), mInternal._palette));
+	return upsample(image_from_graphics(graphics(algorithmData), mInternal._palette));
 }
 
 Image upsample(const Image& image)

@@ -6,21 +6,9 @@
 
 #include <wfc/rgba.h>
 #include <wfc/arrays.h>
+#include <wfc/algorithm_data.h>
 
-// To avoid problems with vector<bool>
-using Bool = uint8_t;
-
-// What actually changes
-struct Output
-{
-	// _width X _height X num_patterns
-	// _wave.get(x, y, t) == is the pattern t possible at x, y?
-	// Starts off true everywhere.
-	Array3D<Bool> _wave;
-	Array2D<Bool> _changes; // _width X _height. Starts off false everywhere.
-};
-
-// Properties of output image.
+// Properties of algorithmData image.
 struct OutputProperties
 {
 
@@ -52,11 +40,13 @@ class Model
 
 	public:
 
-		virtual bool propagate(Output& output) const = 0;
+		virtual bool propagate(AlgorithmData& algorithmData) const = 0;
 
 		virtual bool on_boundary(const Index2D& index) const = 0;
 
-		virtual Image image(const Output& output) const = 0;
+		virtual Image image(const AlgorithmData& algorithmData) const = 0;
+
+		//virtual AlgorithmData createOutput() const = 0;
 
 };
 

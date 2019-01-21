@@ -49,17 +49,17 @@ size_t weightedIndexSelect(const std::vector<double>& a, double randFraction);
 
 EntropyResult find_lowest_entropy(const CommonParams& commonParams, const Model& model, const Array3D<Bool>& wave);
 
-Result observe(const CommonParams& commonParams, const Model& model, Output* output, RandomDouble& random_double);
+Result observe(const CommonParams& commonParams, const Model& model, AlgorithmData* algorithmData, RandomDouble& random_double);
 
-Output create_output(const CommonParams& commonParams, const Model& model);
+AlgorithmData create_output(const CommonParams& commonParams, const Model& model);
 
-Result run(const CommonParams& commonParams, Output& output, const Model& model, size_t seed, std::experimental::optional<size_t> limit);
+Result run(const CommonParams& commonParams, AlgorithmData& algorithmData, const Model& model, size_t seed, std::experimental::optional<size_t> limit);
 
 std::experimental::optional<Image> createImage(const CommonParams& commonParams, const Model& model, size_t seed, std::experimental::optional<size_t> limit);
 
-Output initialOutput(const CommonParams& commonParams, const Model& model);
+AlgorithmData initialOutput(const CommonParams& commonParams, const Model& model);
 
-void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, Output& output);
+void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, AlgorithmData& algorithmData);
 
 class OverlappingModelConfig;
 class TileModelInternal;
@@ -75,7 +75,7 @@ Index3D waveIndex(const Index2D& imageIndex, int patternIndex);
 
 size_t selectPattern(const Index2D& index2D, int numPatterns, const std::vector<double>& weights, const Array3D<Bool>& wave, const RandomDouble& randomDouble);
 
-void updateSelectedPattern(Output& output, const Index2D& index2D, int numPatterns, size_t pattern);
+void updateSelectedPattern(AlgorithmData& algorithmData, const Index2D& index2D, int numPatterns, size_t pattern);
 
 EntropyValue calculateEntropy(const Array3D<Bool>& wave, const Index2D& index2D, size_t numPatterns, const std::vector<double>& patternWeights);
 

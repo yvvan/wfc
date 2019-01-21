@@ -108,16 +108,16 @@ class OverlappingModel : public Model
 public:
 	OverlappingModel(const OverlappingComputedInfo& config);
 
-	bool propagate(Output& output) const override;
+	bool propagate(AlgorithmData& algorithmData) const override;
 
 	bool on_boundary(const Index2D& index) const override
 	{
 		return !mCommonParams.mOutputProperties.periodic && (index.x + mInternal._n > mCommonParams.mOutputProperties.dimensions.width || index.y + mInternal._n > mCommonParams.mOutputProperties.dimensions.height);
 	}
 
-	Image image(const Output& output) const override;
+	Image image(const AlgorithmData& algorithmData) const override;
 
-	Graphics graphics(const Output& output) const;
+	Graphics graphics(const AlgorithmData& algorithmData) const;
 
 private:
 

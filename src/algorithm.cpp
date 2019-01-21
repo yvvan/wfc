@@ -168,22 +168,22 @@ size_t selectPattern(const Index2D& index2D, int numPatterns, const std::vector<
 	return weightedIndexSelect(distribution, randomDouble());
 }
 
-void updateSelectedPattern(Output& output, const Index2D& index2D, int numPatterns, size_t pattern)
+void updateSelectedPattern(AlgorithmData& algorithmData, const Index2D& index2D, int numPatterns, size_t pattern)
 {
 	for (int t = 0; t < numPatterns; ++t) 
 	{
 		Index3D index3D = waveIndex(index2D, t);
 
 		// Set pattern to true, everything else false
-		output._wave[index3D] = (t == pattern);
+		algorithmData._wave[index3D] = (t == pattern);
 	}
-	output._changes[index2D] = true;
+	algorithmData._changes[index2D] = true;
 }
 
-Result observe(const CommonParams& commonParams, const Model& model, Output& output, RandomDouble& random_double)
+Result observe(const CommonParams& commonParams, const Model& model, AlgorithmData& algorithmData, RandomDouble& random_double)
 {
 	// Find the index in the image with the lowest entropy
-	const auto result = find_lowest_entropy(commonParams, model, output._wave);
+	const auto result = find_lowest_entropy(commonParams, model, algorithmData._wave);
 
 	if (result.code != Result::kUnfinished)
 	{
@@ -193,49 +193,49 @@ Result observe(const CommonParams& commonParams, const Model& model, Output& out
 	Index2D index2D = result.minIndex;
 
 	// Select a pattern (with some randomness)
-	size_t r = selectPattern(index2D, commonParams.numPatterns, commonParams.patternWeights, output._wave, random_double);
+	size_t r = selectPattern(index2D, commonParams.numPatterns, commonParams.patternWeights, algorithmData._wave, random_double);
 
 	// The index is modified in the following way:
 	// - Wave set to true at pattern index, false everywhere else
 	// - The index is marked in changes 
-	updateSelectedPattern(output, index2D, commonParams.numPatterns, r);
+	updateSelectedPattern(algorithmData, index2D, commonParams.numPatterns, r);
 
 	return Result::kUnfinished;
 }
 
-void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, Output& output)
+void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, AlgorithmData& algorithmData)
 {
-	Dimension2D dimension = output._changes.size();
+	Dimension2D dimension = algorithmData._changes.size();
 	for (const auto x : irange(dimension.width)) 
 	{
-		// Setting the foundation section of the output wave only true for foundation
+		// Setting the foundation section of the algorithmData wave only true for foundation
 		for (const auto t : irange(commonParams.numPatterns)) 
 		{
 			if (t != foundation) 
 			{
 				Index3D index{ x, dimension.height - 1, t };
-				output._wave[index] = false;
+				algorithmData._wave[index] = false;
 			}
 		}
 
-		// Setting the rest of the output wave only true for not foundation
+		// Setting the rest of the algorithmData wave only true for not foundation
 		for (const auto y : irange(dimension.height - 1)) 
 		{
 			Index3D index{ x, y, foundation };
-			output._wave[index] = false;
+			algorithmData._wave[index] = false;
 		}
 
 		for (const auto y : irange(dimension.height)) 
 		{
 			Index2D index{ x, y };
-			output._changes[index] = true;
+			algorithmData._changes[index] = true;
 		}
 	}
 
-	while (model.propagate(output));
+	while (model.propagate(algorithmData));
 }
 
-Output initialOutput(const CommonParams& commonParams, const Model& model)
+AlgorithmData initialOutput(const CommonParams& commonParams, const Model& model)
 {
 	Dimension2D dimension = commonParams.mOutputProperties.dimensions;
 	Dimension3D waveDimension = append(dimension, commonParams.numPatterns);
@@ -246,19 +246,19 @@ Output initialOutput(const CommonParams& commonParams, const Model& model)
 	};
 }
 
-Output create_output(const CommonParams& commonParams, const Model& model)
+AlgorithmData create_output(const CommonParams& commonParams, const Model& model)
 {
-	Output output = initialOutput(commonParams, model);
+	AlgorithmData algorithmData = initialOutput(commonParams, model);
 	if (commonParams.foundation) 
 	{
 		// Tile has a clearly-defined "ground"/"foundation"
-		modifyOutputForFoundation(commonParams, model, *(commonParams.foundation), output);
+		modifyOutputForFoundation(commonParams, model, *(commonParams.foundation), algorithmData);
 	}
 
-	return output;
+	return algorithmData;
 }
 
-Result run(const CommonParams& commonParams, Output& output, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
+Result run(const CommonParams& commonParams, AlgorithmData& algorithmData, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
 {
 	std::mt19937 gen(seed);
 	std::uniform_real_distribution<double> dis(0.0, 1.0);
@@ -266,7 +266,7 @@ Result run(const CommonParams& commonParams, Output& output, const Model& model,
 
 	for (size_t l = 0; !(limit) || l < *limit; ++l) 
 	{
-		Result result = observe(commonParams, model, output, random_double);
+		Result result = observe(commonParams, model, algorithmData, random_double);
 
 		if (result != Result::kUnfinished) 
 		{
@@ -274,7 +274,7 @@ Result run(const CommonParams& commonParams, Output& output, const Model& model,
 			LOG_F(INFO, "%s after %lu iterations", result2str(result), l);
 			return result;
 		}
-		while (model.propagate(output));
+		while (model.propagate(algorithmData));
 	}
 
 	if (limit)
@@ -286,13 +286,13 @@ Result run(const CommonParams& commonParams, Output& output, const Model& model,
 
 std::experimental::optional<Image> createImage(const CommonParams& commonParams, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
 {
-	Output output = create_output(commonParams, model);
+	AlgorithmData algorithmData = create_output(commonParams, model);
 
-	const auto result = run(commonParams, output, model, seed, limit);
+	const auto result = run(commonParams, algorithmData, model, seed, limit);
 
 	if (result == Result::kSuccess) 
 	{
-		return model.image(output);
+		return model.image(algorithmData);
 	}
 	else
 	{
