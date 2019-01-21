@@ -39,7 +39,7 @@ class TileModel : public Model
 
 		Image image(const AlgorithmData& algorithmData) const override;
 
-		AlgorithmData createOutput() const override;
+		AlgorithmData initAlgorithmData() const override;
 
 	private:
 

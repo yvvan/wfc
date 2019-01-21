@@ -231,7 +231,7 @@ Result run(const CommonParams& commonParams, AlgorithmData& algorithmData, const
 
 std::experimental::optional<Image> createImage(const CommonParams& commonParams, const Model& model, size_t seed, std::experimental::optional<size_t> limit)
 {
-	AlgorithmData algorithmData = model.createOutput();
+	AlgorithmData algorithmData = model.initAlgorithmData();
 
 	const auto result = run(commonParams, algorithmData, model, seed, limit);
 

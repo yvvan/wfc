@@ -526,7 +526,7 @@ Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension)
 	return { (index.x % dimension.width), (index.y % dimension.height) };
 }
 
-AlgorithmData OverlappingModel::createOutput() const
+AlgorithmData OverlappingModel::initAlgorithmData() const
 {
 	AlgorithmData algorithmData = initialOutput(mCommonParams.mOutputProperties.dimensions, mCommonParams.numPatterns);
 	if (mInternal.foundation) 

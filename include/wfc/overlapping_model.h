@@ -122,7 +122,7 @@ public:
 
 	Graphics graphics(const AlgorithmData& algorithmData) const;
 
-	AlgorithmData createOutput() const override;
+	AlgorithmData initAlgorithmData() const override;
 private:
 
 	CommonParams mCommonParams;
