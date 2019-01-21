@@ -226,7 +226,7 @@ OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, co
 		.symmetry = (size_t)config.get_or("symmetry", 8),
 		.has_foundation = config.get_or("foundation", false),
 		.n = config.get_or("n", 3),
-		.commonParam =
+		.outputProperties =
 		{
 			.dimension =
 			{

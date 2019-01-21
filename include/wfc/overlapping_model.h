@@ -63,7 +63,7 @@ struct OverlappingModelConfig
 	size_t symmetry;
 	bool has_foundation;
 	int n;
-	OutsideCommonParams commonParam;
+	OutputProperties outputProperties;
 };
 
 struct PropagatorStatistics
@@ -112,7 +112,7 @@ public:
 
 	bool on_boundary(const Index2D& index) const override
 	{
-		return !mCommonParams.mOutsideCommonParams._periodic_out && (index.x + mInternal._n > mCommonParams.mOutsideCommonParams.dimension.width || index.y + mInternal._n > mCommonParams.mOutsideCommonParams.dimension.height);
+		return !mCommonParams.mOutputProperties._periodic_out && (index.x + mInternal._n > mCommonParams.mOutputProperties.dimension.width || index.y + mInternal._n > mCommonParams.mOutputProperties.dimension.height);
 	}
 
 	Image image(const Output& output) const override;

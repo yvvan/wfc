@@ -146,7 +146,7 @@ struct TileModelConfig
 
 	std::vector<Neighbors> neighbors;
 
-	OutsideCommonParams commonParam;
+	OutputProperties commonParam;
 
 };
 

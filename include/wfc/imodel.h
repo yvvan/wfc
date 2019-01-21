@@ -20,7 +20,7 @@ struct Output
 	Array2D<Bool> _changes; // _width X _height. Starts off false everywhere.
 };
 
-struct OutsideCommonParams
+struct OutputProperties
 {
 	Dimension2D dimension; // Of output image.
 	bool _periodic_out;
@@ -29,7 +29,7 @@ struct OutsideCommonParams
 struct CommonParams
 {
 
-	OutsideCommonParams mOutsideCommonParams;
+	OutputProperties mOutputProperties;
 
 	size_t _num_patterns;
 
