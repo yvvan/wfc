@@ -165,7 +165,7 @@ OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config)
 
 	PatternInfo patternInfo = calculatePatternInfo(config.sample_image, config.hasfoundation, config.periodic_in, config.symmetry, config.n);
 
-	toReturn.commonParams.foundation = patternInfo.foundation;
+	toReturn.internal.foundation = patternInfo.foundation;
 	toReturn.internal._patterns = patternInfo.patterns;
 	toReturn.commonParams.patternWeights = patternInfo.patternWeight;
 
@@ -529,10 +529,10 @@ Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension)
 AlgorithmData OverlappingModel::createOutput() const
 {
 	AlgorithmData algorithmData = initialOutput(mCommonParams.mOutputProperties.dimensions, mCommonParams.numPatterns);
-	if (mCommonParams.foundation) 
+	if (mInternal.foundation) 
 	{
 		// Tile has a clearly-defined "ground"/"foundation"
-		modifyOutputForFoundation(mCommonParams, *this, *(mCommonParams.foundation), algorithmData);
+		modifyOutputForFoundation(mCommonParams, *this, *(mInternal.foundation), algorithmData);
 	}
 
 	return algorithmData;

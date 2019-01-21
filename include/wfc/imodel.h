@@ -25,9 +25,6 @@ struct CommonParams
 
 	size_t numPatterns;
 
-	// Index of pattern which is at the base of the image if the image has a base. Otherwise, kInvalidIndex
-	std::experimental::optional<size_t> foundation; 
-
 	// The weight of each pattern (e.g. how often that pattern occurs in the sample image).
 	std::vector<double> patternWeights;
 

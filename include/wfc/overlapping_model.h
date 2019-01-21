@@ -86,6 +86,9 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 
 struct OverlappingModelInternal
 {
+	// Index of pattern which is at the base of the image if the image has a base. Otherwise, kInvalidIndex
+	std::experimental::optional<size_t> foundation; 
+
 	int _n;
 	// num_patterns X (2 * n - 1) X (2 * n - 1) X ???
 	// list of other pattern indices that agree on this x/y offset (?)
