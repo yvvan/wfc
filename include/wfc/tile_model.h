@@ -17,7 +17,7 @@ struct TileModelInternal
 
 	CommonParams mCommonParams;
 
-	// 4 X _num_patterns X _num_patterns
+	// 4 X numPatterns X numPatterns
 	Array3D<Bool> _propagator;
 
 	std::vector<std::vector<RGBA>> _tiles;

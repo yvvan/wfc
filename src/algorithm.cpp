@@ -89,7 +89,7 @@ EntropyResult find_lowest_entropy(const CommonParams& commonParams, const Model&
 			return false;
 		}
 
-		EntropyValue entropyResult = calculateEntropy(wave, index2D, commonParams._num_patterns, commonParams._pattern_weight);
+		EntropyValue entropyResult = calculateEntropy(wave, index2D, commonParams.numPatterns, commonParams.patternWeights);
 
 		if (entropyResult.entropy == 0 || entropyResult.num_superimposed == 0) 
 		{
@@ -193,12 +193,12 @@ Result observe(const CommonParams& commonParams, const Model& model, Output& out
 	Index2D index2D = result.minIndex;
 
 	// Select a pattern (with some randomness)
-	size_t r = selectPattern(index2D, commonParams._num_patterns, commonParams._pattern_weight, output._wave, random_double);
+	size_t r = selectPattern(index2D, commonParams.numPatterns, commonParams.patternWeights, output._wave, random_double);
 
 	// The index is modified in the following way:
 	// - Wave set to true at pattern index, false everywhere else
 	// - The index is marked in changes 
-	updateSelectedPattern(output, index2D, commonParams._num_patterns, r);
+	updateSelectedPattern(output, index2D, commonParams.numPatterns, r);
 
 	return Result::kUnfinished;
 }
@@ -209,7 +209,7 @@ void modifyOutputForFoundation(const CommonParams& commonParams, const Model& mo
 	for (const auto x : irange(dimension.width)) 
 	{
 		// Setting the foundation section of the output wave only true for foundation
-		for (const auto t : irange(commonParams._num_patterns)) 
+		for (const auto t : irange(commonParams.numPatterns)) 
 		{
 			if (t != foundation) 
 			{
@@ -238,7 +238,7 @@ void modifyOutputForFoundation(const CommonParams& commonParams, const Model& mo
 Output initialOutput(const CommonParams& commonParams, const Model& model)
 {
 	Dimension2D dimension = commonParams.mOutputProperties.dimensions;
-	Dimension3D waveDimension = append(dimension, commonParams._num_patterns);
+	Dimension3D waveDimension = append(dimension, commonParams.numPatterns);
 	return
 	{
 		._wave = Array3D<Bool>(waveDimension, true),
@@ -249,10 +249,10 @@ Output initialOutput(const CommonParams& commonParams, const Model& model)
 Output create_output(const CommonParams& commonParams, const Model& model)
 {
 	Output output = initialOutput(commonParams, model);
-	if (commonParams._foundation) 
+	if (commonParams.foundation) 
 	{
 		// Tile has a clearly-defined "ground"/"foundation"
-		modifyOutputForFoundation(commonParams, model, *(commonParams._foundation), output);
+		modifyOutputForFoundation(commonParams, model, *(commonParams.foundation), output);
 	}
 
 	return output;

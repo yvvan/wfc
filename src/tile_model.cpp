@@ -85,12 +85,12 @@ bool TileModel::propagate(Output& output) const
 
 				if (!output._changes[ {x1, y1 } ]) { continue; }
 
-				for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
+				for (int t2 = 0; t2 < mCommonParams.numPatterns; ++t2) 
 				{
 					if (output._wave[ { x2, y2, t2} ]) 
 					{
 						bool b = false;
-						for (int t1 = 0; t1 < mCommonParams._num_patterns && !b; ++t1) 
+						for (int t1 = 0; t1 < mCommonParams.numPatterns && !b; ++t1) 
 						{
 							if (output._wave[ { x1, y1, t1 } ]) 
 							{
@@ -122,11 +122,11 @@ Image TileModel::image(const Output& output) const
 		for (int y = 0; y < dimension.height; ++y) 
 		{
 			double sum = 0;
-			for (const auto t : irange(mCommonParams._num_patterns)) 
+			for (const auto t : irange(mCommonParams.numPatterns)) 
 			{
 				if (output._wave[ { x, y, t } ] ) 
 				{
-					sum += mCommonParams._pattern_weight[t];
+					sum += mCommonParams.patternWeights[t];
 				}
 			}
 
@@ -141,15 +141,15 @@ Image TileModel::image(const Output& output) const
 					else 
 					{
 						double r = 0, g = 0, b = 0, a = 0;
-						for (int t = 0; t < mCommonParams._num_patterns; ++t) 
+						for (int t = 0; t < mCommonParams.numPatterns; ++t) 
 						{
 							if (output._wave[ { x, y, t } ]) 
 							{
 								RGBA c = mInternal._tiles[t][xt + yt * mInternal._tile_size];
-								r += (double)c.r * mCommonParams._pattern_weight[t] / sum;
-								g += (double)c.g * mCommonParams._pattern_weight[t] / sum;
-								b += (double)c.b * mCommonParams._pattern_weight[t] / sum;
-								a += (double)c.a * mCommonParams._pattern_weight[t] / sum;
+								r += (double)c.r * mCommonParams.patternWeights[t] / sum;
+								g += (double)c.g * mCommonParams.patternWeights[t] / sum;
+								b += (double)c.b * mCommonParams.patternWeights[t] / sum;
+								a += (double)c.a * mCommonParams.patternWeights[t] / sum;
 							}
 						}
 
@@ -302,8 +302,8 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 
 	toReturn.mCommonParams.mOutputProperties = config.commonParam;
 
-	// Tile model does not support _foundation. Variable should be removed
-	toReturn.mCommonParams._foundation = std::experimental::optional<size_t>();
+	// Tile model does not support foundation. Variable should be removed
+	toReturn.mCommonParams.foundation = std::experimental::optional<size_t>();
 
 	toReturn._tile_size = config.tileSize;
 	
@@ -366,13 +366,13 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 		double weight = tile.weight;
 		for (int t = 0; t < cardinality; ++t) 
 		{
-			toReturn.mCommonParams._pattern_weight.push_back(weight);
+			toReturn.mCommonParams.patternWeights.push_back(weight);
 		}
 	}
 
-	toReturn.mCommonParams._num_patterns = action.size();
+	toReturn.mCommonParams.numPatterns = action.size();
 
-	toReturn._propagator = Array3D<Bool>({4, toReturn.mCommonParams._num_patterns, toReturn.mCommonParams._num_patterns}, false);
+	toReturn._propagator = Array3D<Bool>({4, toReturn.mCommonParams.numPatterns, toReturn.mCommonParams.numPatterns}, false);
 
 	for (const auto& neighbor : neighbors) 
 	{
@@ -398,9 +398,9 @@ TileModelInternal fromConfig(const TileModelConfig& config)
 	}
 
 	// Accounts for some inherent symmetry(?)
-	for (int t1 = 0; t1 < toReturn.mCommonParams._num_patterns; ++t1) 
+	for (int t1 = 0; t1 < toReturn.mCommonParams.numPatterns; ++t1) 
 	{
-		for (int t2 = 0; t2 < toReturn.mCommonParams._num_patterns; ++t2) 
+		for (int t2 = 0; t2 < toReturn.mCommonParams.numPatterns; ++t2) 
 		{
 			toReturn._propagator[ { 2, t1, t2 } ] = toReturn._propagator[ { 0, t2, t1 } ];
 			toReturn._propagator[ { 3, t1, t2 } ] = toReturn._propagator[ { 1, t2, t1 } ];

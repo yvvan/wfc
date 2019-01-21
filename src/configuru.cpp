@@ -224,7 +224,7 @@ OverlappingModelConfig extractOverlappingConfig(const std::string& image_dir, co
 		.sample_image = load_paletted_image(in_path),
 		.periodic_in = config.get_or("periodic_in", true),
 		.symmetry = (size_t)config.get_or("symmetry", 8),
-		.has_foundation = config.get_or("foundation", false),
+		.hasfoundation = config.get_or("foundation", false),
 		.n = config.get_or("n", 3),
 		.outputProperties =
 		{

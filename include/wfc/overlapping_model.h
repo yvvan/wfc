@@ -61,7 +61,7 @@ struct OverlappingModelConfig
 	PalettedImage sample_image;
 	bool periodic_in;
 	size_t symmetry;
-	bool has_foundation;
+	bool hasfoundation;
 	int n;
 	OutputProperties outputProperties;
 };

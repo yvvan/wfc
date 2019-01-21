@@ -20,10 +20,14 @@ struct Output
 	Array2D<Bool> _changes; // _width X _height. Starts off false everywhere.
 };
 
+// Properties of output image.
 struct OutputProperties
 {
-	Dimension2D dimensions; // Of output image.
+
+	Dimension2D dimensions;
+
 	bool periodic;
+
 };
 
 struct CommonParams
@@ -31,13 +35,13 @@ struct CommonParams
 
 	OutputProperties mOutputProperties;
 
-	size_t _num_patterns;
+	size_t numPatterns;
 
 	// Index of pattern which is at the base of the image if the image has a base. Otherwise, kInvalidIndex
-	std::experimental::optional<size_t> _foundation; 
+	std::experimental::optional<size_t> foundation; 
 
 	// The weight of each pattern (e.g. how often that pattern occurs in the sample image).
-	std::vector<double> _pattern_weight; // num_patterns
+	std::vector<double> patternWeights;
 
 };
 

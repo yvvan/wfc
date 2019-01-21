@@ -163,16 +163,16 @@ OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config)
 	toReturn.internal._n = config.n;
 	toReturn.internal._palette = config.sample_image.palette;
 
-	PatternInfo patternInfo = calculatePatternInfo(config.sample_image, config.has_foundation, config.periodic_in, config.symmetry, config.n);
+	PatternInfo patternInfo = calculatePatternInfo(config.sample_image, config.hasfoundation, config.periodic_in, config.symmetry, config.n);
 
-	toReturn.commonParams._foundation = patternInfo.foundation;
+	toReturn.commonParams.foundation = patternInfo.foundation;
 	toReturn.internal._patterns = patternInfo.patterns;
-	toReturn.commonParams._pattern_weight = patternInfo.patternWeight;
+	toReturn.commonParams.patternWeights = patternInfo.patternWeight;
 
-	toReturn.commonParams._num_patterns = toReturn.internal._patterns.size();
-	LOG_F(INFO, "Found %lu unique patterns in sample image", toReturn.commonParams._num_patterns);
+	toReturn.commonParams.numPatterns = toReturn.internal._patterns.size();
+	LOG_F(INFO, "Found %lu unique patterns in sample image", toReturn.commonParams.numPatterns);
 
-	toReturn.internal._propagator = createPropagator(toReturn.commonParams._num_patterns, config.n, toReturn.internal._patterns);
+	toReturn.internal._propagator = createPropagator(toReturn.commonParams.numPatterns, config.n, toReturn.internal._patterns);
 
 	PropagatorStatistics statistics = analyze(toReturn.internal._propagator);
 	LOG_F(INFO, "propagator length: mean/max/sum: %.1f, %lu, %lu", statistics.average, statistics.longest_propagator, statistics.sum_propagator);
@@ -300,7 +300,7 @@ bool OverlappingModel::propagate(Output& output) const
 				return;
 			}
 
-			for (int t2 = 0; t2 < mCommonParams._num_patterns; ++t2) 
+			for (int t2 = 0; t2 < mCommonParams.numPatterns; ++t2) 
 			{
 				Index3D sPatternIndex = append(sIndex, t2);
 				if (!output._wave[sPatternIndex])
@@ -363,7 +363,7 @@ Graphics OverlappingModel::graphics(const Output& output) const
 
 				if (on_boundary({ sx, sy })) { continue; }
 
-				for (int t = 0; t < mCommonParams._num_patterns; ++t) 
+				for (int t = 0; t < mCommonParams.numPatterns; ++t) 
 				{
 					Index3D index3D{ sx, sy, t };
 					if (output._wave[index3D]) 
