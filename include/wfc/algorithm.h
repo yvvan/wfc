@@ -51,8 +51,6 @@ EntropyResult find_lowest_entropy(const CommonParams& commonParams, const Model&
 
 Result observe(const CommonParams& commonParams, const Model& model, AlgorithmData* algorithmData, RandomDouble& random_double);
 
-AlgorithmData create_output(const CommonParams& commonParams, const Model& model);
-
 Result run(const CommonParams& commonParams, AlgorithmData& algorithmData, const Model& model, size_t seed, std::experimental::optional<size_t> limit);
 
 std::experimental::optional<Image> createImage(const CommonParams& commonParams, const Model& model, size_t seed, std::experimental::optional<size_t> limit);

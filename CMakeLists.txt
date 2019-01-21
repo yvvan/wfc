@@ -13,6 +13,7 @@ add_library(wfc
 	src/algorithm.cpp
 	src/configuru.cpp
 	src/tile_model.cpp
+	src/algorithm_data.cpp
 	src/overlapping_model.cpp)
 
 add_executable(wfc-sebastian src/main.cpp)

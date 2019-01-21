@@ -16,5 +16,6 @@ struct AlgorithmData
 	Array2D<Bool> _changes; // _width X _height. Starts off false everywhere.
 };
 
+AlgorithmData initialOutput(const Dimension2D& outputDimensions, size_t numPatterns);
 
 #endif

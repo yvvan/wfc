@@ -235,20 +235,9 @@ void modifyOutputForFoundation(const CommonParams& commonParams, const Model& mo
 	while (model.propagate(algorithmData));
 }
 
-AlgorithmData initialOutput(const CommonParams& commonParams, const Model& model)
-{
-	Dimension2D dimension = commonParams.mOutputProperties.dimensions;
-	Dimension3D waveDimension = append(dimension, commonParams.numPatterns);
-	return
-	{
-		._wave = Array3D<Bool>(waveDimension, true),
-		._changes = Array2D<Bool>(dimension, false)
-	};
-}
-
 AlgorithmData create_output(const CommonParams& commonParams, const Model& model)
 {
-	AlgorithmData algorithmData = initialOutput(commonParams, model);
+	AlgorithmData algorithmData = initialOutput(commonParams.mOutputProperties.dimensions, commonParams.numPatterns);
 	if (commonParams.foundation) 
 	{
 		// Tile has a clearly-defined "ground"/"foundation"
