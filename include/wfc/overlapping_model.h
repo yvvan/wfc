@@ -112,7 +112,7 @@ public:
 
 	bool on_boundary(const Index2D& index) const override
 	{
-		return !mCommonParams.mOutputProperties._periodic_out && (index.x + mInternal._n > mCommonParams.mOutputProperties.dimension.width || index.y + mInternal._n > mCommonParams.mOutputProperties.dimension.height);
+		return !mCommonParams.mOutputProperties.periodic && (index.x + mInternal._n > mCommonParams.mOutputProperties.dimensions.width || index.y + mInternal._n > mCommonParams.mOutputProperties.dimensions.height);
 	}
 
 	Image image(const Output& output) const override;

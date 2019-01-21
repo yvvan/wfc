@@ -118,7 +118,7 @@ EntropyResult find_lowest_entropy(const CommonParams& commonParams, const Model&
 		return false;
 	};
 
-	Dimension2D dimension = commonParams.mOutputProperties.dimension;
+	Dimension2D dimension = commonParams.mOutputProperties.dimensions;
 	BreakRange::runForDimension(dimension, func);
 
 	Result result;
@@ -237,7 +237,7 @@ void modifyOutputForFoundation(const CommonParams& commonParams, const Model& mo
 
 Output initialOutput(const CommonParams& commonParams, const Model& model)
 {
-	Dimension2D dimension = commonParams.mOutputProperties.dimension;
+	Dimension2D dimension = commonParams.mOutputProperties.dimensions;
 	Dimension3D waveDimension = append(dimension, commonParams._num_patterns);
 	return
 	{

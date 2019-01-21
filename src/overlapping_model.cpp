@@ -259,7 +259,7 @@ PropagatorStatistics analyze(const Propagator& propagator)
 bool OverlappingModel::propagate(Output& output) const
 {
 	bool did_change = false;
-	Dimension2D dimension = mCommonParams.mOutputProperties.dimension;
+	Dimension2D dimension = mCommonParams.mOutputProperties.dimensions;
 
 	// This whole set of nested loops looks very similar to the one in graphics()
 	auto rangeFcn = [&] (const Index2D& index)
@@ -342,7 +342,7 @@ bool OverlappingModel::propagate(Output& output) const
 
 Graphics OverlappingModel::graphics(const Output& output) const
 {
-	Dimension2D dimension = mCommonParams.mOutputProperties.dimension;
+	Dimension2D dimension = mCommonParams.mOutputProperties.dimensions;
 
 	Graphics result(dimension, {});
 

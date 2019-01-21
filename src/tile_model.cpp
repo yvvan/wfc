@@ -23,7 +23,7 @@ bool TileModel::propagate(Output& output) const
 {
 	bool did_change = false;
 
-	Dimension2D dimension = mCommonParams.mOutputProperties.dimension;
+	Dimension2D dimension = mCommonParams.mOutputProperties.dimensions;
 
 	for (int x2 = 0; x2 < dimension.width; ++x2) 
 	{
@@ -38,7 +38,7 @@ bool TileModel::propagate(Output& output) const
 				{
 					if (x2 == 0) 
 					{
-						if (!mCommonParams.mOutputProperties._periodic_out) { continue; }
+						if (!mCommonParams.mOutputProperties.periodic) { continue; }
 						x1 = dimension.width - 1;
 					} 
 					else 
@@ -50,7 +50,7 @@ bool TileModel::propagate(Output& output) const
 				{
 					if (y2 == dimension.height - 1) 
 					{
-						if (!mCommonParams.mOutputProperties._periodic_out) { continue; }
+						if (!mCommonParams.mOutputProperties.periodic) { continue; }
 						y1 = 0;
 					}
 					else 
@@ -62,7 +62,7 @@ bool TileModel::propagate(Output& output) const
 				{
 					if (x2 == dimension.width - 1) 
 					{
-						if (!mCommonParams.mOutputProperties._periodic_out) { continue; }
+						if (!mCommonParams.mOutputProperties.periodic) { continue; }
 						x1 = 0;
 					} 
 					else 
@@ -74,7 +74,7 @@ bool TileModel::propagate(Output& output) const
 				{
 					if (y2 == 0) 
 					{
-						if (!mCommonParams.mOutputProperties._periodic_out) { continue; }
+						if (!mCommonParams.mOutputProperties.periodic) { continue; }
 						y1 = dimension.height - 1;
 					} 
 					else 
@@ -114,7 +114,7 @@ bool TileModel::propagate(Output& output) const
 
 Image TileModel::image(const Output& output) const
 {
-	Dimension2D dimension = mCommonParams.mOutputProperties.dimension;
+	Dimension2D dimension = mCommonParams.mOutputProperties.dimensions;
 	Image result({ dimension.width * mInternal._tile_size, dimension.height * mInternal._tile_size } , {});
 
 	for (int x = 0; x < dimension.width; ++x) 

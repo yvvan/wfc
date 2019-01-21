@@ -22,8 +22,8 @@ struct Output
 
 struct OutputProperties
 {
-	Dimension2D dimension; // Of output image.
-	bool _periodic_out;
+	Dimension2D dimensions; // Of output image.
+	bool periodic;
 };
 
 struct CommonParams
