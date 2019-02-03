@@ -3,8 +3,6 @@
 #include <cmath>
 #include <iostream>
 
-#include <emilib/irange.hpp>
-
 #include <wfc/ranges.h>
 
 using namespace emilib;
