@@ -16,12 +16,19 @@ Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size);
 
 PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size);
 
+struct WeightedPattern
+{
+
+	Pattern pattern;
+
+	double weight;
+
+};
+
 struct PatternInfo
 {
 
-	std::vector<Pattern> patterns;
-
-	std::vector<double> patternWeight;
+	std::vector<WeightedPattern> patterns;
 
 	std::experimental::optional<size_t> foundation;
 

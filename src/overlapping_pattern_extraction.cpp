@@ -43,8 +43,12 @@ PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation,
 			toReturn.foundation = toReturn.patterns.size();
 		}
 
-		toReturn.patterns.push_back(pattern_from_hash(it.first, n, image.palette.size()));
-		toReturn.patternWeight.push_back(it.second);
+		WeightedPattern newItem
+		{
+			.pattern = pattern_from_hash(it.first, n, image.palette.size()),
+			.weight = it.second
+		};
+		toReturn.patterns.push_back(newItem);
 	}
 	return toReturn;
 }

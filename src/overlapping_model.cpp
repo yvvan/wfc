@@ -125,9 +125,23 @@ OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config)
 
 	PatternInfo patternInfo = calculatePatternInfo(config.sample_image, config.hasfoundation, config.periodic_in, config.symmetry, config.n);
 
+	std::vector<double> extractedWeights;
+	extractedWeights.reserve(patternInfo.patterns.size());
+	for (const auto& pattern : patternInfo.patterns)
+	{
+		extractedWeights.push_back(pattern.weight);
+	}
+	toReturn.commonParams.patternWeights = extractedWeights;
+
+	std::vector<Pattern> extractedPatterns;
+	extractedPatterns.reserve(patternInfo.patterns.size());
+	for (const auto& pattern : patternInfo.patterns)
+	{
+		extractedPatterns.push_back(pattern.pattern);
+	}
+
 	toReturn.internal.foundation = patternInfo.foundation;
-	toReturn.internal._patterns = patternInfo.patterns;
-	toReturn.commonParams.patternWeights = patternInfo.patternWeight;
+	toReturn.internal._patterns = extractedPatterns;
 
 	toReturn.commonParams.numPatterns = toReturn.internal._patterns.size();
 	LOG_F(INFO, "Found %lu unique patterns in sample image", toReturn.commonParams.numPatterns);
