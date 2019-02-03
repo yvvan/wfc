@@ -3,57 +3,13 @@
 
 #include <wfc/arrays.h>
 #include <wfc/imodel.h>
-
-#include <unordered_map>
-
-using ColorIndex = uint8_t; // tile index or color index. If you have more than 255, don't.
-using Palette = std::vector<RGBA>;
-using Pattern = Array2D<ColorIndex>;
+#include <wfc/overlapping_types.h>
 
 using Graphics = Array2D<std::vector<ColorIndex>>;
-using PatternIndex = uint16_t;
+
 const size_t kUpscale = 4; // Upscale images before saving
 
-using PatternHash = uint64_t; // Another representation of a Pattern.
-
-struct HashedPattern
-{
-
-	Pattern pattern;
-
-	uint64_t hash;
-
-};
-
-struct PatternHasher
-{
-
-	inline std::size_t operator()(const HashedPattern& hashedPattern) const
-	{
-		return hashedPattern.hash;
-	}
-	
-};
-
-
-inline bool operator==(const HashedPattern& left, const HashedPattern& right)
-{
-	return left.pattern == right.pattern;
-}
-
-using PatternPrevalence = std::unordered_map<PatternHash, size_t>;
-
 using Propagator = Array3D<std::vector<PatternIndex>>;
-
-Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension);
-
-struct PalettedImage
-{
-	Array2D<ColorIndex> data; 
-	Palette palette;
-};
-
-const PatternHash kInvalidHash = -1;
 
 
 struct OverlappingModelConfig
@@ -80,9 +36,6 @@ struct PropagatorStatistics
 PropagatorStatistics analyze(const Propagator& propagator);
 
 Propagator createPropagator(size_t numPatterns, int n, const std::vector<Pattern>& patterns);
-
-// n = side of the pattern, e.g. 3.
-PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern);
 
 struct OverlappingModelInternal
 {
@@ -132,40 +85,15 @@ private:
 
 OverlappingComputedInfo fromConfig(const OverlappingModelConfig& config);
 
-Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size);
-
 Image image_from_graphics(const Graphics& graphics, const Palette& palette);
 
 Image upsample(const Image& image);
 
-Pattern patternFromSample(const PalettedImage& sample, int n, const Index2D& index);
-
-Pattern rotate(const Pattern& p, int n);
-
-Pattern reflect(const Pattern& p, int n);
-
-PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size);
-
 RGBA collapsePixel(const std::vector<ColorIndex>& tile_contributors, const Palette& palette);
-
-std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index);
 
 RGBA averageContributors(const std::vector<ColorIndex>& contributors, const Palette& palette);
 
 bool agrees(const Pattern& p1, const Pattern& p2, int dx, int dy, int n);
-
-struct PatternInfo
-{
-
-	std::vector<Pattern> patterns;
-
-	std::vector<double> patternWeight;
-
-	std::experimental::optional<size_t> foundation;
-
-};
-
-PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, bool symmetry, int n);
 
 void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, AlgorithmData& algorithmData);
 
