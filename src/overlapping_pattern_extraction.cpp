@@ -36,7 +36,7 @@ PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation,
 
 	for (const auto& it : hashed_patterns) 
 	{
-		if (it.first == foundation) 
+		if (it.first.hash == foundation) 
 		{
 			// size() = the current index. This should be more explicit.
 			// This is also a really roundabout way of setting the foundation
@@ -45,7 +45,7 @@ PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation,
 
 		WeightedPattern newItem
 		{
-			.pattern = pattern_from_hash(it.first, n, image.palette.size()),
+			.pattern = it.first.pattern,//pattern_from_hash(it.first, n, image.palette.size()),
 			.weight = it.second
 		};
 		toReturn.patterns.push_back(newItem);
@@ -85,12 +85,17 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 
 		for (int k = 0; k < symmetry; ++k) 
 		{
-			auto hash = hash_from_pattern(ps[k], sample.palette.size());
-			patterns[hash] += 1;
+			HashedPattern hashedPattern
+			{
+				.pattern = ps[k],
+				.hash = hash_from_pattern(ps[k], sample.palette.size())
+			};
+			
+			patterns[hashedPattern] += 1;
 
 			if (out_lowest_pattern && index.y == imageDimension.height - 1) 
 			{
-				*out_lowest_pattern = hash;
+				*out_lowest_pattern = hashedPattern.hash;
 			}
 		}
 	};
@@ -120,32 +125,6 @@ PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
 			power *= palette_size;
 		}
 	}
-	return result;
-}
-
-Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size)
-{
-	size_t residue = hash;
-	size_t power = std::pow(palette_size, n * n);
-	Pattern result({ n, n });
-
-	for (auto y : irange(n)) 
-	{
-		for (auto x : irange(n)) 
-		{
-			power /= palette_size;
-			size_t count = 0;
-
-			while (residue >= power)
-			{
-				residue -= power;
-				count++;
-			}
-
-			result[{x, y}] = static_cast<ColorIndex>(count);
-		}
-	}
-
 	return result;
 }
 

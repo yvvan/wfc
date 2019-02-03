@@ -10,9 +10,32 @@
 using PatternHash = uint64_t; // Another representation of a Pattern.
 const PatternHash kInvalidHash = -1;
 
-using PatternPrevalence = std::unordered_map<PatternHash, size_t>;
+struct HashedPattern
+{
 
-Pattern pattern_from_hash(const PatternHash hash, int n, size_t palette_size);
+	Pattern pattern;
+
+	PatternHash hash;
+
+};
+
+struct PatternHasher
+{
+
+	inline std::size_t operator()(const HashedPattern& hashedPattern) const
+	{
+		return hashedPattern.hash;
+	}
+	
+};
+
+
+inline bool operator==(const HashedPattern& left, const HashedPattern& right)
+{
+	return left.pattern == right.pattern;
+}
+
+using PatternPrevalence = std::unordered_map<HashedPattern, size_t, PatternHasher>;
 
 PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size);
 
@@ -40,32 +63,6 @@ PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation,
 PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern);
 
 std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index);
-
-struct HashedPattern
-{
-
-	Pattern pattern;
-
-	uint64_t hash;
-
-};
-
-struct PatternHasher
-{
-
-	inline std::size_t operator()(const HashedPattern& hashedPattern) const
-	{
-		return hashedPattern.hash;
-	}
-	
-};
-
-
-inline bool operator==(const HashedPattern& left, const HashedPattern& right)
-{
-	return left.pattern == right.pattern;
-}
-
 
 Pattern patternFromSample(const PalettedImage& sample, int n, const Index2D& index);
 
