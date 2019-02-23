@@ -98,7 +98,7 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 	return patterns;
 }
 
-std::vector<PatternOccurence> extractPatternsFromImage(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern)
+std::vector<PatternOccurrence> extractPatternsFromImage(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern)
 {
 	Dimension2D imageDimension = sample.data.size();
 
@@ -143,11 +143,11 @@ std::vector<PatternOccurence> extractPatternsFromImage(const PalettedImage& samp
 
 	runForDimension(dimension, rangeFcn);
 
-	std::vector<PatternOccurence> toReturn;	
+	std::vector<PatternOccurrence> toReturn;	
 	for (const auto& pattern : newPatterns)
 	{
 		toReturn.push_back(
-		PatternOccurence{
+		{
 			.pattern = pattern.first.pattern,
 			.occurence = pattern.second
 		});
