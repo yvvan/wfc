@@ -57,6 +57,13 @@ struct PatternInfo
 
 };
 
+struct PatternOccurrence
+{
+	Pattern pattern;
+
+	int occurence;
+};
+
 PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, bool symmetry, int n);
 
 // n = side of the pattern, e.g. 3.
