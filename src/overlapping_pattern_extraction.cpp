@@ -98,6 +98,64 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 	return patterns;
 }
 
+std::vector<PatternOccurence> extractPatternsFromImage(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern)
+{
+	Dimension2D imageDimension = sample.data.size();
+
+	std::unordered_map<HashedPattern, size_t, PatternHasher> newPatterns;
+
+	PatternPrevalence patterns;
+
+	Dimension2D dimension;
+	if (periodic_in)
+	{
+		dimension = imageDimension;
+	}
+	else
+	{
+		dimension = 
+		{
+			.width = imageDimension.width - n + 1,
+			.height = imageDimension.height - n + 1
+		};
+	}
+
+	auto rangeFcn = [&] (const Index2D& index)
+	{
+		std::array<Pattern, 8> ps = generatePatterns(sample, n, index);
+
+		for (int k = 0; k < symmetry; ++k) 
+		{
+			HashedPattern hashedPattern
+			{
+				.pattern = ps[k],
+				.hash = hash_from_pattern(ps[k], sample.palette.size())
+			};
+			
+			patterns[hashedPattern] += 1;
+
+			if (out_lowest_pattern && index.y == imageDimension.height - 1) 
+			{
+				*out_lowest_pattern = hashedPattern.hash;
+			}
+		}
+	};
+
+	runForDimension(dimension, rangeFcn);
+
+	std::vector<PatternOccurence> toReturn;	
+	for (const auto& pattern : newPatterns)
+	{
+		toReturn.push_back(
+		PatternOccurence{
+			.pattern = pattern.first.pattern,
+			.occurence = pattern.second
+		});
+	}
+
+	return toReturn;
+}
+
 PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
 {
 	PatternHash result = 0;
