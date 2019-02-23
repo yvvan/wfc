@@ -5,8 +5,6 @@
 
 #include <wfc/ranges.h>
 
-using namespace emilib;
-
 template <class Functor>
 Pattern make_pattern(int n, Functor fun)
 {
@@ -56,9 +54,6 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 {
 	Dimension2D imageDimension = sample.data.size();
 
-	CHECK_LE_F(n, imageDimension.width);
-	CHECK_LE_F(n, imageDimension.height);
-
 	std::unordered_map<HashedPattern, size_t, PatternHasher> newPatterns;
 
 	PatternPrevalence patterns;
@@ -105,11 +100,6 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 
 PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
 {
-	CHECK_LT_F(std::pow((double)palette_size, (double)area(pattern.size())),
-	           std::pow(2.0, sizeof(PatternHash) * 8),
-	           "Too large palette (it is %lu) or too large pattern size (it's %.0f)",
-	           palette_size, std::sqrt(area(pattern.size())));
-
 	PatternHash result = 0;
 	size_t power = 1;
 
