@@ -62,7 +62,7 @@ struct PatternOccurrence
 
 	Pattern pattern;
 
-	int occurence;
+	int occurrence;
 
 };
 
@@ -89,7 +89,7 @@ struct ImagePatternProperties
 
 	std::vector<PatternOccurrence> patterns;
 
-	Array2D<PatternIdentifier> patternMap;
+	Array2D<PatternIdentifier> grid;
 
 };
 
@@ -98,7 +98,7 @@ PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation,
 // n = side of the pattern, e.g. 3.
 PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern);
 
-std::vector<PatternOccurrence> extractPatternsFromImage(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern);
+ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern);
 
 std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index);
 

@@ -98,58 +98,69 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 	return patterns;
 }
 
-std::vector<PatternOccurrence> extractPatternsFromImage(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern)
+// A map from hashed pattern to the index in vector
+using PatternMap = std::unordered_map<HashedPattern, size_t, PatternHasher>;
+
+PatternTransformProperties convertTransformProperties(int enumerated)
 {
-	Dimension2D imageDimension = sample.data.size();
+	return {};
+};
 
-	PatternPrevalence patterns;
+ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int n)
+{
+	ImagePatternProperties toReturn;
 
-	Dimension2D dimension;
-	if (periodic_in)
-	{
-		dimension = imageDimension;
-	}
-	else
-	{
-		dimension = 
-		{
-			.width = imageDimension.width - n + 1,
-			.height = imageDimension.height - n + 1
-		};
-	}
+	PatternMap patternMap;
 
 	auto rangeFcn = [&] (const Index2D& index)
 	{
 		std::array<Pattern, 8> ps = generatePatterns(sample, n, index);
 
-		for (int k = 0; k < symmetry; ++k) 
+		auto hashedValue = patternMap.cend();
+		int transformEnumeration = 0;
+
+		for (int k = 0; k < 8; ++k) 
 		{
 			HashedPattern hashedPattern
 			{
 				.pattern = ps[k],
 				.hash = hash_from_pattern(ps[k], sample.palette.size())
 			};
-			
-			patterns[hashedPattern] += 1;
 
-			if (out_lowest_pattern && index.y == imageDimension.height - 1) 
+			hashedValue = patternMap.find(hashedPattern);
+			transformEnumeration = k;
+
+			if (hashedValue != patternMap.end())
 			{
-				*out_lowest_pattern = hashedPattern.hash;
+				break;
 			}
+		}
+
+		if (hashedValue != patternMap.end())
+		{
+			PatternIdentifier identifier
+			{
+				.patternIndex = hashedValue->second,
+				.transformProperties = convertTransformProperties(transformEnumeration)
+			};
+			toReturn.grid[index] = identifier;
+
+			toReturn.patterns[hashedValue->second].occurrence++;
+		}
+		else
+		{
+			toReturn.patterns.push_back({ ps[0], 0 });
+			PatternIdentifier identifier
+			{
+				.patternIndex = toReturn.patterns.size() - 1,
+				.transformProperties = {}
+			};
+			toReturn.grid[index] = identifier;
 		}
 	};
 
-	runForDimension(dimension, rangeFcn);
-
-	std::vector<PatternOccurrence> toReturn;	
-	for (const auto& pattern : patterns)
-	{
-		toReturn.push_back(
-		{
-			.pattern = pattern.first.pattern,
-			.occurence = pattern.second
-		});
-	}
+	Dimension2D imageDimension = sample.data.size();
+	runForDimension(imageDimension, rangeFcn);
 
 	return toReturn;
 }
