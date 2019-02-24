@@ -66,6 +66,33 @@ struct PatternOccurrence
 
 };
 
+struct PatternTransformProperties
+{
+
+	int rotations;
+
+	bool reflected;
+
+};
+
+struct PatternIdentifier
+{
+
+	size_t patternIndex;
+
+	PatternTransformProperties transformProperties;
+
+};
+
+struct ImagePatternProperties
+{
+
+	std::vector<PatternOccurrence> patterns;
+
+	Array2D<PatternIdentifier> patternMap;
+
+};
+
 PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, bool symmetry, int n);
 
 // n = side of the pattern, e.g. 3.

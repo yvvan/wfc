@@ -102,8 +102,6 @@ std::vector<PatternOccurrence> extractPatternsFromImage(const PalettedImage& sam
 {
 	Dimension2D imageDimension = sample.data.size();
 
-	std::unordered_map<HashedPattern, size_t, PatternHasher> newPatterns;
-
 	PatternPrevalence patterns;
 
 	Dimension2D dimension;
@@ -144,7 +142,7 @@ std::vector<PatternOccurrence> extractPatternsFromImage(const PalettedImage& sam
 	runForDimension(dimension, rangeFcn);
 
 	std::vector<PatternOccurrence> toReturn;	
-	for (const auto& pattern : newPatterns)
+	for (const auto& pattern : patterns)
 	{
 		toReturn.push_back(
 		{
