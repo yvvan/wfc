@@ -110,83 +110,6 @@ PatternTransformProperties convertTransformProperties(int enumerated)
 	};
 };
 
-ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int n)
-{
-	ImagePatternProperties toReturn;
-
-	PatternMap patternMap;
-
-	auto rangeFcn = [&] (const Index2D& index)
-	{
-		std::array<Pattern, 8> ps = generatePatterns(sample, n, index);
-
-		auto hashedValue = patternMap.cend();
-		int transformEnumeration = 0;
-
-		for (int k = 0; k < 8; ++k) 
-		{
-			HashedPattern hashedPattern
-			{
-				.pattern = ps[k],
-				.hash = hash_from_pattern(ps[k], sample.palette.size())
-			};
-
-			hashedValue = patternMap.find(hashedPattern);
-			transformEnumeration = k;
-
-			if (hashedValue != patternMap.end())
-			{
-				break;
-			}
-		}
-
-		if (hashedValue != patternMap.end())
-		{
-			PatternIdentifier identifier
-			{
-				.patternIndex = hashedValue->second,
-				.transformProperties = convertTransformProperties(transformEnumeration)
-			};
-			toReturn.grid[index] = identifier;
-
-			toReturn.patterns[hashedValue->second].occurrence++;
-		}
-		else
-		{
-			toReturn.patterns.push_back({ ps[0], 0 });
-			PatternIdentifier identifier
-			{
-				.patternIndex = toReturn.patterns.size() - 1,
-				.transformProperties = {}
-			};
-			toReturn.grid[index] = identifier;
-		}
-	};
-
-	Dimension2D imageDimension = sample.data.size();
-	runForDimension(imageDimension, rangeFcn);
-
-	return toReturn;
-}
-
-PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
-{
-	PatternHash result = 0;
-	size_t power = 1;
-
-	Dimension2D dim = pattern.size();
-
-	for (int y = dim.height - 1; y >= 0; --y)
-	{
-		for (int x = dim.width - 1; x >= 0; --x) 
-		{
-			result += pattern[{ x, y }] * power;
-			power *= palette_size;
-		}
-	}
-	return result;
-}
-
 auto runOverPatterns(const PalettedImage& sample, int n, const Index2D& index)
 {
 	return [&sample, n, index] (auto consumerFcn)
@@ -220,6 +143,85 @@ auto runOverPatterns(const PalettedImage& sample, int n, const Index2D& index)
 			currentPattern = rotate(currentPattern, n);
 		}
 	};
+}
+
+ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int n)
+{
+	ImagePatternProperties toReturn;
+
+	PatternMap patternMap;
+
+	auto rangeFcn = [&] (const Index2D& index)
+	{
+		std::array<Pattern, 8> ps = generatePatterns(sample, n, index);
+
+		auto hashedValue = patternMap.cend();
+		int transformEnumeration = 0;
+
+		auto consumerFcn = [&] (const EnumeratedPattern& enumeratedPattern)
+		{
+			HashedPattern hashedPattern
+			{
+				.pattern = enumeratedPattern.pattern,
+				.hash = hash_from_pattern(enumeratedPattern.pattern, sample.palette.size())
+			};
+
+			hashedValue = patternMap.find(hashedPattern);
+			transformEnumeration = enumeratedPattern.enumeratedTransform;
+
+			if (hashedValue != patternMap.end())
+			{
+				return true;
+			}
+		};
+
+		if (hashedValue != patternMap.end())
+		{
+			PatternIdentifier identifier
+			{
+				.patternIndex = hashedValue->second,
+				.enumeratedTransform = transformEnumeration
+			};
+			toReturn.grid[index] = identifier;
+
+			toReturn.patterns[hashedValue->second].occurrence[transformEnumeration]++;
+		}
+		else
+		{
+			toReturn.patterns.push_back({ ps[0], {} });
+			toReturn.patterns.back().occurrence[0] = 1;
+
+			PatternIdentifier identifier
+			{
+				.patternIndex = toReturn.patterns.size() - 1,
+				.enumeratedTransform = 0 
+			};
+			toReturn.grid[index] = identifier;
+		}
+	};
+
+	Dimension2D imageDimension = sample.data.size();
+	runForDimension(imageDimension, rangeFcn);
+
+	return toReturn;
+}
+
+PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
+{
+	PatternHash result = 0;
+	size_t power = 1;
+
+	Dimension2D dim = pattern.size();
+
+	for (int y = dim.height - 1; y >= 0; --y)
+	{
+		for (int x = dim.width - 1; x >= 0; --x) 
+		{
+			result += pattern[{ x, y }] * power;
+			power *= palette_size;
+		}
+	}
+	return result;
 }
 
 std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index)

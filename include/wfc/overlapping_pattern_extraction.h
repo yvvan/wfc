@@ -62,7 +62,7 @@ struct PatternOccurrence
 
 	Pattern pattern;
 
-	int occurrence;
+	std::array<int, 8> occurrence;
 
 };
 
@@ -80,7 +80,7 @@ struct PatternIdentifier
 
 	size_t patternIndex;
 
-	PatternTransformProperties transformProperties;
+	int enumeratedTransform;
 
 };
 
