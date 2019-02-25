@@ -103,7 +103,11 @@ using PatternMap = std::unordered_map<HashedPattern, size_t, PatternHasher>;
 
 PatternTransformProperties convertTransformProperties(int enumerated)
 {
-	return {};
+	return 
+	{
+		.rotations = enumerated / 2,
+		.reflected = ((enumerated % 2) == 1)
+	};
 };
 
 ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int n)
@@ -183,19 +187,53 @@ PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
 	return result;
 }
 
+auto runOverPatterns(const PalettedImage& sample, int n, const Index2D& index)
+{
+	return [&sample, n, index] (auto consumerFcn)
+	{
+		auto currentPattern = patternFromSample(sample, n, index);
+
+		for (int i = 0; i < 4; ++i)
+		{
+			int baseIndex = 2 * i;
+
+			EnumeratedPattern toConsume
+			{
+				.pattern = currentPattern,
+				.enumeratedTransform = baseIndex 
+			};
+			if (consumerFcn(toConsume))
+			{
+				return true;
+			}
+
+			toConsume = 
+			{
+				.pattern = reflect(currentPattern, n),
+				.enumeratedTransform = baseIndex + 1 
+			};
+			if (consumerFcn(toConsume))
+			{
+				return true;
+			}
+
+			currentPattern = rotate(currentPattern, n);
+		}
+	};
+}
+
 std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index)
 {
 	std::array<Pattern, 8> toReturn;
-
-	auto currentPattern = patternFromSample(sample, n, index);
-
-	for (int i = 0; i < 4; ++i)
+	auto consumerFcn = [&toReturn] (const EnumeratedPattern& enumeratedPattern)
 	{
-		toReturn[i] = currentPattern;
-		toReturn[i + 1] = reflect(currentPattern, n);
+		toReturn[enumeratedPattern.enumeratedTransform] = enumeratedPattern.pattern;
+		return false;
+	};
 
-		currentPattern = rotate(currentPattern, n);
-	}
+	auto iterable = runOverPatterns(sample, n, index);
+
+	iterable(consumerFcn);
 
 	return toReturn;
 }
