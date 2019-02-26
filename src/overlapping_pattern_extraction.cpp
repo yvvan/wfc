@@ -148,6 +148,7 @@ auto runOverPatterns(const PalettedImage& sample, int n, const Index2D& index)
 ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int n)
 {
 	ImagePatternProperties toReturn;
+	toReturn.grid = Array2D<PatternIdentifier>(sample.data.size());
 
 	PatternMap patternMap;
 
