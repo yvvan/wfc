@@ -174,6 +174,7 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 
 			if (hashedValue != patternMap.end())
 			{
+				std::cout << "Already found - quitting" << std::endl;
 				return true;
 			}
 		};
@@ -198,6 +199,7 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 		}
 		else
 		{
+			std::cout << "New pattern - adding" << std::endl;
 			toReturn.patterns.push_back({ ps[0], {} });
 			toReturn.patterns.back().occurrence[0] = 1;
 
