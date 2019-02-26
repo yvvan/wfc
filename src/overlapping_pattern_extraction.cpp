@@ -156,7 +156,7 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 	{
 		std::array<Pattern, 8> ps = generatePatterns(sample, n, index);
 
-		auto hashedValue = patternMap.cend();
+		auto hashedValue = patternMap.end();
 		int transformEnumeration = 0;
 
 		auto consumerFcn = [&] (const EnumeratedPattern& enumeratedPattern)
@@ -167,6 +167,8 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 				.hash = hash_from_pattern(enumeratedPattern.pattern, sample.palette.size())
 			};
 
+			std::cout << "Found hash: " << hashedPattern.hash << "\n";
+
 			hashedValue = patternMap.find(hashedPattern);
 			transformEnumeration = enumeratedPattern.enumeratedTransform;
 
@@ -175,6 +177,13 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 				return true;
 			}
 		};
+
+		int patternEnumeration = 0;
+		for (const auto& pattern : ps)
+		{
+			consumerFcn({ pattern, patternEnumeration });
+			patternEnumeration++;
+		}
 
 		if (hashedValue != patternMap.end())
 		{
@@ -198,6 +207,13 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 				.enumeratedTransform = 0 
 			};
 			toReturn.grid[index] = identifier;
+
+			HashedPattern hashedPattern
+			{
+				.pattern = ps[0],
+				.hash = hash_from_pattern(ps[0], sample.palette.size())
+			};
+			patternMap[hashedPattern] = identifier.patternIndex;
 		}
 	};
 

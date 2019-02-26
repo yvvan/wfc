@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <iostream>
+
 #include <wfc/ranges.h>
 
 #include <wfc/overlapping_types.h>
