@@ -41,5 +41,7 @@ TEST(OverlappingExtractionTest, test1)
 
 	ImagePatternProperties properties = extractPatternsFromImage(sample, n);
 
+	std::cout << "Sample:\n" << sample.data;
+
 	ASSERT_EQ(properties.patterns.size(), 1);
 }

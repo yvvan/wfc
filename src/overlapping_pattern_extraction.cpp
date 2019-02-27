@@ -168,6 +168,7 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 			};
 
 			std::cout << "Found hash: " << hashedPattern.hash << "\n";
+			std::cout << "Pattern:\n" << hashedPattern.pattern << "\n";
 
 			hashedValue = patternMap.find(hashedPattern);
 			transformEnumeration = enumeratedPattern.enumeratedTransform;
