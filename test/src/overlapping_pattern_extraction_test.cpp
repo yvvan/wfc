@@ -34,7 +34,7 @@ PalettedImage checkerBoard(size_t width)
 
 TEST(OverlappingExtractionTest, test1)
 {
-	const size_t size = 5;
+	const size_t size = 2;
 	const int n = 2;
 
 	auto sample = checkerBoard(size);

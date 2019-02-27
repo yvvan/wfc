@@ -152,8 +152,11 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 
 	PatternMap patternMap;
 
+	int count = 0;
+
 	auto rangeFcn = [&] (const Index2D& index)
 	{
+		std::cout << "===== Count " << (count++) << " =============\n";
 		std::array<Pattern, 8> ps = generatePatterns(sample, n, index);
 
 		auto hashedValue = patternMap.end();
@@ -178,12 +181,19 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 				std::cout << "Already found - quitting" << std::endl;
 				return true;
 			}
+			else
+			{
+				return false;
+			}
 		};
 
 		int patternEnumeration = 0;
 		for (const auto& pattern : ps)
 		{
-			consumerFcn({ pattern, patternEnumeration });
+			if (consumerFcn({ pattern, patternEnumeration }))
+			{
+				break;
+			}
 			patternEnumeration++;
 		}
 
