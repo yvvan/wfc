@@ -156,7 +156,6 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 
 	auto rangeFcn = [&] (const Index2D& index)
 	{
-		std::cout << "===== Count " << (count++) << " =============\n";
 		std::array<Pattern, 8> ps = generatePatterns(sample, n, index);
 
 		auto hashedValue = patternMap.end();
@@ -170,15 +169,11 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 				.hash = hash_from_pattern(enumeratedPattern.pattern, sample.palette.size())
 			};
 
-			std::cout << "Found hash: " << hashedPattern.hash << "\n";
-			std::cout << "Pattern:\n" << hashedPattern.pattern << "\n";
-
 			hashedValue = patternMap.find(hashedPattern);
 			transformEnumeration = enumeratedPattern.enumeratedTransform;
 
 			if (hashedValue != patternMap.end())
 			{
-				std::cout << "Already found - quitting" << std::endl;
 				return true;
 			}
 			else
@@ -210,7 +205,6 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 		}
 		else
 		{
-			std::cout << "New pattern - adding" << std::endl;
 			toReturn.patterns.push_back({ ps[0], {} });
 			toReturn.patterns.back().occurrence[0] = 1;
 
@@ -276,7 +270,8 @@ Pattern patternFromSample(const PalettedImage& sample, int n, const Index2D& ima
 	{
 		Index2D shiftedIndex = patternIndex + imageIndex;
 		Dimension2D dimension = sample.data.size();
-		return sample.data[wrapAroundIndex(shiftedIndex, dimension)];
+		auto index = wrapAroundIndex(shiftedIndex, dimension);
+		return sample.data[index];
 	};
 	return make_pattern(n, functor);
 }

@@ -34,14 +34,14 @@ PalettedImage checkerBoard(size_t width)
 
 TEST(OverlappingExtractionTest, test1)
 {
-	const size_t size = 2;
-	const int n = 2;
+	const size_t size = 4;
+	const int n = 4;
 
 	auto sample = checkerBoard(size);
 
 	ImagePatternProperties properties = extractPatternsFromImage(sample, n);
 
-	std::cout << "Sample:\n" << sample.data;
+	//std::cout << "Sample:\n" << sample.data;
 
 	ASSERT_EQ(properties.patterns.size(), 1);
 }
