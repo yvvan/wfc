@@ -35,8 +35,28 @@ PalettedImage checkerBoard(size_t width)
 	};
 }
 
+struct FlattenedPatternOccurence
+{
+	Pattern pattern;
+
+	int occurrence;
+};
+
+std::array<FlattenedPatternOccurence, 8> flattenPatternOccurrence(const PatternOccurrence& input)
+{
+	std::array<FlattenedPatternOccurence, 8> toReturn;
+	for (int i = 0; i < 8; i++)
+	{
+
+	}
+	return toReturn;
+}
+
 bool patternsEquivalent(const PatternOccurrence& left, const PatternOccurrence& right)
 {
+	auto flattenedLeft = flattenPatternOccurrence(left);
+	auto flattenedRight = flattenPatternOccurrence(right);
+
 	return true;
 }
 

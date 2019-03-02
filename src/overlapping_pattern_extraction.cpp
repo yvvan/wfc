@@ -299,3 +299,16 @@ Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension)
 	return { (index.x % dimension.width), (index.y % dimension.height) };
 }
 
+PatternTransformProperties denumerateTransformProperties(int enumeratedTransform)
+{
+	return 
+	{
+		.rotations = enumeratedTransform / 2,
+		.reflected = ((enumeratedTransform % 1) == 1)
+	};
+}
+
+int enumerateTransformProperties(const PatternTransformProperties& transformProperties)
+{
+	return (transformProperties.rotations * 2) + (transformProperties.reflected ? 1 : 0);
+}
