@@ -42,6 +42,11 @@ struct FlattenedPatternOccurence
 	int occurrence;
 };
 
+bool operator==(const FlattenedPatternOccurence& left, const FlattenedPatternOccurence& right)
+{
+	return (left.pattern == right.pattern && left.occurrence == right.occurrence);
+}
+
 std::array<FlattenedPatternOccurence, 8> flattenPatternOccurrence(const PatternOccurrence& input)
 {
 	std::array<FlattenedPatternOccurence, 8> toReturn;
@@ -57,7 +62,8 @@ bool patternsEquivalent(const PatternOccurrence& left, const PatternOccurrence& 
 	auto flattenedLeft = flattenPatternOccurrence(left);
 	auto flattenedRight = flattenPatternOccurrence(right);
 
-	return true;
+	// Don't have to check for size as they're both array size 8
+	return std::is_permutation(flattenedLeft.begin(), flattenedLeft.end(), flattenedRight.end());;
 }
 
 bool imagePropertiesEquivalent(const ImagePatternProperties& left, const ImagePatternProperties& right)
