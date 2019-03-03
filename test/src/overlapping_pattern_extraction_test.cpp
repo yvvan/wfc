@@ -47,11 +47,6 @@ bool operator==(const FlattenedPatternOccurence& left, const FlattenedPatternOcc
 	return (left.pattern == right.pattern && left.occurrence == right.occurrence);
 }
 
-bool equalOrZero(const FlattenedPatternOccurence& left, const FlattenedPatternOccurence& right)
-{
-	return (left == right) || (left.occurrence == 0 && right.occurrence == 0);
-}
-
 std::array<FlattenedPatternOccurence, 8> flattenPatternOccurrence(const PatternOccurrence& input)
 {
 	std::array<FlattenedPatternOccurence, 8> toReturn;
@@ -73,17 +68,8 @@ bool patternsEquivalent(const PatternOccurrence& left, const PatternOccurrence& 
 	auto flattenedLeft = flattenPatternOccurrence(left);
 	auto flattenedRight = flattenPatternOccurrence(right);
 
-	auto functor = [] (const FlattenedPatternOccurence& left, const FlattenedPatternOccurence& right)
-	{
-		bool toReturn = equalOrZero(left, right);
-		std::cout << "Checking left pattern: \n" << left.pattern << "Left occurrence: " << left.occurrence << "\n";
-		std::cout << "Checking right pattern: \n" << right.pattern << "Right occurrence: " << right.occurrence << "\n";
-		std::cout << "Returning: " << toReturn << "\n";
-		return toReturn;
-	};
-
-	// Don't have to check for size as they're both array size 8
-	return std::is_permutation(flattenedLeft.begin(), flattenedLeft.end(), flattenedRight.begin(), functor);
+	// Don't have to check for size as usual for is_permutation as they're both array size 8.
+	return std::is_permutation(flattenedLeft.begin(), flattenedLeft.end(), flattenedRight.begin());
 }
 
 bool imagePropertiesEquivalent(const ImagePatternProperties& left, const ImagePatternProperties& right)
@@ -104,9 +90,9 @@ bool imagePropertiesEquivalent(const ImagePatternProperties& left, const ImagePa
 	return true;
 }
 
-TEST(OverlappingExtractionTest, test1)
+void evenCheckerboardTest(int sizeFactor)
 {
-	const size_t size = 4;
+	const size_t size = sizeFactor * 2;
 	const int n = 2;
 
 	auto sample = checkerBoard(size);
@@ -116,7 +102,7 @@ TEST(OverlappingExtractionTest, test1)
 	pattern[{0, 1 }] = 1;
 	pattern[{1, 0 }] = 1;
 	pattern[{1, 1 }] = 0;
-	Array2D<PatternIdentifier> grid({ size, size });;
+	Array2D<PatternIdentifier> grid({ size, size });
 
 	int gridArea = size * size;
 	ImagePatternProperties expectedProperties = 
@@ -136,4 +122,12 @@ TEST(OverlappingExtractionTest, test1)
 	//std::cout << "Sample:\n" << sample.data;
 
 	ASSERT_TRUE(imagePropertiesEquivalent(properties, expectedProperties));
+}
+
+TEST(OverlappingExtractionTest, test1)
+{
+	for (int i = 1; i < 4; i++)
+	{
+		evenCheckerboardTest(i);
+	}
 }
