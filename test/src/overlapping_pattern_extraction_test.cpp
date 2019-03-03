@@ -12,7 +12,7 @@ constexpr RGBA white = { 255, 255, 255 };
 constexpr RGBA black = { 0, 0, 0 };
 
 // Makes a black/white checkerboard pattern of the desired size where the bottom left
-// corner
+// corner is black.
 PalettedImage checkerBoard(size_t width)
 {
 	Dimension2D dimension{ width, width }; 
@@ -102,7 +102,37 @@ void evenCheckerboardTest(int sizeFactor)
 	pattern[{0, 1 }] = 1;
 	pattern[{1, 0 }] = 1;
 	pattern[{1, 1 }] = 0;
-	Array2D<PatternIdentifier> grid({ size, size });
+
+	Dimension2D dimension{ size, size };
+	Array2D<PatternIdentifier> grid(dimension);
+
+	PatternTransformProperties normalTransform = { .rotations = 0, .reflected = false };
+	PatternTransformProperties reflectedTransform = { .rotations = 0, .reflected = true };
+
+	int normalEnumeratedTransform = enumerateTransformProperties(normalTransform);
+	int reflectedEnumeratedTransform = enumerateTransformProperties(reflectedTransform);
+
+	auto fillGrid = [&] (const Index2D& index)
+	{
+		if (sample.data[index] == 0)
+		{
+			grid[index] =
+			{
+				.patternIndex = 0,
+				.enumeratedTransform = normalEnumeratedTransform
+			};
+		}
+		else
+		{
+			grid[index] =
+			{
+				.patternIndex = 0,
+				.enumeratedTransform = reflectedEnumeratedTransform
+			};
+		}
+	};
+
+	runForDimension(dimension, fillGrid);
 
 	int gridArea = size * size;
 	ImagePatternProperties expectedProperties = 
