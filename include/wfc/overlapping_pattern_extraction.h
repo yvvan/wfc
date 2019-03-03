@@ -121,5 +121,6 @@ Pattern reflect(const Pattern& p, int n);
 
 Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension);
 
+Pattern createPattern(const Pattern& base, const PatternTransformProperties& transformProperties);
 
 #endif

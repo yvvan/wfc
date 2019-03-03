@@ -312,3 +312,22 @@ int enumerateTransformProperties(const PatternTransformProperties& transformProp
 {
 	return (transformProperties.rotations * 2) + (transformProperties.reflected ? 1 : 0);
 }
+
+Pattern createPattern(const Pattern& base, const PatternTransformProperties& transformProperties)
+{
+	Pattern toReturn = base;
+
+	int n = base.size().width;
+
+	for (int i = 0; i < transformProperties.rotations; i++)
+	{
+		toReturn = rotate(toReturn, n);	
+	}
+
+	if (transformProperties.reflected)
+	{
+		toReturn = reflect(toReturn, n);
+	}
+
+	return toReturn;
+}

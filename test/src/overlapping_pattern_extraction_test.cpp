@@ -47,12 +47,23 @@ bool operator==(const FlattenedPatternOccurence& left, const FlattenedPatternOcc
 	return (left.pattern == right.pattern && left.occurrence == right.occurrence);
 }
 
+bool equalOrZero(const FlattenedPatternOccurence& left, const FlattenedPatternOccurence& right)
+{
+	return (left == right) || (left.occurrence == 0 && right.occurrence == 0);
+}
+
 std::array<FlattenedPatternOccurence, 8> flattenPatternOccurrence(const PatternOccurrence& input)
 {
 	std::array<FlattenedPatternOccurence, 8> toReturn;
 	for (int i = 0; i < 8; i++)
 	{
+		PatternTransformProperties transformProperties = denumerateTransformProperties(i);
 
+		toReturn[i] =
+		{
+			.pattern = createPattern(input.pattern, transformProperties),
+			.occurrence = input.occurrence[i]
+		};
 	}
 	return toReturn;
 }
@@ -62,8 +73,17 @@ bool patternsEquivalent(const PatternOccurrence& left, const PatternOccurrence& 
 	auto flattenedLeft = flattenPatternOccurrence(left);
 	auto flattenedRight = flattenPatternOccurrence(right);
 
+	auto functor = [] (const FlattenedPatternOccurence& left, const FlattenedPatternOccurence& right)
+	{
+		bool toReturn = equalOrZero(left, right);
+		std::cout << "Checking left pattern: \n" << left.pattern << "Left occurrence: " << left.occurrence << "\n";
+		std::cout << "Checking right pattern: \n" << right.pattern << "Right occurrence: " << right.occurrence << "\n";
+		std::cout << "Returning: " << toReturn << "\n";
+		return toReturn;
+	};
+
 	// Don't have to check for size as they're both array size 8
-	return std::is_permutation(flattenedLeft.begin(), flattenedLeft.end(), flattenedRight.end());;
+	return std::is_permutation(flattenedLeft.begin(), flattenedLeft.end(), flattenedRight.begin(), functor);
 }
 
 bool imagePropertiesEquivalent(const ImagePatternProperties& left, const ImagePatternProperties& right)
@@ -98,13 +118,14 @@ TEST(OverlappingExtractionTest, test1)
 	pattern[{1, 1 }] = 0;
 	Array2D<PatternIdentifier> grid({ size, size });;
 
+	int gridArea = size * size;
 	ImagePatternProperties expectedProperties = 
 	{
 		.patterns = 
 		{
 			{
 				.pattern = pattern,
-				.occurrence = {{ size * size }}
+				.occurrence = {{ gridArea / 2, gridArea / 2 }}
 			}
 		},
 		.grid = grid
@@ -114,5 +135,5 @@ TEST(OverlappingExtractionTest, test1)
 
 	//std::cout << "Sample:\n" << sample.data;
 
-	ASSERT_EQ(properties.patterns.size(), 1);
+	ASSERT_TRUE(imagePropertiesEquivalent(properties, expectedProperties));
 }
