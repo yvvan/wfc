@@ -90,6 +90,61 @@ bool imagePropertiesEquivalent(const ImagePatternProperties& left, const ImagePa
 	return true;
 }
 
+bool enumeratedPatternsEquivalent(const EnumeratedPattern& left, const EnumeratedPattern& right)
+{
+	PatternTransformProperties leftTransform = denumerateTransformProperties(left.enumeratedTransform);
+	PatternTransformProperties rightTransform = denumerateTransformProperties(right.enumeratedTransform);
+
+	Pattern leftTransformedPattern = createPattern(left.pattern, leftTransform);
+	Pattern rightTransformedPattern = createPattern(right.pattern, rightTransform);
+
+	return (leftTransformedPattern == rightTransformedPattern);
+}
+
+bool imageGridEquivalent(const ImagePatternProperties& left, const ImagePatternProperties& right)
+{
+	if (left.grid.size() != right.grid.size())
+	{
+		return false;
+	}
+
+	Dimension2D dimension = left.grid.size();
+
+	bool toReturn = true;
+
+	auto functor = [&] (const Index2D& index)
+	{
+		const PatternIdentifier& leftIdentifier = left.grid[index];
+		const PatternIdentifier& rightIdentifier = right.grid[index];
+
+		EnumeratedPattern enumeratedLeft =
+		{
+			.pattern = left.patterns[leftIdentifier.patternIndex].pattern,
+			.enumeratedTransform = leftIdentifier.enumeratedTransform
+		};
+
+		EnumeratedPattern enumeratedRight =
+		{
+			.pattern = right.patterns[rightIdentifier.patternIndex].pattern,
+			.enumeratedTransform = rightIdentifier.enumeratedTransform
+		};
+
+		bool matching = enumeratedPatternsEquivalent(enumeratedLeft, enumeratedRight);
+
+		if (!matching)
+		{
+			toReturn = false;
+		}
+
+		// If any not matching - break out of the loop
+		return !matching;
+	};
+
+	BreakRange::runForDimension(dimension, functor);
+
+	return toReturn;
+}
+
 void evenCheckerboardTest(int sizeFactor)
 {
 	const size_t size = sizeFactor * 2;
@@ -149,9 +204,9 @@ void evenCheckerboardTest(int sizeFactor)
 
 	ImagePatternProperties properties = extractPatternsFromImage(sample, n);
 
-	//std::cout << "Sample:\n" << sample.data;
-
 	ASSERT_TRUE(imagePropertiesEquivalent(properties, expectedProperties));
+	ASSERT_TRUE(imageGridEquivalent(properties, expectedProperties));
+	
 }
 
 TEST(OverlappingExtractionTest, test1)

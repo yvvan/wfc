@@ -181,6 +181,11 @@ inline bool operator!=(const Index2D& left, const Index2D& right)
 	return (left.x != right.x) || (left.y != right.y);
 }
 
+inline bool operator!=(const Dimension2D& left, const Dimension2D& right)
+{
+	return !(left == right);
+}
+
 inline std::ostream& operator<<(std::ostream& stream, const Index2D& index)
 {
 	stream << "(" << index.x << ", " << index.y << ")";
