@@ -41,7 +41,7 @@ PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation,
 
 		WeightedPattern newItem
 		{
-			.pattern = it.first.pattern,//pattern_from_hash(it.first, n, image.palette.size()),
+			.pattern = it.first.pattern,
 			.weight = it.second
 		};
 		toReturn.patterns.push_back(newItem);
@@ -304,7 +304,7 @@ PatternTransformProperties denumerateTransformProperties(int enumeratedTransform
 	return 
 	{
 		.rotations = enumeratedTransform / 2,
-		.reflected = ((enumeratedTransform % 1) == 1)
+		.reflected = ((enumeratedTransform % 2) == 1)
 	};
 }
 
