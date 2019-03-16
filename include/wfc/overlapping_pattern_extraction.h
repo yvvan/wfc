@@ -10,15 +10,19 @@
 using PatternHash = uint64_t; // Another representation of a Pattern.
 const PatternHash kInvalidHash = -1;
 
+// A pattern combined with its hash. This is to make patterns suitable for storage in hashtables
+// by allowing their lookup without having to recalculate hash values. The class is immutable
+// to ensure that the hash is not accidentally modified.
 struct HashedPattern
 {
 
-	Pattern pattern;
+	const Pattern pattern;
 
-	PatternHash hash;
+	const PatternHash hash;
 
 };
 
+// Hashing functor which just forwards the hash of the stored HashedPattern member.
 struct PatternHasher
 {
 
@@ -57,6 +61,9 @@ struct PatternInfo
 
 };
 
+// A pattern coupled with the count of its occurrence in the image.
+// Occurrence has 8 values, representing all the different ways that patterns
+// can be transformed (2 flips * 4 rotations).
 struct PatternOccurrence
 {
 
@@ -66,6 +73,10 @@ struct PatternOccurrence
 
 };
 
+// Description of the transformation of a pattern.
+// Any pattern may be rotated up to 4 times, with each rotation having a corresponding
+// reflected version. Sometimes a transformation will not change the properties of a
+// pattern, due to symmetry.
 struct PatternTransformProperties
 {
 
@@ -75,6 +86,12 @@ struct PatternTransformProperties
 
 };
 
+// Refers to a pattern and a transform on that pattern.
+// Instead of storing the full pattern and the full transform information, a slightly
+// different form is stored. An index is used to represent the pattern, where the index
+// points to an element in a vector. An int is used to represent the transform, instead of
+// storing the full transform information. There is a one-to-one function between the enumerated
+// transform, and full transform information.
 struct PatternIdentifier
 {
 
@@ -84,6 +101,12 @@ struct PatternIdentifier
 
 };
 
+// The extracted patterns found in an image.
+// There are two components. The first is a vector containing the patterns themselves.
+// The second is an Array2D which maps each point in the image to one of the patterns
+// in this vector. Each element in the Array2D contains an index pointing to one of the
+// patterns in the vector, as well as transform information required to transform the pattern
+// to the pattern found in the image.
 struct ImagePatternProperties
 {
 
