@@ -216,13 +216,103 @@ void evenCheckerboardTest(int sizeFactor)
 
 TEST(OverlappingExtractionTest, test1)
 {
-	for (int i = 1; i < 4; i++)
+	for (int i = 1; i <= 6; i++)
 	{
 		evenCheckerboardTest(i);
 	}
 }
 
+ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
+{
+	const size_t size = sizeFactor * 2;
+	const int n = 2;
+
+	Pattern pattern({ n, n });
+	pattern[{0, 0 }] = 0;
+	pattern[{0, 1 }] = 1;
+	pattern[{1, 0 }] = 1;
+	pattern[{1, 1 }] = 0;
+
+	Pattern sidePattern({ n, n });
+	pattern[{0, 0 }] = 1;
+	pattern[{0, 1 }] = 1;
+	pattern[{1, 0 }] = 0;
+	pattern[{1, 1 }] = 0;
+
+	Pattern topPattern({ n, n });
+	pattern[{0, 0 }] = 1;
+	pattern[{0, 1 }] = 1;
+	pattern[{1, 0 }] = 1;
+	pattern[{1, 1 }] = 1;
+
+	Dimension2D dimension{ size, size };
+	Array2D<PatternIdentifier> grid(dimension);
+
+	PatternTransformProperties normalTransform = { .rotations = 0, .reflected = false };
+	PatternTransformProperties reflectedTransform = { .rotations = 0, .reflected = true };
+
+	int normalEnumeratedTransform = enumerateTransformProperties(normalTransform);
+	int reflectedEnumeratedTransform = enumerateTransformProperties(reflectedTransform);
+
+	auto fillGrid = [&] (const Index2D& index)
+	{
+		PatternIdentifier indexIdentifier;
+
+		// Only one pattern for even checkerboards, so all elements will have this index
+		indexIdentifier.patternIndex = 0;
+		if ((index.x + index.y ) % 2)
+		{
+			indexIdentifier.enumeratedTransform = reflectedEnumeratedTransform;
+		}
+		else
+		{
+			indexIdentifier.enumeratedTransform = normalEnumeratedTransform;
+		}
+
+		grid[index] = indexIdentifier;
+	};
+
+	Dimension2D reducedDimension{ size - 1, size - 1 };
+	runForDimension(reducedDimension, fillGrid);
+
+	grid[{ n - 1, n - 1 }] =
+	{
+		.patternIndex = 3,
+		.enumeratedTransform = 0
+	};
+
+	int gridArea = size * size;
+	return ImagePatternProperties
+	{
+		.patterns = 
+		{
+			{
+				.pattern = pattern,
+				.occurrence = {{ gridArea / 2, gridArea / 2 }}
+			}
+		},
+		.grid = grid
+	};
+}
+
+void oddCheckerboardTest(int sizeFactor)
+{
+	const size_t size = (sizeFactor * 2) - 1;
+	const int n = 2;
+
+	auto sample = checkerBoard(size);
+	ImagePatternProperties expectedProperties = expectedOddCheckerboardProperties(sizeFactor);
+
+	ImagePatternProperties properties = extractPatternsFromImage(sample, n);
+
+	ASSERT_TRUE(imagePropertiesEquivalent(properties, expectedProperties));
+	ASSERT_TRUE(imageGridEquivalent(properties, expectedProperties));
+}
+
 TEST(OverlappingExtractionTest, test2)
 {
-	
+	for (int i = 1; i <= 6; i++)
+	{
+		oddCheckerboardTest(i);
+	}
 }
