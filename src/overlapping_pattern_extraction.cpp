@@ -289,7 +289,7 @@ Pattern reflect(const Pattern& p, int n)
 {
 	auto functor = [&] (const Index2D& patternIndex)
 	{ 
-		return p[{ (n - 1 - patternIndex.x), patternIndex.y }];
+		return p[{ (n - 1) - patternIndex.x, patternIndex.y }];
 	};
 	return make_pattern(n, functor);
 }
