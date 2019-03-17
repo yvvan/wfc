@@ -280,7 +280,7 @@ Pattern rotate(const Pattern& p, int n)
 {
 	auto functor = [&] (const Index2D& patternIndex)
 	{ 
-		return p[{ (n - 1 - patternIndex.y), patternIndex.x }]; 
+		return p[{ patternIndex.y, (n - 1) - patternIndex.x }]; 
 	};
 	return make_pattern(n, functor);
 }

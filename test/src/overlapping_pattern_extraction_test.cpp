@@ -98,8 +98,6 @@ bool enumeratedPatternsEquivalent(const EnumeratedPattern& left, const Enumerate
 	Pattern leftTransformedPattern = createPattern(left.pattern, leftTransform);
 	Pattern rightTransformedPattern = createPattern(right.pattern, rightTransform);
 
-
-
 	return (leftTransformedPattern == rightTransformedPattern);
 }
 
@@ -294,8 +292,8 @@ ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 		grid[{ x, y }] = indexIdentifier;
 	}
 
-	PatternTransformProperties rotatedNormalTransform = { .rotations = 3, .reflected = false };
-	PatternTransformProperties rotatedReflectedTransform = { .rotations = 1, .reflected = false };
+	PatternTransformProperties rotatedNormalTransform = { .rotations = 1, .reflected = false };
+	PatternTransformProperties rotatedReflectedTransform = { .rotations = 3, .reflected = false };
 
 	int rotatedNormalEnumeratedTransform = enumerateTransformProperties(rotatedNormalTransform);
 	int rotatedReflectedEnumeratedTransform = enumerateTransformProperties(rotatedReflectedTransform);
