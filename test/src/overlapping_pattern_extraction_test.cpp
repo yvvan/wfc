@@ -98,21 +98,15 @@ bool enumeratedPatternsEquivalent(const EnumeratedPattern& left, const Enumerate
 	Pattern leftTransformedPattern = createPattern(left.pattern, leftTransform);
 	Pattern rightTransformedPattern = createPattern(right.pattern, rightTransform);
 
-	std::cout << "Enumerated left: " << left.enumeratedTransform << "\n";
-	std::cout << "Enumerated Right: " << right.enumeratedTransform << "\n";
 
-	std::cout << "Left transformed: " << leftTransformedPattern << "\n";
-	std::cout << "Right transformed: " << rightTransformedPattern << "\n";
 
 	return (leftTransformedPattern == rightTransformedPattern);
 }
 
 bool imageGridEquivalent(const ImagePatternProperties& left, const ImagePatternProperties& right)
 {
-	std::cout << "Grid equivalent\n";
 	if (left.grid.size() != right.grid.size())
 	{
-		std::cout << "Size fail\n";
 		return false;
 	}
 
@@ -122,7 +116,6 @@ bool imageGridEquivalent(const ImagePatternProperties& left, const ImagePatternP
 
 	auto functor = [&] (const Index2D& index)
 	{
-		std::cout << "Index: " << index << "\n";
 		const PatternIdentifier& leftIdentifier = left.grid[index];
 		const PatternIdentifier& rightIdentifier = right.grid[index];
 
@@ -233,7 +226,6 @@ TEST(OverlappingExtractionTest, test1)
 
 ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 {
-	std::cout << " Calculating expected\n";
 	const size_t size = (sizeFactor * 2) - 1;
 	const int n = 2;
 
@@ -267,7 +259,6 @@ ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 	auto fillGrid = [&] (const Index2D& index)
 	{
 		PatternIdentifier indexIdentifier;
-		std::cout << " Filling: " << index << "\n";
 
 		// Only one pattern for even checkerboards, so all elements will have this index
 		indexIdentifier.patternIndex = 0;
@@ -300,7 +291,6 @@ ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 		{
 			indexIdentifier.enumeratedTransform = normalEnumeratedTransform;
 		}
-		std::cout << "Filling edge\n";
 		grid[{ x, y }] = indexIdentifier;
 	}
 
@@ -324,19 +314,16 @@ ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 		{
 			indexIdentifier.enumeratedTransform = rotatedReflectedEnumeratedTransform;
 		}
-		std::cout << "Filling edge\n";
 		grid[{ x, y }] = indexIdentifier;
 	}
 
 
-	std::cout << "Size: " << size << "\n";
 	grid[{ size - 1, size - 1 }] =
 	{
 		.patternIndex = 2,
 		.enumeratedTransform = 0
 	};
 
-	std::cout << "Returning\n";
 
 	int gridArea = size * size;
 	return ImagePatternProperties
@@ -370,7 +357,6 @@ void oddCheckerboardTest(int sizeFactor)
 
 	ImagePatternProperties properties = extractPatternsFromImage(sample, n);
 
-	std::cout << "Checkerboard:\n" << sample.data << "\n";
 	//ASSERT_TRUE(imagePropertiesEquivalent(properties, expectedProperties));
 	ASSERT_TRUE(imageGridEquivalent(properties, expectedProperties));
 }
