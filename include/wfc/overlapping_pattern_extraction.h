@@ -127,7 +127,7 @@ PatternTransformProperties denumerateTransformProperties(int enumeratedTransform
 
 int enumerateTransformProperties(const PatternTransformProperties& transformProperties);
 
-PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, bool symmetry, int n);
+PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, size_t symmetry, int n);
 
 // n = side of the pattern, e.g. 3.
 PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool periodic_in, size_t symmetry, PatternHash* out_lowest_pattern);

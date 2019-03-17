@@ -22,7 +22,7 @@ Pattern make_pattern(int n, Functor fun)
 	return result;
 }
 
-PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, bool symmetry, int n)
+PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, size_t symmetry, int n)
 {
 	PatternInfo toReturn = {};
 
