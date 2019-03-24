@@ -38,6 +38,31 @@ class Array2D
             mData(dimension.width * dimension.height, value)
         {}
 
+		
+		Array2D(std::initializer_list<std::initializer_list<T>> values)
+		{
+			mDimensions = 
+			{
+				.width = values.size(),
+				.height = longestInitSize(values)
+			};
+			mData = std::vector<T>(mDimensions.width * mDimensions.height);
+
+			size_t y = 0;
+			for (auto yList : values)
+			{
+				size_t x = 0;
+				for (auto value : values)
+				{
+					mData[{x, y}] = value;
+
+					x++;
+				}
+
+				y++;
+			}
+		}
+
 		typename std::vector<T>::reference operator[](const Index2D& index2D)
 		{
 			return mData[index(index2D.x, index2D.y)];
@@ -64,6 +89,16 @@ class Array2D
 		}
 
 	private:
+
+		static size_t longestInitSize(std::initializer_list<std::initializer_list<T>> values)
+		{
+			size_t toReturn = 0;
+			for (auto list : values)
+			{
+				toReturn = std::max(toReturn, list.size());
+			}
+			return toReturn;
+		}
 
 		size_t index(size_t x, size_t y) const
 		{
