@@ -42,6 +42,26 @@ struct FlattenedPatternOccurence
 	int occurrence;
 };
 
+struct TransformOccurrence
+{
+
+	PatternTransformProperties transform;
+
+	int occurrence;
+
+};
+
+std::array<int, 8> convert(const std::vector<TransformOccurrence>& toConvert)
+{
+	std::array<int, 8> toReturn = {};
+	for (const auto& transformOccurence : toConvert)
+	{
+		int index = enumerateTransformProperties(transformOccurence.transform);
+		toReturn[index] = transformOccurence.occurrence;
+	}
+	return toReturn;
+}
+
 bool operator==(const FlattenedPatternOccurence& left, const FlattenedPatternOccurence& right)
 {
 	return (left.pattern == right.pattern && left.occurrence == right.occurrence);
@@ -192,7 +212,17 @@ ImagePatternProperties expectedEvenCheckerboardProperties(int sizeFactor)
 		{
 			{
 				.pattern = pattern,
-				.occurrence = {{ gridArea / 2, gridArea / 2 }}
+				.occurrence = convert(
+				{
+					{
+						.transform = { .rotations = 0, .reflected = false },
+						.occurrence = gridArea / 2
+					},
+					{
+						.transform = { .rotations = 0, .reflected = true },
+						.occurrence = gridArea / 2
+					}
+				})
 			}
 		},
 		.grid = grid
@@ -326,11 +356,11 @@ ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 	int gridArea = size * size;
 	return ImagePatternProperties
 	{
-		.patterns = 
+		.patterns =
 		{
 			{
 				.pattern = pattern,
-				.occurrence = {}
+				.occurrence = convert({})
 			},
 			{
 				.pattern = sidePattern,
