@@ -353,22 +353,60 @@ ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 	};
 
 
-	int gridArea = size * size;
+	int subCheckerboardArea = (size - 1) * (size - 1);
+
+	int subCheckerboardOccurrence = subCheckerboardArea / 2;
+	int sideSubOccurrences = static_cast<int>((size - 1) / 2);
+
 	return ImagePatternProperties
 	{
 		.patterns =
 		{
 			{
 				.pattern = pattern,
-				.occurrence = convert({})
+				.occurrence = convert(
+				{
+					{
+						.transform = { .rotations = 0, .reflected = false },
+						.occurrence = subCheckerboardOccurrence
+					},
+					{
+						.transform = { .rotations = 0, .reflected = true },
+						.occurrence = subCheckerboardOccurrence
+					}
+				})
 			},
 			{
 				.pattern = sidePattern,
-				.occurrence = {}
+				.occurrence = convert(
+				{
+					{
+						.transform = { .rotations = 0, .reflected = false },
+						.occurrence = sideSubOccurrences
+					},
+					{
+						.transform = { .rotations = 1, .reflected = false },
+						.occurrence = sideSubOccurrences
+					},
+					{
+						.transform = { .rotations = 2, .reflected = false },
+						.occurrence = sideSubOccurrences
+					},
+					{
+						.transform = { .rotations = 3, .reflected = false },
+						.occurrence = sideSubOccurrences
+					}
+				})
 			},
 			{
 				.pattern = topPattern,
-				.occurrence = {}
+				.occurrence = convert(
+				{
+					{
+						.transform = { .rotations = 0, .reflected = false },
+						.occurrence = 1
+					}
+				})
 			}
 		},
 		.grid = grid
@@ -385,7 +423,7 @@ void oddCheckerboardTest(int sizeFactor)
 
 	ImagePatternProperties properties = extractPatternsFromImage(sample, n);
 
-	//ASSERT_TRUE(imagePropertiesEquivalent(properties, expectedProperties));
+	ASSERT_TRUE(imagePropertiesEquivalent(properties, expectedProperties));
 	ASSERT_TRUE(imageGridEquivalent(properties, expectedProperties));
 }
 
