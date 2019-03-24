@@ -168,13 +168,12 @@ bool imageGridEquivalent(const ImagePatternProperties& left, const ImagePatternP
 ImagePatternProperties expectedEvenCheckerboardProperties(int sizeFactor)
 {
 	const size_t size = sizeFactor * 2;
-	const int n = 2;
 
-	Pattern pattern({ n, n });
-	pattern[{0, 0 }] = 0;
-	pattern[{0, 1 }] = 1;
-	pattern[{1, 0 }] = 1;
-	pattern[{1, 1 }] = 0;
+	Pattern pattern
+	{
+		{ 0, 1 },
+		{ 1, 0 }
+	};
 
 	Dimension2D dimension{ size, size };
 	Array2D<PatternIdentifier> grid(dimension);
@@ -255,25 +254,24 @@ TEST(OverlappingExtractionTest, test1)
 ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 {
 	const size_t size = (sizeFactor * 2) - 1;
-	const int n = 2;
 
-	Pattern pattern({ n, n });
-	pattern[{0, 0 }] = 0;
-	pattern[{0, 1 }] = 1;
-	pattern[{1, 0 }] = 1;
-	pattern[{1, 1 }] = 0;
+	Pattern pattern
+	{
+		{ 0, 1 },
+		{ 1, 0 }
+	};
 
-	Pattern sidePattern({ n, n });
-	sidePattern[{0, 0 }] = 1;
-	sidePattern[{0, 1 }] = 1;
-	sidePattern[{1, 0 }] = 0;
-	sidePattern[{1, 1 }] = 0;
+	Pattern sidePattern
+	{
+		{ 1, 0 },
+		{ 1, 0 }
+	};
 
-	Pattern topPattern({ n, n });
-	topPattern[{0, 0 }] = 0;
-	topPattern[{0, 1 }] = 0;
-	topPattern[{1, 0 }] = 0;
-	topPattern[{1, 1 }] = 0;
+	Pattern topPattern
+	{
+		{ 0, 0 },
+		{ 0, 0 }
+	};
 
 	Dimension2D dimension{ size, size };
 	Array2D<PatternIdentifier> grid(dimension);

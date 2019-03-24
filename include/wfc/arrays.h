@@ -52,9 +52,9 @@ class Array2D
 			for (auto yList : values)
 			{
 				size_t x = 0;
-				for (auto value : values)
+				for (auto value : yList)
 				{
-					mData[{x, y}] = value;
+					operator[]({x, y}) = value;
 
 					x++;
 				}
