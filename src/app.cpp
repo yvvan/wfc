@@ -2,10 +2,13 @@
 
 #include <wfc/algorithm.h>
 #include <wfc/configuru.h>
+#include <wfc/overlapping_pattern_extraction.h>
 
 #include <stb_image_write.h>
 
 #include <emilib/strprintf.hpp>
+
+#include <iostream>
 
 void runConfiguruFile(const std::string& fileName)
 {
@@ -14,15 +17,43 @@ void runConfiguruFile(const std::string& fileName)
 	{
 		.overlappingAction = [] (const GeneralConfig& generalConfig, const OverlappingModelConfig& overlappingModelConfig)
 		{
+			static bool once = false;
+			if (!once)
+			{
+				std::cout << "Image: \n";
+				std::cout << overlappingModelConfig.sample_image.data;
+				ImagePatternProperties properties = extractPatternsFromImage(overlappingModelConfig.sample_image, 3);
+
+				std::cout << ".patternOccurrences = \n";
+				std::cout << "{\n";
+				for (const auto& pattern : properties.patterns)
+				{
+					std::cout << ".pattern = \n";
+					std::cout << pattern.pattern;
+
+					std::cout << ".occurrences = { ";
+					for (int i = 0; i < pattern.occurrence.size(); ++i)
+					{
+						std::cout << pattern.occurrence[i] << ", ";
+					}
+					std::cout << " }";
+				}
+				std::cout << "}\n";
+			}
+			once = true;
+			/*
 			auto computedInfo = fromConfig(overlappingModelConfig);
 			auto imageGenerator = overlappingGenerator(computedInfo, generalConfig.limit);
 			seedLoop(generalConfig.name, generalConfig.numOutput, imageGenerator);
+			*/
 		},
 		.tileAction = [] (const GeneralConfig& generalConfig, const TileModelConfig& tileModelConfig)
 		{
+			/*
 			auto internal = fromConfig(tileModelConfig);
 			auto imageGenerator = tileGenerator(internal, generalConfig.limit);
 			seedLoop(generalConfig.name, generalConfig.numOutput, imageGenerator);
+			*/
 		}
 	};
 
