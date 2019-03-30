@@ -17,20 +17,4 @@ struct PalettedImage
 	Palette palette;
 };
 
-
-inline std::ostream& operator<<(std::ostream& ostream, const Pattern& pattern)
-{
-	Dimension2D dimension = pattern.size();
-	for (size_t x = 0; x < dimension.width; x++)
-	{
-		for (size_t y = 0; y < dimension.height; y++)
-		{
-			ostream << (int)pattern[{x, y}] << " ";
-
-		}
-		ostream << "\n";
-	}
-	return ostream;
-}
-
 #endif

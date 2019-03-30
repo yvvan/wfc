@@ -227,6 +227,24 @@ inline std::ostream& operator<<(std::ostream& stream, const Index2D& index)
 	return stream;
 }
 
-
+template <class T>
+inline std::ostream& operator<<(std::ostream& stream, const Array2D<T>& array)
+{
+	Dimension2D dimension = array.size();
+	stream << "{\n";
+	for (int x = 0; x < dimension.width; ++x)
+	{
+		stream << "\t{ ";
+		for (int y = 0; y < dimension.width; ++y)
+		{
+			Index2D index{x, y};
+			stream << (int)array[index];			
+			stream << ", ";
+		}
+		stream << "},\n";
+	}
+	stream << "}\n";
+	return stream;
+}
 
 #endif
