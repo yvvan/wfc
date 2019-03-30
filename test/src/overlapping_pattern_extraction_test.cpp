@@ -51,12 +51,12 @@ struct TransformOccurrence
 
 };
 
-std::array<int, 8> convert(const std::vector<TransformOccurrence>& toConvert)
+Array2D<int> convert(const std::vector<TransformOccurrence>& toConvert)
 {
-	std::array<int, 8> toReturn = {};
+	Array2D<int> toReturn({4, 2});
 	for (const auto& transformOccurence : toConvert)
 	{
-		int index = enumerateTransformProperties(transformOccurence.transform);
+		Index2D index = enumerateTransformProperties(transformOccurence.transform);
 		toReturn[index] = transformOccurence.occurrence;
 	}
 	return toReturn;
@@ -70,16 +70,19 @@ bool operator==(const FlattenedPatternOccurence& left, const FlattenedPatternOcc
 std::array<FlattenedPatternOccurence, 8> flattenPatternOccurrence(const PatternOccurrence& input)
 {
 	std::array<FlattenedPatternOccurence, 8> toReturn;
-	for (int i = 0; i < 8; i++)
+	Dimension2D dimension{4, 2};
+	int count = 0;
+	auto consumerFcn = [&] (const Index2D& index)
 	{
-		PatternTransformProperties transformProperties = denumerateTransformProperties(i);
+		PatternTransformProperties transformProperties = denumerateTransformProperties(index);
 
-		toReturn[i] =
+		toReturn[count++] =
 		{
 			.pattern = createPattern(input.pattern, transformProperties),
-			.occurrence = input.occurrence[i]
+			.occurrence = input.occurrence[index]
 		};
-	}
+	};
+	runForDimension(dimension, consumerFcn);
 	return toReturn;
 }
 
@@ -181,8 +184,8 @@ ImagePatternProperties expectedEvenCheckerboardProperties(int sizeFactor)
 	PatternTransformProperties normalTransform = { .rotations = 0, .reflected = false };
 	PatternTransformProperties reflectedTransform = { .rotations = 0, .reflected = true };
 
-	int normalEnumeratedTransform = enumerateTransformProperties(normalTransform);
-	int reflectedEnumeratedTransform = enumerateTransformProperties(reflectedTransform);
+	Index2D normalEnumeratedTransform = enumerateTransformProperties(normalTransform);
+	Index2D reflectedEnumeratedTransform = enumerateTransformProperties(reflectedTransform);
 
 	auto fillGrid = [&] (const Index2D& index)
 	{
@@ -279,8 +282,8 @@ ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 	PatternTransformProperties normalTransform = { .rotations = 0, .reflected = false };
 	PatternTransformProperties reflectedTransform = { .rotations = 0, .reflected = true };
 
-	int normalEnumeratedTransform = enumerateTransformProperties(normalTransform);
-	int reflectedEnumeratedTransform = enumerateTransformProperties(reflectedTransform);
+	Index2D normalEnumeratedTransform = enumerateTransformProperties(normalTransform);
+	Index2D reflectedEnumeratedTransform = enumerateTransformProperties(reflectedTransform);
 
 	auto fillGrid = [&] (const Index2D& index)
 	{
@@ -323,8 +326,8 @@ ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 	PatternTransformProperties rotatedNormalTransform = { .rotations = 1, .reflected = false };
 	PatternTransformProperties rotatedReflectedTransform = { .rotations = 3, .reflected = false };
 
-	int rotatedNormalEnumeratedTransform = enumerateTransformProperties(rotatedNormalTransform);
-	int rotatedReflectedEnumeratedTransform = enumerateTransformProperties(rotatedReflectedTransform);
+	Index2D rotatedNormalEnumeratedTransform = enumerateTransformProperties(rotatedNormalTransform);
+	Index2D rotatedReflectedEnumeratedTransform = enumerateTransformProperties(rotatedReflectedTransform);
 
 	for (size_t y = 0; y < size - 1; ++y)
 	{
@@ -347,7 +350,7 @@ ImagePatternProperties expectedOddCheckerboardProperties(int sizeFactor)
 	grid[{ size - 1, size - 1 }] =
 	{
 		.patternIndex = 2,
-		.enumeratedTransform = 0
+		.enumeratedTransform = { 0, 0 }
 	};
 
 

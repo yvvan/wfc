@@ -69,7 +69,7 @@ struct PatternOccurrence
 
 	Pattern pattern;
 
-	std::array<int, 8> occurrence;
+	Array2D<int> occurrence;
 
 };
 
@@ -97,7 +97,7 @@ struct PatternIdentifier
 
 	size_t patternIndex;
 
-	int enumeratedTransform;
+	Index2D enumeratedTransform;
 
 };
 
@@ -120,12 +120,12 @@ struct EnumeratedPattern
 {
 	Pattern pattern;
 	
-	int enumeratedTransform;
+	Index2D enumeratedTransform;
 };
 
-PatternTransformProperties denumerateTransformProperties(int enumeratedTransform);
+PatternTransformProperties denumerateTransformProperties(Index2D enumeratedTransform);
 
-int enumerateTransformProperties(const PatternTransformProperties& transformProperties);
+Index2D enumerateTransformProperties(const PatternTransformProperties& transformProperties);
 
 PatternInfo calculatePatternInfo(const PalettedImage& image, bool hasFoundation, bool periodicIn, size_t symmetry, int n);
 
@@ -134,7 +134,7 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 
 ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int n);
 
-std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index);
+Array2D<Pattern> generatePatterns(const PalettedImage& sample, int n, const Index2D& index);
 
 Pattern patternFromSample(const PalettedImage& sample, int n, const Index2D& index);
 

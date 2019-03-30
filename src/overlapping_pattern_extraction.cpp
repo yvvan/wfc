@@ -74,14 +74,15 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 
 	auto rangeFcn = [&] (const Index2D& index)
 	{
-		std::array<Pattern, 8> ps = generatePatterns(sample, n, index);
+		Array2D<Pattern> ps = generatePatterns(sample, n, index);
 
 		for (int k = 0; k < symmetry; ++k) 
 		{
+			Index2D index = { k / 2, (k % 2) == 1 };
 			HashedPattern hashedPattern
 			{
-				.pattern = ps[k],
-				.hash = hash_from_pattern(ps[k], sample.palette.size())
+				.pattern = ps[index],
+				.hash = hash_from_pattern(ps[index], sample.palette.size())
 			};
 			
 			patterns[hashedPattern] += 1;
@@ -123,7 +124,7 @@ auto runOverPatterns(const PalettedImage& sample, int n, const Index2D& index)
 			EnumeratedPattern toConsume
 			{
 				.pattern = currentPattern,
-				.enumeratedTransform = baseIndex 
+				.enumeratedTransform = { i, 0 } 
 			};
 			if (consumerFcn(toConsume))
 			{
@@ -133,7 +134,7 @@ auto runOverPatterns(const PalettedImage& sample, int n, const Index2D& index)
 			toConsume = 
 			{
 				.pattern = reflect(currentPattern, n),
-				.enumeratedTransform = baseIndex + 1 
+				.enumeratedTransform = { i, 1 } 
 			};
 			if (consumerFcn(toConsume))
 			{
@@ -156,21 +157,22 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 
 	auto rangeFcn = [&] (const Index2D& index)
 	{
-		std::array<Pattern, 8> ps = generatePatterns(sample, n, index);
+		Array2D<Pattern> ps = generatePatterns(sample, n, index);
 
 		auto hashedValue = patternMap.end();
-		int transformEnumeration = 0;
+		Index2D transformEnumeration = { 0, 0 };
 
-		auto consumerFcn = [&] (const EnumeratedPattern& enumeratedPattern)
+		auto consumerFcn = [&] (const Index2D& index)
 		{
+			const auto& pattern = ps[index];
 			HashedPattern hashedPattern
 			{
-				.pattern = enumeratedPattern.pattern,
-				.hash = hash_from_pattern(enumeratedPattern.pattern, sample.palette.size())
+				.pattern = pattern,
+				.hash = hash_from_pattern(pattern, sample.palette.size())
 			};
 
 			hashedValue = patternMap.find(hashedPattern);
-			transformEnumeration = enumeratedPattern.enumeratedTransform;
+			transformEnumeration = index;
 
 			if (hashedValue != patternMap.end())
 			{
@@ -182,15 +184,8 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 			}
 		};
 
-		int patternEnumeration = 0;
-		for (const auto& pattern : ps)
-		{
-			if (consumerFcn({ pattern, patternEnumeration }))
-			{
-				break;
-			}
-			patternEnumeration++;
-		}
+		Dimension2D transformDimensions = ps.size();
+		BreakRange::runForDimension(transformDimensions, consumerFcn);
 
 		if (hashedValue != patternMap.end())
 		{
@@ -205,20 +200,20 @@ ImagePatternProperties extractPatternsFromImage(const PalettedImage& sample, int
 		}
 		else
 		{
-			toReturn.patterns.push_back({ ps[0], {} });
-			toReturn.patterns.back().occurrence[0] = 1;
+			toReturn.patterns.push_back({ ps[{ 0, 0 }], Array2D<int>({ 4, 2 }, { 0 }) });
+			toReturn.patterns.back().occurrence[{ 0, 0 }] = 1;
 
 			PatternIdentifier identifier
 			{
 				.patternIndex = toReturn.patterns.size() - 1,
-				.enumeratedTransform = 0 
+				.enumeratedTransform = { 0 , 0 }
 			};
 			toReturn.grid[index] = identifier;
 
 			HashedPattern hashedPattern
 			{
-				.pattern = ps[0],
-				.hash = hash_from_pattern(ps[0], sample.palette.size())
+				.pattern = ps[{ 0, 0 }],
+				.hash = hash_from_pattern(ps[{ 0, 0 }], sample.palette.size())
 			};
 			patternMap[hashedPattern] = identifier.patternIndex;
 		}
@@ -248,9 +243,9 @@ PatternHash hash_from_pattern(const Pattern& pattern, size_t palette_size)
 	return result;
 }
 
-std::array<Pattern, 8> generatePatterns(const PalettedImage& sample, int n, const Index2D& index)
+Array2D<Pattern> generatePatterns(const PalettedImage& sample, int n, const Index2D& index)
 {
-	std::array<Pattern, 8> toReturn;
+	Array2D<Pattern> toReturn({4, 2});
 	auto consumerFcn = [&toReturn] (const EnumeratedPattern& enumeratedPattern)
 	{
 		toReturn[enumeratedPattern.enumeratedTransform] = enumeratedPattern.pattern;
@@ -299,18 +294,18 @@ Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension)
 	return { (index.x % dimension.width), (index.y % dimension.height) };
 }
 
-PatternTransformProperties denumerateTransformProperties(int enumeratedTransform)
+PatternTransformProperties denumerateTransformProperties(Index2D enumeratedTransform)
 {
 	return 
 	{
-		.rotations = enumeratedTransform / 2,
-		.reflected = ((enumeratedTransform % 2) == 1)
+		.rotations = enumeratedTransform.x,
+		.reflected = enumeratedTransform.y
 	};
 }
 
-int enumerateTransformProperties(const PatternTransformProperties& transformProperties)
+Index2D enumerateTransformProperties(const PatternTransformProperties& transformProperties)
 {
-	return (transformProperties.rotations * 2) + (transformProperties.reflected ? 1 : 0);
+	return { transformProperties.rotations, transformProperties.reflected };
 }
 
 Pattern createPattern(const Pattern& base, const PatternTransformProperties& transformProperties)
