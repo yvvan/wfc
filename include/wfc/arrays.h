@@ -43,8 +43,8 @@ class Array2D
 		{
 			mDimensions = 
 			{
-				.width = values.size(),
-				.height = longestInitSize(values)
+				.width = longestInitSize(values),
+				.height = values.size()
 			};
 			mData = std::vector<T>(mDimensions.width * mDimensions.height);
 
@@ -232,10 +232,10 @@ inline std::ostream& operator<<(std::ostream& stream, const Array2D<T>& array)
 {
 	Dimension2D dimension = array.size();
 	stream << "{\n";
-	for (int x = 0; x < dimension.width; ++x)
+	for (int y = 0; y < dimension.height; ++y)
 	{
 		stream << "\t{ ";
-		for (int y = 0; y < dimension.width; ++y)
+		for (int x = 0; x < dimension.width; ++x)
 		{
 			Index2D index{x, y};
 			stream << (int)array[index];			

@@ -54,8 +54,8 @@ Pattern transformPattern(const Pattern& p, const PatternTransformProperties& tra
 
 	int cR = cosN(transform.rotations);
 	int sR = sinN(transform.rotations);
-	int xShift = n * covN(shiftDist);
-	int yShift = n * sovN(shiftDist);
+	int xShift = (n - 1) * covN(shiftDist);
+	int yShift = (n - 1) * sovN(shiftDist);
 	
 	// Equivalent to:
 	//         Rot             Reflect
@@ -387,7 +387,7 @@ PatternTransformProperties denumerateTransformProperties(Index2D enumeratedTrans
 
 Index2D enumerateTransformProperties(const PatternTransformProperties& transformProperties)
 {
-	return { transformProperties.rotations, transformProperties.reflected };
+	return { transformProperties.rotations, (transformProperties.reflected ? 1 : 0) };
 }
 
 Pattern createPattern(const Pattern& base, const PatternTransformProperties& transformProperties)

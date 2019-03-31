@@ -435,3 +435,79 @@ TEST(OverlappingExtractionTest, test2)
 		oddCheckerboardTest(i);
 	}
 }
+
+TEST(TransformTest, test1)
+{
+	// Pattern chosen for not having any symmetry
+	Pattern input =
+	{
+		{ 1, 2, 0 },
+		{ 0, 0, 0 },
+		{ 0, 0, 0 }
+	};
+
+	Array2D<Pattern> expectedPatterns({ 4, 2 });
+	expectedPatterns[{ 0, 0 }] = 
+	{
+		{ 1, 2, 0 },
+		{ 0, 0, 0 },
+		{ 0, 0, 0 }
+	};
+
+	expectedPatterns[{ 1, 0 }] = 
+	{
+		{ 0, 0, 1 },
+		{ 0, 0, 2 },
+		{ 0, 0, 0 }
+	};
+
+	expectedPatterns[{ 2, 0 }] = 
+	{
+		{ 0, 0, 0 },
+		{ 0, 0, 0 },
+		{ 0, 2, 1 }
+	};
+	
+	expectedPatterns[{ 3, 0 }] = 
+	{
+		{ 0, 0, 0 },
+		{ 2, 0, 0 },
+		{ 1, 0, 0 }
+	};
+
+	expectedPatterns[{ 0, 1 }] = 
+	{
+		{ 0, 2, 1 },
+		{ 0, 0, 0 },
+		{ 0, 0, 0 }
+	};
+
+	expectedPatterns[{ 1, 1 }] = 
+	{
+		{ 0, 0, 0 },
+		{ 0, 0, 2 },
+		{ 0, 0, 1 }
+	};
+
+	expectedPatterns[{ 2, 1 }] = 
+	{
+		{ 0, 0, 0 },
+		{ 0, 0, 0 },
+		{ 1, 2, 0 }
+	};
+	
+	expectedPatterns[{ 3, 1 }] = 
+	{
+		{ 1, 0, 0 },
+		{ 2, 0, 0 },
+		{ 0, 0, 0 }
+	};
+
+	auto consumerFcn = [&] (const Index2D& index)
+	{
+		Pattern result = transformPattern(input, denumerateTransformProperties(index));
+		ASSERT_EQ(result, expectedPatterns[index]);
+	};
+
+	runForDimension({4, 2}, consumerFcn);
+}
