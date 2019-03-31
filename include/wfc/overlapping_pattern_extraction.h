@@ -74,9 +74,12 @@ struct PatternOccurrence
 };
 
 // Description of the transformation of a pattern.
-// Any pattern may be rotated up to 4 times, with each rotation having a corresponding
+// Any pattern may be rotated up to 3 times, with each rotation having a corresponding
 // reflected version. Sometimes a transformation will not change the properties of a
 // pattern, due to symmetry.
+// 
+// Reflection is applied before rotations. Reflections are across the y-axis, and rotations
+// are counter-clockwise. Image is first reflected, then rotated.
 struct PatternTransformProperties
 {
 
@@ -142,6 +145,7 @@ Pattern rotate(const Pattern& p, int n);
 
 Pattern reflect(const Pattern& p, int n);
 
+// Applies a transform on a pattern.
 Pattern transformPattern(const Pattern& p, const PatternTransformProperties& transform);
 
 Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension);
