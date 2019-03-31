@@ -142,6 +142,8 @@ Pattern rotate(const Pattern& p, int n);
 
 Pattern reflect(const Pattern& p, int n);
 
+Pattern transformPattern(const Pattern& p, const PatternTransformProperties& transform);
+
 Index2D wrapAroundIndex(const Index2D& index, const Dimension2D& dimension);
 
 Pattern createPattern(const Pattern& base, const PatternTransformProperties& transformProperties);

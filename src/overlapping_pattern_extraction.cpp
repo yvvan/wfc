@@ -1,9 +1,91 @@
 #include <wfc/overlapping_pattern_extraction.h>
 
 #include <cmath>
+#include <array>
 #include <iostream>
 
 #include <wfc/ranges.h>
+
+std::array<int, 4> shiftVector = {{ 0, 0, 1, 1 }};
+
+// Sin wave discretized at 90 degrees
+std::array<int, 4> sinVector =   {{ 0, 1, 0, -1 }};
+
+int sinN(int n)
+{
+	return sinVector[n % 4];
+}
+
+int cosN(int n)
+{
+	return sinN(n + 1);
+}
+
+int sovN(int n)
+{
+	return shiftVector[n % 4];
+}
+
+int covN(int n)
+{
+	return sovN(n + 1);
+}
+
+Pattern transformPattern(const Pattern& p, const PatternTransformProperties& transform)
+{
+	Dimension2D dimension = p.size();
+
+	int n = dimension.width;
+
+	Pattern result(dimension);
+
+	int reflectFactor;
+	int shiftDist;
+	if (!transform.reflected)
+	{
+		reflectFactor = 1;
+		shiftDist = transform.rotations;
+	}
+	else
+	{
+		reflectFactor = -1;
+		shiftDist = (transform.rotations + 1);
+	}
+
+	int cR = cosN(transform.rotations);
+	int sR = sinN(transform.rotations);
+	int xShift = n * covN(shiftDist);
+	int yShift = n * sovN(shiftDist);
+	
+	// Equivalent to:
+	//         Rot             Reflect
+	// | c -s (n * xShift) | | -1 0 n  |
+	// | s  c (n * yShift) | |  0 1 0  |
+	// | 0  0      1       | |  0 0 1  |
+	//
+	// Where yShift = { 0, 0, 1, 1 }
+	// and xShift = yShift(k + 1)
+	Array2D<int> matrix = 
+	{
+		{ reflectFactor * cR, -sR, xShift },
+		{ reflectFactor * sR, cR,  yShift }
+	};
+
+	auto rangeFcn = [&] (const Index2D& index)
+	{
+		Index2D destination = 
+		{ 
+			(matrix[{ 0, 0 }] * index.x + matrix[{ 1, 0 }] * index.y + matrix[{ 2, 0 }]),
+			(matrix[{ 0, 1 }] * index.x + matrix[{ 1, 1 }] * index.y + matrix[{ 2, 1 }]),
+		};
+		result[destination] = p[index];
+			
+	};
+
+	runForDimension(dimension, rangeFcn);
+
+	return result;
+}
 
 template <class Functor>
 Pattern make_pattern(int n, Functor fun)
