@@ -160,11 +160,11 @@ PatternPrevalence extract_patterns(const PalettedImage& sample, int n, bool peri
 
 		for (int k = 0; k < symmetry; ++k) 
 		{
-			Index2D index = { k / 2, (k % 2) == 1 };
+			Index2D transformIndex = { k / 2, (k % 2) == 1 };
 			HashedPattern hashedPattern
 			{
-				.pattern = ps[index],
-				.hash = hash_from_pattern(ps[index], sample.palette.size())
+				.pattern = ps[transformIndex],
+				.hash = hash_from_pattern(ps[transformIndex], sample.palette.size())
 			};
 			
 			patterns[hashedPattern] += 1;
