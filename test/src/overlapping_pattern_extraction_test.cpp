@@ -1,8 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <iostream>
-#include <algorithm>
-
 #include <wfc/ranges.h>
 
 #include <wfc/overlapping_types.h>

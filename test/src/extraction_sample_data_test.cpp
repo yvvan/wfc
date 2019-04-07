@@ -4,7 +4,8 @@
 #include <wfc/overlapping_pattern_extraction.h>
 #include <wfc/pattern_properties_comparison.h>
 
-// This test contains an example data
+// These tests contains an example data
+
 TEST(ExtractionSampleData, test1)
 {
 	const int n = 2;
@@ -4431,4 +4432,320 @@ TEST(ExtractionSampleData, test1)
 	ASSERT_TRUE(imagePropertiesEquivalent(properties, expectedProperties));
 	ASSERT_TRUE(imageGridEquivalent(properties, expectedProperties));
 
+}
+
+// This test uses smaller image, but larger n
+TEST(ExtractionSampleData, test2)
+{
+	const int n = 3;
+
+	// Use small image because n = 3 will inherently create a lot of patterns
+	Array2D<ColorIndex> image = 
+	{
+		{ 0, 1, 2, 3, },
+		{ 3, 2, 1, 0, },
+		{ 0, 0, 0, 1, },
+		{ 0, 2, 2, 0, },
+	};
+
+	PalettedImage sample
+	{
+		.data = image,
+		.palette = { {}, {}, {}, {} }
+	};
+	std::vector<PatternOccurrence> patterns = 
+	{
+
+		{
+			.pattern = 
+			{
+				{ 0, 1, 2, },
+				{ 3, 2, 1, },
+				{ 0, 0, 0, }
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, }
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 1, 2, 3, },
+				{ 2, 1, 0, },
+				{ 0, 0, 1, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 2, 3, 0, },
+				{ 1, 0, 3, },
+				{ 0, 1, 0, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 3, 0, 1, },
+				{ 0, 3, 2, },
+				{ 1, 0, 0, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 3, 2, 1, },
+				{ 0, 0, 0, },
+				{ 0, 2, 2, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 2, 1, 0, },
+				{ 0, 0, 1, },
+				{ 2, 2, 0, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 1, 0, 3, },
+				{ 0, 1, 0, },
+				{ 2, 0, 0, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 0, 3, 2, },
+				{ 1, 0, 0, },
+				{ 0, 0, 2, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 0, 0, 0, },
+				{ 0, 2, 2, },
+				{ 0, 1, 2, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 0, 0, 1, },
+				{ 2, 2, 0, },
+				{ 1, 2, 3, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 0, 1, 0, },
+				{ 2, 0, 0, },
+				{ 2, 3, 0, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 1, 0, 0, },
+				{ 0, 0, 2, },
+				{ 3, 0, 1, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 0, 2, 2, },
+				{ 0, 1, 2, },
+				{ 3, 2, 1, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 2, 2, 0, },
+				{ 1, 2, 3, },
+				{ 2, 1, 0, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 2, 0, 0, },
+				{ 2, 3, 0, },
+				{ 1, 0, 3, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		},
+		{
+			.pattern = 
+			{
+				{ 0, 0, 2, },
+				{ 3, 0, 1, },
+				{ 0, 3, 2, },
+			},
+			.occurrence = 
+			{
+				{ 1, 0, 0, 0, },
+				{ 0, 0, 0, 0, },
+			}
+		}
+	};
+
+	Array2D<PatternIdentifier> grid = 
+	{
+		{ 
+			{
+				.patternIndex = 0 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 1 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 2 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 3 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+		},
+		{ 
+			{
+				.patternIndex = 4 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 5 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 6 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 7 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+		},
+		{ 
+			{
+				.patternIndex = 8 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 9 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 10 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 11 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+		},
+		{ 
+			{
+				.patternIndex = 12 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 13 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 14 ,
+				.enumeratedTransform = {0, 0}
+			}, 
+			{
+				.patternIndex = 15 ,
+				.enumeratedTransform = {0, 0}
+			},
+		},
+	};
+
+	ImagePatternProperties expectedProperties{ .patterns = patterns, .grid = grid };
+
+	ImagePatternProperties properties = extractPatternsFromImage(sample, n);
+
+	ASSERT_TRUE(imagePropertiesEquivalent(properties, expectedProperties));
+	ASSERT_TRUE(imageGridEquivalent(properties, expectedProperties));
 }
