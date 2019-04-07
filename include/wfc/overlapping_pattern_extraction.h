@@ -6,6 +6,7 @@
 #include <experimental/optional>
 #include <unordered_map>
 #include <vector>
+#include <iostream>
 
 using PatternHash = uint64_t; // Another representation of a Pattern.
 const PatternHash kInvalidHash = -1;
@@ -104,6 +105,14 @@ struct PatternIdentifier
 
 };
 
+inline std::ostream& operator<<(std::ostream& stream, const PatternIdentifier& identifier)
+{
+	stream << "{\n";
+	stream << ".patternIndex = " << identifier.patternIndex << " ,\n";
+	stream << ".enumeratedTransform = " << identifier.enumeratedTransform << "\n";
+	stream << "}\n";
+}
+
 // The extracted patterns found in an image.
 // There are two components. The first is a vector containing the patterns themselves.
 // The second is an Array2D which maps each point in the image to one of the patterns
@@ -118,6 +127,25 @@ struct ImagePatternProperties
 	Array2D<PatternIdentifier> grid;
 
 };
+
+inline std::ostream& operator<<(std::ostream& stream, const ImagePatternProperties& properties)
+{
+	std::cout << ".patternOccurrences = \n";
+	std::cout << "{\n";
+	for (const auto& pattern : properties.patterns)
+	{
+		std::cout << "{\n";
+		std::cout << ".pattern = \n";
+		std::cout << pattern.pattern;
+
+		std::cout << ".occurrences = \n";
+		std::cout << pattern.occurrence;
+		std::cout << "}\n";
+	}
+	std::cout << "}\n";
+
+	std::cout << ".grid = \n" << properties.grid << "\n";
+}
 
 struct EnumeratedPattern
 {

@@ -223,12 +223,31 @@ inline bool operator!=(const Dimension2D& left, const Dimension2D& right)
 
 inline std::ostream& operator<<(std::ostream& stream, const Index2D& index)
 {
-	stream << "(" << index.x << ", " << index.y << ")";
+	stream << "{" << index.x << ", " << index.y << "}";
 	return stream;
 }
 
 template <class T>
 inline std::ostream& operator<<(std::ostream& stream, const Array2D<T>& array)
+{
+	Dimension2D dimension = array.size();
+	stream << "{\n";
+	for (int y = 0; y < dimension.height; ++y)
+	{
+		stream << "\t{ ";
+		for (int x = 0; x < dimension.width; ++x)
+		{
+			Index2D index{x, y};
+			stream << array[index];			
+			stream << ", ";
+		}
+		stream << "},\n";
+	}
+	stream << "}\n";
+	return stream;
+}
+
+inline std::ostream& operator<<(std::ostream& stream, const Array2D<uint8_t>& array)
 {
 	Dimension2D dimension = array.size();
 	stream << "{\n";
