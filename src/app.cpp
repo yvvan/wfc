@@ -2,13 +2,10 @@
 
 #include <wfc/algorithm.h>
 #include <wfc/configuru.h>
-#include <wfc/overlapping_pattern_extraction.h>
 
 #include <stb_image_write.h>
 
 #include <emilib/strprintf.hpp>
-
-#include <iostream>
 
 void runConfiguruFile(const std::string& fileName)
 {
