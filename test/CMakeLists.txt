@@ -13,6 +13,7 @@ add_executable( runUnitTests
   src/main.cpp
 
   src/overlapping_pattern_extraction_test.cpp
+  src/extraction_sample_data_test.cpp
 )
 
 # Link test executable against gtest & gtest_main
