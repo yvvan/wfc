@@ -10,6 +10,8 @@
 #include <numeric>
 #include <random>
 
+#include <time.h>
+
 const char *result2str(const Result result) {
   return result == Result::kSuccess
              ? "success"
@@ -188,7 +190,7 @@ Result observe(const CommonParams &commonParams, const Model &model,
 Result run(const CommonParams &commonParams, AlgorithmData &algorithmData,
            const Model &model, size_t seed,
            size_t limit) {
-  std::mt19937 gen(seed);
+  std::mt19937 gen(time(nullptr) + seed);
   std::uniform_real_distribution<double> dis(0.0, 1.0);
   RandomDouble random_double = [&]() { return dis(gen); };
 
