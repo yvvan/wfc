@@ -1,11 +1,8 @@
-#ifndef _WFC_IMAGE_GENERATOR_H_
-#define _WFC_IMAGE_GENERATOR_H_
+#pragma once
 
 #include <functional>
-#include <experimental/optional>
 
 #include <wfc/imodel.h>
 
-using ImageGenerator = std::function< std::experimental::optional<Image>(size_t) >;
-
-#endif
+using ImageGenerator =
+    std::function<std::unique_ptr<Image>(size_t)>;

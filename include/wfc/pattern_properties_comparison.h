@@ -1,10 +1,9 @@
-#ifndef _PATTERN_PROPERTIES_COMPARISON_H_
-#define _PATTERN_PROPERTIES_COMPARISON_H_
+#pragma once
 
 class ImagePatternProperties;
 
-bool imageGridEquivalent(const ImagePatternProperties& left, const ImagePatternProperties& right);
+bool imageGridEquivalent(const ImagePatternProperties &left,
+                         const ImagePatternProperties &right);
 
-bool imagePropertiesEquivalent(const ImagePatternProperties& left, const ImagePatternProperties& right);
-
-#endif
+bool imagePropertiesEquivalent(const ImagePatternProperties &left,
+                               const ImagePatternProperties &right);

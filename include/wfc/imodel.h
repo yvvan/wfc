@@ -1,51 +1,40 @@
-#ifndef _WFC_IMODEL_H_
-#define _WFC_IMODEL_H_
+#pragma once
 
 #include <vector>
-#include <experimental/optional>
 
-#include <wfc/rgba.h>
-#include <wfc/arrays.h>
 #include <wfc/algorithm_data.h>
+#include <wfc/arrays.h>
+#include <wfc/rgba.h>
 
 // Properties of algorithmData image.
-struct OutputProperties
-{
+struct OutputProperties {
 
-	Dimension2D dimensions;
+  Dimension2D dimensions;
 
-	bool periodic;
-
+  bool periodic;
 };
 
-struct CommonParams
-{
+struct CommonParams {
 
-	OutputProperties mOutputProperties;
+  OutputProperties mOutputProperties;
 
-	size_t numPatterns;
+  size_t numPatterns;
 
-	// The weight of each pattern (e.g. how often that pattern occurs in the sample image).
-	std::vector<double> patternWeights;
-
+  // The weight of each pattern (e.g. how often that pattern occurs in the
+  // sample image).
+  std::vector<double> patternWeights;
 };
 
 using Image = Array2D<RGBA>;
 
-class Model
-{
+class Model {
 
-	public:
+public:
+  virtual bool propagate(AlgorithmData &algorithmData) const = 0;
 
-		virtual bool propagate(AlgorithmData& algorithmData) const = 0;
+  virtual bool on_boundary(const Index2D &index) const = 0;
 
-		virtual bool on_boundary(const Index2D& index) const = 0;
+  virtual std::unique_ptr<Image> image(const AlgorithmData &algorithmData) const = 0;
 
-		virtual Image image(const AlgorithmData& algorithmData) const = 0;
-
-		virtual AlgorithmData initAlgorithmData() const = 0;
-
+  virtual AlgorithmData initAlgorithmData() const = 0;
 };
-
-
-#endif

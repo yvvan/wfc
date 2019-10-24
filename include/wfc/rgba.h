@@ -1,5 +1,4 @@
-#ifndef _WFC_RGBA_H_
-#define _WFC_RGBA_H_
+#pragma once
 
 #include <cstdint>
 
@@ -15,5 +14,3 @@ inline bool operator==(const RGBA& x, const RGBA& y)
 		&& x.b == y.b 
 		&& x.a == y.a;
 }
-
-#endif

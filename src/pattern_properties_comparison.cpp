@@ -1,126 +1,114 @@
-#include <wfc/pattern_properties_comparison.h>
-
-#include <algorithm>
-
 #include <wfc/ranges.h>
 
-#include <wfc/overlapping_types.h>
 #include <wfc/overlapping_pattern_extraction.h>
+#include <wfc/overlapping_types.h>
 
-namespace
-{
+#include <algorithm>
+#include <array>
 
-struct FlattenedPatternOccurence
-{
-	Pattern pattern;
+namespace {
 
-	int occurrence;
+struct FlattenedPatternOccurence {
+  Pattern pattern;
+
+  int occurrence = 0;
 };
 
-bool operator==(const FlattenedPatternOccurence& left, const FlattenedPatternOccurence& right)
-{
-	return (left.pattern == right.pattern && left.occurrence == right.occurrence);
+bool operator==(const FlattenedPatternOccurence &left,
+                const FlattenedPatternOccurence &right) {
+  return (left.pattern == right.pattern && left.occurrence == right.occurrence);
 }
 
-std::array<FlattenedPatternOccurence, 8> flattenPatternOccurrence(const PatternOccurrence& input)
-{
-	std::array<FlattenedPatternOccurence, 8> toReturn;
-	Dimension2D dimension{4, 2};
-	int count = 0;
-	auto consumerFcn = [&] (const Index2D& index)
-	{
-		PatternTransformProperties transformProperties = denumerateTransformProperties(index);
+std::array<FlattenedPatternOccurence, 8>
+flattenPatternOccurrence(const PatternOccurrence &input) {
+  std::array<FlattenedPatternOccurence, 8> toReturn;
+  Dimension2D dimension{4, 2};
+  int count = 0;
+  auto consumerFcn = [&](const Index2D &index) {
+    PatternTransformProperties transformProperties =
+        denumerateTransformProperties(index);
 
-		toReturn[count++] =
-		{
-			.pattern = createPattern(input.pattern, transformProperties),
-			.occurrence = input.occurrence[index]
-		};
-	};
-	runForDimension(dimension, consumerFcn);
-	return toReturn;
+    toReturn[count++] = {createPattern(input.pattern, transformProperties),
+                         input.occurrence[index]};
+  };
+  runForDimension(dimension, consumerFcn);
+  return toReturn;
 }
 
-bool patternsEquivalent(const PatternOccurrence& left, const PatternOccurrence& right)
-{
-	auto flattenedLeft = flattenPatternOccurrence(left);
-	auto flattenedRight = flattenPatternOccurrence(right);
+bool patternsEquivalent(const PatternOccurrence &left,
+                        const PatternOccurrence &right) {
+  auto flattenedLeft = flattenPatternOccurrence(left);
+  auto flattenedRight = flattenPatternOccurrence(right);
 
-	// Don't have to check for size as usual for is_permutation as they're both array size 8.
-	return std::is_permutation(flattenedLeft.begin(), flattenedLeft.end(), flattenedRight.begin());
+  // Don't have to check for size as usual for is_permutation as they're both
+  // array size 8.
+  return std::is_permutation(flattenedLeft.begin(), flattenedLeft.end(),
+                             flattenedRight.begin());
 }
 
-bool enumeratedPatternsEquivalent(const EnumeratedPattern& left, const EnumeratedPattern& right)
-{
-	PatternTransformProperties leftTransform = denumerateTransformProperties(left.enumeratedTransform);
-	PatternTransformProperties rightTransform = denumerateTransformProperties(right.enumeratedTransform);
+bool enumeratedPatternsEquivalent(const EnumeratedPattern &left,
+                                  const EnumeratedPattern &right) {
+  PatternTransformProperties leftTransform =
+      denumerateTransformProperties(left.enumeratedTransform);
+  PatternTransformProperties rightTransform =
+      denumerateTransformProperties(right.enumeratedTransform);
 
-	Pattern leftTransformedPattern = createPattern(left.pattern, leftTransform);
-	Pattern rightTransformedPattern = createPattern(right.pattern, rightTransform);
+  Pattern leftTransformedPattern = createPattern(left.pattern, leftTransform);
+  Pattern rightTransformedPattern =
+      createPattern(right.pattern, rightTransform);
 
-	return (leftTransformedPattern == rightTransformedPattern);
+  return (leftTransformedPattern == rightTransformedPattern);
 }
 
+} // namespace
+
+bool imagePropertiesEquivalent(const ImagePatternProperties &left,
+                               const ImagePatternProperties &right) {
+  // Pattern
+  if (left.patterns.size() != right.patterns.size()) {
+    return false;
+  }
+
+  bool patternsMatch =
+      std::is_permutation(left.patterns.begin(), left.patterns.end(),
+                          right.patterns.begin(), patternsEquivalent);
+  return patternsMatch;
 }
 
-bool imagePropertiesEquivalent(const ImagePatternProperties& left, const ImagePatternProperties& right)
-{
-	// Pattern
-	if (left.patterns.size() != right.patterns.size())
-	{
-		return false;
-	}
+bool imageGridEquivalent(const ImagePatternProperties &left,
+                         const ImagePatternProperties &right) {
+  if (left.grid.size() != right.grid.size()) {
+    return false;
+  }
 
-	bool patternsMatch = std::is_permutation(left.patterns.begin(), left.patterns.end(), right.patterns.begin(), patternsEquivalent);
-	if (!patternsMatch)
-	{
-		return false;
-	}
+  Dimension2D dimension = left.grid.size();
 
-	// Map
-	return true;
-}
+  bool toReturn = true;
 
-bool imageGridEquivalent(const ImagePatternProperties& left, const ImagePatternProperties& right)
-{
-	if (left.grid.size() != right.grid.size())
-	{
-		return false;
-	}
+  auto functor = [&](const Index2D &index) {
+    const PatternIdentifier &leftIdentifier = left.grid[index];
+    const PatternIdentifier &rightIdentifier = right.grid[index];
 
-	Dimension2D dimension = left.grid.size();
+    EnumeratedPattern enumeratedLeft = {
+        left.patterns[leftIdentifier.patternIndex].pattern,
+        leftIdentifier.enumeratedTransform};
 
-	bool toReturn = true;
+    EnumeratedPattern enumeratedRight = {
+        right.patterns[rightIdentifier.patternIndex].pattern,
+        rightIdentifier.enumeratedTransform};
 
-	auto functor = [&] (const Index2D& index)
-	{
-		const PatternIdentifier& leftIdentifier = left.grid[index];
-		const PatternIdentifier& rightIdentifier = right.grid[index];
+    bool matching =
+        enumeratedPatternsEquivalent(enumeratedLeft, enumeratedRight);
 
-		EnumeratedPattern enumeratedLeft =
-		{
-			.pattern = left.patterns[leftIdentifier.patternIndex].pattern,
-			.enumeratedTransform = leftIdentifier.enumeratedTransform
-		};
+    if (!matching) {
+      toReturn = false;
+    }
 
-		EnumeratedPattern enumeratedRight =
-		{
-			.pattern = right.patterns[rightIdentifier.patternIndex].pattern,
-			.enumeratedTransform = rightIdentifier.enumeratedTransform
-		};
+    // If any not matching - break out of the loop
+    return !matching;
+  };
 
-		bool matching = enumeratedPatternsEquivalent(enumeratedLeft, enumeratedRight);
+  BreakRange::runForDimension(dimension, functor);
 
-		if (!matching)
-		{
-			toReturn = false;
-		}
-
-		// If any not matching - break out of the loop
-		return !matching;
-	};
-
-	BreakRange::runForDimension(dimension, functor);
-
-	return toReturn;
+  return toReturn;
 }

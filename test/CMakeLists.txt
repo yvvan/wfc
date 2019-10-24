@@ -20,7 +20,7 @@ add_executable( runUnitTests
 target_link_libraries(runUnitTests
 	PUBLIC gtest
 	PUBLIC gtest_main
-	PUBLIC wfc
+	PUBLIC wfc-lib
 	)
 
 add_test( runUnitTests runUnitTests )

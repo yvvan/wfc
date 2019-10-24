@@ -1,163 +1,137 @@
-#ifndef _WFC_TILE_MODEL_H_
-#define _WFC_TILE_MODEL_H_
+#pragma once
 
-#include <wfc/imodel.h>
 #include <wfc/arrays.h>
+#include <wfc/imodel.h>
 #include <wfc/rgba.h>
 
-#include <vector>
-#include <unordered_set>
 #include <functional>
+#include <unordered_set>
+#include <vector>
 
 // Should be Array2D<RGBA>?
 using Tile = std::vector<RGBA>;
 
-struct TileModelInternal
-{
+struct TileModelInternal {
 
-	CommonParams mCommonParams;
+  CommonParams mCommonParams;
 
-	// 4 X numPatterns X numPatterns
-	Array3D<Bool> _propagator;
+  // 4 X numPatterns X numPatterns
+  Array3D<Bool> _propagator;
 
-	std::vector<std::vector<RGBA>> _tiles;
+  std::vector<std::vector<RGBA>> _tiles;
 
-	size_t _tile_size;
-
+  size_t _tile_size;
 };
 
-class TileModel : public Model
-{
+class TileModel : public Model {
 
-	public:
+public:
+  TileModel(const TileModelInternal &internal);
 
-		TileModel(const TileModelInternal& internal);
+  bool propagate(AlgorithmData &algorithmData) const override;
 
-		bool propagate(AlgorithmData& algorithmData) const override;
+  bool on_boundary(const Index2D &index) const override;
 
-		bool on_boundary(const Index2D& index) const override;
+  std::unique_ptr<Image> image(const AlgorithmData &algorithmData) const override;
 
-		Image image(const AlgorithmData& algorithmData) const override;
+  AlgorithmData initAlgorithmData() const override;
 
-		AlgorithmData initAlgorithmData() const override;
+private:
+  CommonParams mCommonParams;
 
-	private:
-
-		CommonParams mCommonParams;
-
-		const TileModelInternal& mInternal;
-
+  const TileModelInternal &mInternal;
 };
 
-Tile rotate(const Tile& in_tile, const size_t tile_size);
+Tile rotate(const Tile &in_tile, const size_t tile_size);
 
-enum class Symmetry
-{
-
-	X,
-
-	L,
-
-	T,
-	
-	I,
-
-	// "Slash - /"
-	S
-
+enum class Symmetry {
+  None,
+  X,
+  L,
+  T,
+  I,
+  // "Slash - /"
+  S
 };
 
 using MapFunction = std::function<int(int)>;
 
-struct MapFunctions
-{
+struct MapFunctions {
 
-	MapFunction a;
+  MapFunction a;
 
-	MapFunction b;
-
+  MapFunction b;
 };
 
-struct SymmetryInfo
-{
+struct SymmetryInfo {
 
-	int cardinality;
+  int cardinality;
 
-	MapFunctions mapFunctions;
-	
+  MapFunctions mapFunctions;
 };
 
-struct UniqueTile
-{
-	
-	std::string name;
+struct UniqueTile {
 
-	Symmetry symmetry;
+  std::string name;
 
-	std::vector<Tile> tiles;
+  Symmetry symmetry;
 
-	double weight;
+  std::vector<Tile> tiles;
 
+  double weight;
 };
 
-struct CopiedTile
-{
+struct CopiedTile {
 
-	std::string name;
+  std::string name;
 
-	Symmetry symmetry;
+  Symmetry symmetry;
 
-	Tile tile;
+  Tile tile;
 
-	double weight;
-
+  double weight;
 };
 
 SymmetryInfo convert(Symmetry symmetry);
 
-struct Neighbor
-{
-	
-	std::string name;
+struct Neighbor {
 
-	int value;
+  std::string name;
 
+  int value;
 };
 
-struct Neighbors
-{
+struct Neighbors {
 
-	Neighbor left;
+  Neighbor left;
 
-	Neighbor right;
-
+  Neighbor right;
 };
 
-struct TileModelConfig
-{
+struct TileModelConfig {
 
-	size_t tileSize;
-	
-	std::unordered_set<std::string> subset;
+  size_t tileSize;
 
-	bool unique;
-	
-	std::vector<UniqueTile> uniqueTiles;
+  std::unordered_set<std::string> subset;
 
-	std::vector<CopiedTile> copiedTiles;
+  bool unique;
 
-	std::vector<Neighbors> neighbors;
+  std::vector<UniqueTile> uniqueTiles;
 
-	OutputProperties commonParam;
+  std::vector<CopiedTile> copiedTiles;
 
+  std::vector<Neighbors> neighbors;
+
+  OutputProperties commonParam;
 };
 
-TileModelInternal fromConfig(const TileModelConfig& config);
+TileModelInternal fromConfig(const TileModelConfig &config);
 
-std::vector<UniqueTile> rotateConvert(const std::vector<CopiedTile>& copiedTiles, size_t tileSize);
+std::vector<UniqueTile>
+rotateConvert(const std::vector<CopiedTile> &copiedTiles, size_t tileSize);
 
 int cardinalityForSymmetry(Symmetry symmetry);
 
-void modifyOutputForFoundation(const CommonParams& commonParams, const Model& model, size_t foundation, AlgorithmData& algorithmData);
-
-#endif
+void modifyOutputForFoundation(const CommonParams &commonParams,
+                               const Model &model, size_t foundation,
+                               AlgorithmData &algorithmData);
